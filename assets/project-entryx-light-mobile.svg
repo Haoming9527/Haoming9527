@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="198" viewBox="0 0 480 198" role="img" aria-labelledby="title desc">
+<title id="title">EntryX</title><desc id="desc">NFT ticketing and RLUSD payments on XRPL Testnet. Next.js / React / XRPL. Fintech prototype.</desc>
+<style>text{font-family:Segoe UI,Arial,sans-serif}.mono{font-family:Consolas,Menlo,monospace}</style>
+<rect x="0" y="0" width="480" height="198" fill="#f3f6fa" />
+<rect x="0" y="0" width="4" height="198" fill="#85661c" />
+<text x="24" y="31" fill="#85661c" font-size="15" font-weight="600" text-anchor="start" class="mono">ENT</text>
+<text x="456" y="31" fill="#52657c" font-size="13" font-weight="400" text-anchor="end">Fintech prototype</text>
+<text x="24" y="65" fill="#13243b" font-size="25" font-weight="600" text-anchor="start">EntryX</text>
+<text x="24" y="96" fill="#13243b" font-size="18" font-weight="400" text-anchor="start">A different kind of ticket exchange.</text>
+<text x="24" y="123" fill="#52657c" font-size="16" font-weight="400" text-anchor="start">NFT ticketing and RLUSD payments</text>
+<text x="24" y="144" fill="#52657c" font-size="16" font-weight="400" text-anchor="start">on XRPL Testnet.</text>
+<text x="24" y="178" fill="#52657c" font-size="13" font-weight="400" text-anchor="start">Next.js / React / XRPL</text>
+</svg>

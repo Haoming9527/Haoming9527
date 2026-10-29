@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="198" viewBox="0 0 480 198" role="img" aria-labelledby="title desc">
+<title id="title">Needle</title><desc id="desc">Point at a product; an AI shopping assistant finds matches. React / TypeScript / Chrome MV3 / AI SDK. AI Grand Prix · Top 10.</desc>
+<style>text{font-family:Segoe UI,Arial,sans-serif}.mono{font-family:Consolas,Menlo,monospace}</style>
+<rect x="0" y="0" width="480" height="198" fill="#101d2d" />
+<rect x="0" y="0" width="4" height="198" fill="#80d1b6" />
+<text x="24" y="31" fill="#d0b879" font-size="15" font-weight="600" text-anchor="start" class="mono">NDL</text>
+<text x="456" y="31" fill="#9cb0c4" font-size="13" font-weight="400" text-anchor="end">AI Grand Prix · Top 10</text>
+<text x="24" y="65" fill="#edf3f8" font-size="25" font-weight="600" text-anchor="start">Needle</text>
+<text x="24" y="96" fill="#edf3f8" font-size="18" font-weight="400" text-anchor="start">See it. Find it.</text>
+<text x="24" y="123" fill="#9cb0c4" font-size="16" font-weight="400" text-anchor="start">Point at a product; an AI shopping</text>
+<text x="24" y="144" fill="#9cb0c4" font-size="16" font-weight="400" text-anchor="start">assistant finds matches.</text>
+<text x="24" y="178" fill="#9cb0c4" font-size="13" font-weight="400" text-anchor="start">React / TypeScript / Chrome MV3 / AI SDK</text>
+</svg>

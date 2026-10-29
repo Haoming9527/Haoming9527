@@ -1,0 +1,75 @@
+name: Refresh the market board
+
+on:
+  schedule:
+    - cron: '17 0 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - profile.json
+      - scripts/**
+      - .github/workflows/update-market.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: profile-market-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    if: github.repository == 'Haoming9527/Haoming9527' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check candle calculations and API completeness
+        run: python -m unittest discover -s scripts -p 'test_*.py' -v
+      - name: Collect public activity
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/activity_data.py
+      - name: Render profile boards
+        run: python scripts/render_profile.py
+      - name: Preserve completed boards
+        uses: actions/upload-artifact@v4
+        with:
+          name: profile-market
+          path: |
+            data/activity.json
+            assets/*.svg
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    needs: render
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: profile-market
+          path: .
+      - name: Save refreshed boards
+        run: |
+          git config user.name 'Shen Haoming'
+          git config user.email '167516473+Haoming9527@users.noreply.github.com'
+          git add data/activity.json assets/*.svg
+          if git diff --cached --quiet; then
+            echo 'The market board is already current.'
+            exit 0
+          fi
+          git commit -m 'Refresh profile activity'
+          git push origin HEAD:main

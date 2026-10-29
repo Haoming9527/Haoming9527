@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="574" viewBox="0 0 960 574" role="img" aria-labelledby="title desc">
+<title id="title">Code exchange — weekly commit candles</title><desc id="desc">Actual additions and deletions from authored, non-merge commits in selected public default branches. Candles represent cumulative net changed lines within the reporting window; volume is commits. Not a measure of code quality.</desc>
+<style>text{font-family:Segoe UI,Arial,sans-serif}.mono{font-family:Consolas,Menlo,monospace}</style>
+<rect x="0" y="0" width="960" height="574" fill="#101d2d" />
+<text x="32" y="39" fill="#edf3f8" font-size="24" font-weight="600" text-anchor="start">Code exchange</text>
+<text x="928" y="38" fill="#d0b879" font-size="17" font-weight="400" text-anchor="end" class="mono">$ECON</text>
+<text x="32" y="67" fill="#9cb0c4" font-size="15" font-weight="400" text-anchor="start">90 days · weekly candles · public code</text>
+<line x1="32" y1="86" x2="928" y2="86" stroke="#2a3c50" stroke-width="1"/>
+<text x="32" y="113" fill="#9cb0c4" font-size="15" font-weight="400" text-anchor="start">Lines added</text>
+<text x="32" y="151" fill="#80d1b6" font-size="34" font-weight="500" text-anchor="start" class="mono">+81.9k</text>
+<text x="330.667" y="113" fill="#9cb0c4" font-size="15" font-weight="400" text-anchor="start">Lines removed</text>
+<text x="330.667" y="151" fill="#e69c93" font-size="34" font-weight="500" text-anchor="start" class="mono">−33.9k</text>
+<text x="629.333" y="113" fill="#9cb0c4" font-size="15" font-weight="400" text-anchor="start">Commits</text>
+<text x="629.333" y="151" fill="#edf3f8" font-size="34" font-weight="500" text-anchor="start" class="mono">98</text>
+<text x="32" y="186" fill="#9cb0c4" font-size="14" font-weight="400" text-anchor="start">Cumulative net changed lines</text>
+<line x1="34" y1="389" x2="876" y2="389" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="394" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">−20.0k</text>
+<line x1="34" y1="353.4" x2="876" y2="353.4" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="358.4" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">0</text>
+<line x1="34" y1="317.8" x2="876" y2="317.8" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="322.8" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">20.0k</text>
+<line x1="34" y1="282.2" x2="876" y2="282.2" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="287.2" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">40.0k</text>
+<line x1="34" y1="246.6" x2="876" y2="246.6" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="251.6" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">60.0k</text>
+<line x1="34" y1="211" x2="876" y2="211" stroke="#2a3c50" stroke-width="1"/>
+<text x="928" y="216" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">80.0k</text>
+<line x1="34" y1="353.4" x2="876" y2="353.4" stroke="#9cb0c4" stroke-width="1" stroke-dasharray="3 6"/>
+<g><title>2026-07-27: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="51.8214" y1="353.4" x2="75.8214" y2="353.4" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<text x="63.8214" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">27 Jul</text>
+<g><title>2026-08-03: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="111.464" y1="353.4" x2="135.464" y2="353.4" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<g><title>2026-08-10: 9 commits, +11,388 / −3,037 lines; net +8,351</title>
+<line x1="183.107" y1="338.286" x2="183.107" y2="354.238" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="171.107" y="338.535" width="24" height="14.8648" fill="#80d1b6" />
+<rect x="171.107" y="461.8" width="24" height="9.2" fill="#80d1b6" opacity="0.58"/>
+</g>
+<text x="183.107" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">10 Aug</text>
+<g><title>2026-08-17: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="230.75" y1="338.535" x2="254.75" y2="338.535" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<g><title>2026-08-24: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="290.393" y1="338.535" x2="314.393" y2="338.535" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<text x="302.393" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">24 Aug</text>
+<g><title>2026-08-31: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="350.036" y1="338.535" x2="374.036" y2="338.535" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<g><title>2026-09-07: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="409.679" y1="338.535" x2="433.679" y2="338.535" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<text x="421.679" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">07 Sep</text>
+<g><title>2026-09-14: 0 commits, +0 / −0 lines; net +0</title>
+<line x1="469.321" y1="338.535" x2="493.321" y2="338.535" stroke="#9cb0c4" stroke-width="1.2"/>
+</g>
+<g><title>2026-09-21: 1 commits, +4,494 / −1,123 lines; net +3,371</title>
+<line x1="540.964" y1="330.536" x2="540.964" y2="338.535" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="528.964" y="332.535" width="24" height="6.00038" fill="#80d1b6" />
+<rect x="528.964" y="469.978" width="24" height="2" fill="#80d1b6" opacity="0.58"/>
+</g>
+<text x="540.964" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">21 Sep</text>
+<g><title>2026-09-28: 28 commits, +9,968 / −3,002 lines; net +6,966</title>
+<line x1="600.607" y1="318.507" x2="600.607" y2="332.535" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="588.607" y="320.135" width="24" height="12.3995" fill="#80d1b6" />
+<rect x="588.607" y="442.378" width="24" height="28.6222" fill="#80d1b6" opacity="0.58"/>
+</g>
+<g><title>2026-10-05: 4 commits, +1,290 / −102 lines; net +1,188</title>
+<line x1="660.25" y1="317.916" x2="660.25" y2="320.135" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="648.25" y="318.021" width="24" height="2.11464" fill="#80d1b6" />
+<rect x="648.25" y="466.911" width="24" height="4.08889" fill="#80d1b6" opacity="0.58"/>
+</g>
+<text x="660.25" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">05 Oct</text>
+<g><title>2026-10-12: 10 commits, +25,446 / −4,503 lines; net +20,943</title>
+<line x1="719.893" y1="280.739" x2="719.893" y2="318.021" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="707.893" y="280.742" width="24" height="37.2785" fill="#80d1b6" />
+<rect x="707.893" y="460.778" width="24" height="10.2222" fill="#80d1b6" opacity="0.58"/>
+</g>
+<g><title>2026-10-19: 45 commits, +29,325 / −22,096 lines; net +7,229</title>
+<line x1="779.536" y1="238.369" x2="779.536" y2="283.168" stroke="#80d1b6" stroke-width="1.7"/>
+<rect x="767.536" y="267.875" width="24" height="12.8676" fill="#80d1b6" />
+<rect x="767.536" y="425" width="24" height="46" fill="#80d1b6" opacity="0.58"/>
+</g>
+<text x="779.536" y="492" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="middle" class="mono">19 Oct</text>
+<g><title>2026-10-26: 1 commits, +36 / −50 lines; net -14</title>
+<line x1="839.179" y1="267.81" x2="839.179" y2="267.899" stroke="#e69c93" stroke-width="1.7"/>
+<rect x="827.179" y="266.875" width="24" height="2" fill="#e69c93" />
+<rect x="827.179" y="469.978" width="24" height="2" fill="#e69c93" opacity="0.58"/>
+</g>
+<text x="928" y="442" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end">Vol.</text>
+<text x="928" y="461" fill="#9cb0c4" font-size="12" font-weight="400" text-anchor="end" class="mono">45</text>
+<line x1="32" y1="503" x2="928" y2="503" stroke="#2a3c50" stroke-width="1"/>
+<text x="32" y="523" fill="#9cb0c4" font-size="13" font-weight="400" text-anchor="start">17 repositories · default branches</text>
+<text x="928" y="523" fill="#9cb0c4" font-size="13" font-weight="400" text-anchor="end">Snapshot 2026-10-29 · UTC</text>
+<text x="32" y="547" fill="#9cb0c4" font-size="13" font-weight="400" text-anchor="start">Up = net additions. Down = net deletions. Refactoring counts, too.</text>
+</svg>

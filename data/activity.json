@@ -1,0 +1,1181 @@
+{
+  "schema_version": 1,
+  "github_username": "Haoming9527",
+  "generated_at": "2026-10-29T17:16:26Z",
+  "window": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-10-29T17:16:26Z",
+    "days": 90,
+    "timezone": "UTC"
+  },
+  "totals": {
+    "additions": 81947,
+    "deletions": 33913,
+    "commits": 98,
+    "net_lines": 48034,
+    "active_weeks": 7
+  },
+  "weeks": [
+    {
+      "start": "2026-07-27",
+      "end": "2026-08-02",
+      "partial": true,
+      "open": 0,
+      "high": 0,
+      "low": 0,
+      "close": 0,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-08-03",
+      "end": "2026-08-09",
+      "partial": false,
+      "open": 0,
+      "high": 0,
+      "low": 0,
+      "close": 0,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-08-10",
+      "end": "2026-08-16",
+      "partial": false,
+      "open": 0,
+      "high": 8491,
+      "low": -471,
+      "close": 8351,
+      "additions": 11388,
+      "deletions": 3037,
+      "commits": 9
+    },
+    {
+      "start": "2026-08-17",
+      "end": "2026-08-23",
+      "partial": false,
+      "open": 8351,
+      "high": 8351,
+      "low": 8351,
+      "close": 8351,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-08-24",
+      "end": "2026-08-30",
+      "partial": false,
+      "open": 8351,
+      "high": 8351,
+      "low": 8351,
+      "close": 8351,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-08-31",
+      "end": "2026-09-06",
+      "partial": false,
+      "open": 8351,
+      "high": 8351,
+      "low": 8351,
+      "close": 8351,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-09-07",
+      "end": "2026-09-13",
+      "partial": false,
+      "open": 8351,
+      "high": 8351,
+      "low": 8351,
+      "close": 8351,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-09-14",
+      "end": "2026-09-20",
+      "partial": false,
+      "open": 8351,
+      "high": 8351,
+      "low": 8351,
+      "close": 8351,
+      "additions": 0,
+      "deletions": 0,
+      "commits": 0
+    },
+    {
+      "start": "2026-09-21",
+      "end": "2026-09-27",
+      "partial": false,
+      "open": 8351,
+      "high": 12845,
+      "low": 8351,
+      "close": 11722,
+      "additions": 4494,
+      "deletions": 1123,
+      "commits": 1
+    },
+    {
+      "start": "2026-09-28",
+      "end": "2026-10-04",
+      "partial": false,
+      "open": 11722,
+      "high": 19603,
+      "low": 11722,
+      "close": 18688,
+      "additions": 9968,
+      "deletions": 3002,
+      "commits": 28
+    },
+    {
+      "start": "2026-10-05",
+      "end": "2026-10-11",
+      "partial": false,
+      "open": 18688,
+      "high": 19935,
+      "low": 18688,
+      "close": 19876,
+      "additions": 1290,
+      "deletions": 102,
+      "commits": 4
+    },
+    {
+      "start": "2026-10-12",
+      "end": "2026-10-18",
+      "partial": false,
+      "open": 19876,
+      "high": 40821,
+      "low": 19876,
+      "close": 40819,
+      "additions": 25446,
+      "deletions": 4503,
+      "commits": 10
+    },
+    {
+      "start": "2026-10-19",
+      "end": "2026-10-25",
+      "partial": false,
+      "open": 40819,
+      "high": 64624,
+      "low": 39456,
+      "close": 48048,
+      "additions": 29325,
+      "deletions": 22096,
+      "commits": 45
+    },
+    {
+      "start": "2026-10-26",
+      "end": "2026-11-01",
+      "partial": true,
+      "open": 48048,
+      "high": 48084,
+      "low": 48034,
+      "close": 48034,
+      "additions": 36,
+      "deletions": 50,
+      "commits": 1
+    }
+  ],
+  "repositories": [
+    {
+      "name": "Haoming9527/DGX-Spark-Platform",
+      "default_branch": "main",
+      "commits": 55,
+      "additions": 29130,
+      "deletions": 10273
+    },
+    {
+      "name": "Haoming9527/Needle",
+      "default_branch": "main",
+      "commits": 25,
+      "additions": 25521,
+      "deletions": 18462
+    },
+    {
+      "name": "Haoming9527/EntryX",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/GeoMeet",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/IslandFurniture",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/Upload-History",
+      "default_branch": "main",
+      "commits": 10,
+      "additions": 18380,
+      "deletions": 4551
+    },
+    {
+      "name": "Haoming9527/TrustLens",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/SilverCare",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/NeuroHealth",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/Secure_Coding_Assignment",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/Portfolio",
+      "default_branch": "main",
+      "commits": 5,
+      "additions": 1810,
+      "deletions": 623
+    },
+    {
+      "name": "Haoming9527/DevMegle-",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/Java-Version-Manager",
+      "default_branch": "main",
+      "commits": 1,
+      "additions": 3,
+      "deletions": 2
+    },
+    {
+      "name": "Haoming9527/WhatNETS",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/creature-skill",
+      "default_branch": "main",
+      "commits": 2,
+      "additions": 7103,
+      "deletions": 2
+    },
+    {
+      "name": "Haoming9527/OCBC-AI-Smart-Inquiry-System",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    },
+    {
+      "name": "Haoming9527/Fitness-Challenge",
+      "default_branch": "main",
+      "commits": 0,
+      "additions": 0,
+      "deletions": 0
+    }
+  ],
+  "coverage": {
+    "scope": "Selected public owned repositories; default branches; authored non-merge commits",
+    "complete": true,
+    "repository_count": 17,
+    "api_requests": 133,
+    "excluded": {
+      "merge_commits": 6,
+      "duplicate_commits": 0,
+      "other_authors": 0,
+      "outside_window": 0
+    }
+  },
+  "warnings": [],
+  "methodology": "One candle per UTC calendar week, starting Monday. The index starts at zero at the beginning of the displayed window. Commits are ordered by Git committer timestamp, then SHA. For each commit, additions raise the index before deletions lower it. Open is the previous close; high and low capture those constructed excursions; close is cumulative additions minus deletions. The additions-first convention is a visualization rule, not a measured within-commit timeline. Only commits authored by the configured GitHub user and reachable from selected public repositories' default branches are counted. Merge commits are excluded to avoid recounting merged changes. Identical SHAs across repositories are counted once. Binary-file changes may have zero line statistics. Line volume is activity, not productivity or financial value.",
+  "commits": [
+    {
+      "sha": "891e73b63d9ea39987207781fd42a6703cd66aeb",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-08-12T15:37:41Z",
+      "additions": 89,
+      "deletions": 560,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/891e73b63d9ea39987207781fd42a6703cd66aeb"
+    },
+    {
+      "sha": "bfece538d6d499fb31e8407589e634db1c4ce0cf",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-08-12T15:38:08Z",
+      "additions": 3655,
+      "deletions": 700,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bfece538d6d499fb31e8407589e634db1c4ce0cf"
+    },
+    {
+      "sha": "d4e8b332a1cbbe8c8ab8d8f2617db15145eff7eb",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-08-13T18:36:48Z",
+      "additions": 4463,
+      "deletions": 1049,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/d4e8b332a1cbbe8c8ab8d8f2617db15145eff7eb"
+    },
+    {
+      "sha": "140c06b285bfc1fc7774450ed8d3384bc1daf085",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-08-14T07:09:38Z",
+      "additions": 1371,
+      "deletions": 105,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/140c06b285bfc1fc7774450ed8d3384bc1daf085"
+    },
+    {
+      "sha": "f58eaa1b0b26e9ff7d533067eb5610f292fd8dc2",
+      "repository": "Haoming9527/Portfolio",
+      "timestamp": "2026-08-14T08:50:57Z",
+      "additions": 135,
+      "deletions": 156,
+      "url": "https://github.com/Haoming9527/Portfolio/commit/f58eaa1b0b26e9ff7d533067eb5610f292fd8dc2"
+    },
+    {
+      "sha": "f9aeccef13f96dce96bd5ce7a920be1387cc63d3",
+      "repository": "Haoming9527/Portfolio",
+      "timestamp": "2026-08-14T17:36:06Z",
+      "additions": 81,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Portfolio/commit/f9aeccef13f96dce96bd5ce7a920be1387cc63d3"
+    },
+    {
+      "sha": "b2393a0ab54a6b86aa8db4c13c98db97f315304d",
+      "repository": "Haoming9527/Portfolio",
+      "timestamp": "2026-08-14T17:53:26Z",
+      "additions": 218,
+      "deletions": 309,
+      "url": "https://github.com/Haoming9527/Portfolio/commit/b2393a0ab54a6b86aa8db4c13c98db97f315304d"
+    },
+    {
+      "sha": "ede1de7290dc1171e31a37cacf86798a0000d93d",
+      "repository": "Haoming9527/Portfolio",
+      "timestamp": "2026-08-14T18:32:14Z",
+      "additions": 16,
+      "deletions": 18,
+      "url": "https://github.com/Haoming9527/Portfolio/commit/ede1de7290dc1171e31a37cacf86798a0000d93d"
+    },
+    {
+      "sha": "74fb3fbaf8afe78919aec5d8d0e485e17bfbdcc2",
+      "repository": "Haoming9527/Portfolio",
+      "timestamp": "2026-08-16T07:14:11Z",
+      "additions": 1360,
+      "deletions": 140,
+      "url": "https://github.com/Haoming9527/Portfolio/commit/74fb3fbaf8afe78919aec5d8d0e485e17bfbdcc2"
+    },
+    {
+      "sha": "ccc9499bdc1f5ba052f3481c80872a6e154810a6",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-27T18:48:02Z",
+      "additions": 4494,
+      "deletions": 1123,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ccc9499bdc1f5ba052f3481c80872a6e154810a6"
+    },
+    {
+      "sha": "1d50088450190de313a9442f981e1248d8693ab4",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T03:28:06Z",
+      "additions": 192,
+      "deletions": 121,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1d50088450190de313a9442f981e1248d8693ab4"
+    },
+    {
+      "sha": "2241ad9408e547ffbd0e6ab3210cdec036d289a7",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T11:45:57Z",
+      "additions": 2,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2241ad9408e547ffbd0e6ab3210cdec036d289a7"
+    },
+    {
+      "sha": "0178f22d72fab42c72d7de1202e6a2d24069348f",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T12:47:40Z",
+      "additions": 1294,
+      "deletions": 254,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/0178f22d72fab42c72d7de1202e6a2d24069348f"
+    },
+    {
+      "sha": "e1eae7c26bab3c9b3a65ddbbaee47b4bb47da79a",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T13:25:26Z",
+      "additions": 48,
+      "deletions": 26,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/e1eae7c26bab3c9b3a65ddbbaee47b4bb47da79a"
+    },
+    {
+      "sha": "150cda94b403bf33e96e2d5e2101276bedc6bed7",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T13:48:30Z",
+      "additions": 22,
+      "deletions": 4,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/150cda94b403bf33e96e2d5e2101276bedc6bed7"
+    },
+    {
+      "sha": "66cce12b799db28a4090eded1adf2f8829065c6b",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T13:53:38Z",
+      "additions": 53,
+      "deletions": 5,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/66cce12b799db28a4090eded1adf2f8829065c6b"
+    },
+    {
+      "sha": "653992f3a10f23a252f10c633c99df0cc60102f8",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T14:07:33Z",
+      "additions": 9,
+      "deletions": 7,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/653992f3a10f23a252f10c633c99df0cc60102f8"
+    },
+    {
+      "sha": "552031620247f24358a09525dce0ab581b7d82e9",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T14:23:50Z",
+      "additions": 57,
+      "deletions": 2,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/552031620247f24358a09525dce0ab581b7d82e9"
+    },
+    {
+      "sha": "2f418d757cfe4340dc02ab1091a60533e3eeec22",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T15:23:29Z",
+      "additions": 35,
+      "deletions": 11,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2f418d757cfe4340dc02ab1091a60533e3eeec22"
+    },
+    {
+      "sha": "f00e9f06ed246a86a4477b838217cfee0137da3e",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T15:58:50Z",
+      "additions": 45,
+      "deletions": 65,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/f00e9f06ed246a86a4477b838217cfee0137da3e"
+    },
+    {
+      "sha": "2543160ace4828e73b0648b269564d897ba2e6d3",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-28T16:37:46Z",
+      "additions": 171,
+      "deletions": 78,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2543160ace4828e73b0648b269564d897ba2e6d3"
+    },
+    {
+      "sha": "49e262320ac2451789de2b78c9e377ad5e0cd100",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T04:11:21Z",
+      "additions": 1551,
+      "deletions": 809,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/49e262320ac2451789de2b78c9e377ad5e0cd100"
+    },
+    {
+      "sha": "7154c1a847e667a40cca36852834561fe31a977c",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T08:45:21Z",
+      "additions": 140,
+      "deletions": 12,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/7154c1a847e667a40cca36852834561fe31a977c"
+    },
+    {
+      "sha": "46df042ed00e41fa3fcdd2247d848e3a434372eb",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T09:42:05Z",
+      "additions": 50,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/46df042ed00e41fa3fcdd2247d848e3a434372eb"
+    },
+    {
+      "sha": "ddb4c2143d542afc1c4b6460955eef8b7008b51f",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T12:21:47Z",
+      "additions": 286,
+      "deletions": 41,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ddb4c2143d542afc1c4b6460955eef8b7008b51f"
+    },
+    {
+      "sha": "727f6abc66aea8fc771fabc64782907f160e9ee8",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T12:46:17Z",
+      "additions": 17,
+      "deletions": 2,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/727f6abc66aea8fc771fabc64782907f160e9ee8"
+    },
+    {
+      "sha": "0062937a9995262141a9ae0c6fc7a9e1dae8ed92",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-29T15:28:48Z",
+      "additions": 22,
+      "deletions": 41,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/0062937a9995262141a9ae0c6fc7a9e1dae8ed92"
+    },
+    {
+      "sha": "d1856290bc9e60ad1508d6bc8def9d4226799a56",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-09-30T19:55:09Z",
+      "additions": 5366,
+      "deletions": 523,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/d1856290bc9e60ad1508d6bc8def9d4226799a56"
+    },
+    {
+      "sha": "57ae67df1f0ec93ac5896d92e49a271b5626cc36",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-01T02:43:36Z",
+      "additions": 359,
+      "deletions": 886,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/57ae67df1f0ec93ac5896d92e49a271b5626cc36"
+    },
+    {
+      "sha": "757e9a93561cf22e5adb8e3dca85f6bbc89edc34",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-01T03:50:30Z",
+      "additions": 81,
+      "deletions": 6,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/757e9a93561cf22e5adb8e3dca85f6bbc89edc34"
+    },
+    {
+      "sha": "b0f889ec12246451f57f78598b7b771f7ab26087",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-01T06:55:50Z",
+      "additions": 88,
+      "deletions": 85,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b0f889ec12246451f57f78598b7b771f7ab26087"
+    },
+    {
+      "sha": "b8ec16b10123acf282c756f48639890adaf95950",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:08:11Z",
+      "additions": 1,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b8ec16b10123acf282c756f48639890adaf95950"
+    },
+    {
+      "sha": "bb5163a3295db9d544a2dd314b29e03deb5c0e42",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:12:33Z",
+      "additions": 3,
+      "deletions": 3,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bb5163a3295db9d544a2dd314b29e03deb5c0e42"
+    },
+    {
+      "sha": "694882ac5a4194e603abcdd6c67f5a5f766ecdb7",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:17:44Z",
+      "additions": 4,
+      "deletions": 6,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/694882ac5a4194e603abcdd6c67f5a5f766ecdb7"
+    },
+    {
+      "sha": "1624c6dee960ac51334238012fdb31e43bbf2ec3",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:24:05Z",
+      "additions": 20,
+      "deletions": 11,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1624c6dee960ac51334238012fdb31e43bbf2ec3"
+    },
+    {
+      "sha": "4ff8a6bb45d057c0ad32e8077c462dfb1196dc4c",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:33:38Z",
+      "additions": 1,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/4ff8a6bb45d057c0ad32e8077c462dfb1196dc4c"
+    },
+    {
+      "sha": "6786b074d20ef6dec01b9175a3af15804e852766",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-02T10:57:15Z",
+      "additions": 4,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/6786b074d20ef6dec01b9175a3af15804e852766"
+    },
+    {
+      "sha": "c5a97464ed923b80b838ed24a2c8eaf0fd6bb0c9",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-03T15:15:09Z",
+      "additions": 47,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c5a97464ed923b80b838ed24a2c8eaf0fd6bb0c9"
+    },
+    {
+      "sha": "84db09be388c1b999af9091fd6c209c9fe2593fb",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-06T04:12:01Z",
+      "additions": 61,
+      "deletions": 39,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/84db09be388c1b999af9091fd6c209c9fe2593fb"
+    },
+    {
+      "sha": "8785e72f0c9051018e44e7f4c17add261ab39d0e",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-08T07:05:28Z",
+      "additions": 1225,
+      "deletions": 61,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/8785e72f0c9051018e44e7f4c17add261ab39d0e"
+    },
+    {
+      "sha": "b6d4d8f0aae924ab2ebb2d4c781e36889a52eda9",
+      "repository": "Haoming9527/Java-Version-Manager",
+      "timestamp": "2026-10-09T02:04:43Z",
+      "additions": 3,
+      "deletions": 2,
+      "url": "https://github.com/Haoming9527/Java-Version-Manager/commit/b6d4d8f0aae924ab2ebb2d4c781e36889a52eda9"
+    },
+    {
+      "sha": "3947dee018a61c9c7161cea98323b4b925981e5c",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-11T15:10:05Z",
+      "additions": 1,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/3947dee018a61c9c7161cea98323b4b925981e5c"
+    },
+    {
+      "sha": "e88f03c85c2c0c52f9b17db8916d2560b366ab81",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T07:03:14Z",
+      "additions": 11172,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/e88f03c85c2c0c52f9b17db8916d2560b366ab81"
+    },
+    {
+      "sha": "795a07125d94ec2d25f98bcfb7e6383a08190a30",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T07:12:14Z",
+      "additions": 23,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/795a07125d94ec2d25f98bcfb7e6383a08190a30"
+    },
+    {
+      "sha": "f89249fd21c26121ea597b43a817c1e08f27da1c",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T07:33:14Z",
+      "additions": 4570,
+      "deletions": 4378,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/f89249fd21c26121ea597b43a817c1e08f27da1c"
+    },
+    {
+      "sha": "2fe2bb4a0fd2d56eb773bab30ce75ae203380c7a",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T07:45:08Z",
+      "additions": 51,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/2fe2bb4a0fd2d56eb773bab30ce75ae203380c7a"
+    },
+    {
+      "sha": "8dfa395dce95a9a27a55e098ed37ce31f9daeff4",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T09:08:52Z",
+      "additions": 2214,
+      "deletions": 12,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/8dfa395dce95a9a27a55e098ed37ce31f9daeff4"
+    },
+    {
+      "sha": "1f40aecb044592830f966267d6b5320a6171212e",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T09:37:18Z",
+      "additions": 1,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/1f40aecb044592830f966267d6b5320a6171212e"
+    },
+    {
+      "sha": "d93dbe0a21a1c5ed5103b14662f43c1fd6bcabf7",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-12T09:43:59Z",
+      "additions": 13,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/d93dbe0a21a1c5ed5103b14662f43c1fd6bcabf7"
+    },
+    {
+      "sha": "2102d8b5d6e5cf8d8cdd6ae4c0875d5d37abdb08",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-13T13:57:12Z",
+      "additions": 299,
+      "deletions": 109,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/2102d8b5d6e5cf8d8cdd6ae4c0875d5d37abdb08"
+    },
+    {
+      "sha": "18899a623d0b3632f0bcf0e658ff1940ed180343",
+      "repository": "Haoming9527/creature-skill",
+      "timestamp": "2026-10-15T07:04:36Z",
+      "additions": 2,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/creature-skill/commit/18899a623d0b3632f0bcf0e658ff1940ed180343"
+    },
+    {
+      "sha": "bbcd18b6e497c0a100582094eab7e23da860c3f4",
+      "repository": "Haoming9527/creature-skill",
+      "timestamp": "2026-10-18T15:51:09Z",
+      "additions": 7101,
+      "deletions": 2,
+      "url": "https://github.com/Haoming9527/creature-skill/commit/bbcd18b6e497c0a100582094eab7e23da860c3f4"
+    },
+    {
+      "sha": "1378645fa7130bf2f53372ec47f3cc1eabe9cdb8",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T08:19:56Z",
+      "additions": 0,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1378645fa7130bf2f53372ec47f3cc1eabe9cdb8"
+    },
+    {
+      "sha": "1d6ada0515d1d1b1d8f137637afde4ae9cb5ed32",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T08:20:35Z",
+      "additions": 603,
+      "deletions": 133,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1d6ada0515d1d1b1d8f137637afde4ae9cb5ed32"
+    },
+    {
+      "sha": "bd444d6664fdc4550285427ad4172de1d4942c3e",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T08:47:45Z",
+      "additions": 5,
+      "deletions": 5,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bd444d6664fdc4550285427ad4172de1d4942c3e"
+    },
+    {
+      "sha": "07a162e3777d16d1ff77b2861dbad6b0fb5e0a71",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T08:48:27Z",
+      "additions": 0,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/07a162e3777d16d1ff77b2861dbad6b0fb5e0a71"
+    },
+    {
+      "sha": "5bc377b67bc12e3cbe29568024e7577124c6b1cc",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T09:00:09Z",
+      "additions": 144,
+      "deletions": 8,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/5bc377b67bc12e3cbe29568024e7577124c6b1cc"
+    },
+    {
+      "sha": "4b037a212902404a70086c5fb2ce013485909c22",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T09:26:41Z",
+      "additions": 19,
+      "deletions": 10,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/4b037a212902404a70086c5fb2ce013485909c22"
+    },
+    {
+      "sha": "c70061054384fb2ad9156318551a5860aec80f6f",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T09:34:55Z",
+      "additions": 2,
+      "deletions": 62,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c70061054384fb2ad9156318551a5860aec80f6f"
+    },
+    {
+      "sha": "f4d3209078fda55a63cc2402230b0dfdb2152e5f",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T09:54:08Z",
+      "additions": 147,
+      "deletions": 37,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/f4d3209078fda55a63cc2402230b0dfdb2152e5f"
+    },
+    {
+      "sha": "ce46e8fb673e6befc7850b136953626aa1cd3cac",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T10:41:28Z",
+      "additions": 15,
+      "deletions": 5,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ce46e8fb673e6befc7850b136953626aa1cd3cac"
+    },
+    {
+      "sha": "102fe65abcd9558804af8aa054207af9fca4dd64",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T13:47:01Z",
+      "additions": 0,
+      "deletions": 656,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/102fe65abcd9558804af8aa054207af9fca4dd64"
+    },
+    {
+      "sha": "5ac2d4ebd377ebfa97f9d53baa4cdb5ebe6a4da0",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T13:47:48Z",
+      "additions": 1087,
+      "deletions": 892,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/5ac2d4ebd377ebfa97f9d53baa4cdb5ebe6a4da0"
+    },
+    {
+      "sha": "b90f2efdab3166e93b821b6b86703f35d6cf6023",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-19T14:44:39Z",
+      "additions": 93,
+      "deletions": 19,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b90f2efdab3166e93b821b6b86703f35d6cf6023"
+    },
+    {
+      "sha": "78f5d1545bb8c7bc0bc17f2b7585fe342ebc4831",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T01:56:15Z",
+      "additions": 0,
+      "deletions": 459,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/78f5d1545bb8c7bc0bc17f2b7585fe342ebc4831"
+    },
+    {
+      "sha": "c4b60a24ce59f10a979228b70dccf2ae667cec73",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T01:56:26Z",
+      "additions": 1,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c4b60a24ce59f10a979228b70dccf2ae667cec73"
+    },
+    {
+      "sha": "a00c281594fa2f30641491cb33e7b08365f52c9b",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T02:10:46Z",
+      "additions": 0,
+      "deletions": 5,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/a00c281594fa2f30641491cb33e7b08365f52c9b"
+    },
+    {
+      "sha": "9e4736f3051106ef9aac360a7c20133277b3690f",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T02:11:02Z",
+      "additions": 41,
+      "deletions": 9,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/9e4736f3051106ef9aac360a7c20133277b3690f"
+    },
+    {
+      "sha": "a2d833a1e95ef1957087dac757cf92332749f74a",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T02:26:29Z",
+      "additions": 3,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/a2d833a1e95ef1957087dac757cf92332749f74a"
+    },
+    {
+      "sha": "697a0a23cfbdde95b4109a8aceec35ff9ae3dc9a",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T02:43:46Z",
+      "additions": 110,
+      "deletions": 33,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/697a0a23cfbdde95b4109a8aceec35ff9ae3dc9a"
+    },
+    {
+      "sha": "fefa987750a4125353b9847009fa2b4ae9984128",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T03:19:37Z",
+      "additions": 0,
+      "deletions": 1298,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/fefa987750a4125353b9847009fa2b4ae9984128"
+    },
+    {
+      "sha": "73ecd04b5b62a69087ce3f5855b85b3cab5ceb71",
+      "repository": "Haoming9527/DGX-Spark-Platform",
+      "timestamp": "2026-10-20T03:19:50Z",
+      "additions": 1534,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/73ecd04b5b62a69087ce3f5855b85b3cab5ceb71"
+    },
+    {
+      "sha": "ecf56ccf1794bc702c9cbc5b8fcb31f20cd67ff2",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T12:44:00Z",
+      "additions": 2,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Needle/commit/ecf56ccf1794bc702c9cbc5b8fcb31f20cd67ff2"
+    },
+    {
+      "sha": "9b9415dfeb96a658abcde02901face3ca996b96c",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T19:33:59Z",
+      "additions": 7843,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/Needle/commit/9b9415dfeb96a658abcde02901face3ca996b96c"
+    },
+    {
+      "sha": "1938acbf5c79b1c126eae80e8ea85d661b0e735e",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T19:35:21Z",
+      "additions": 16,
+      "deletions": 6,
+      "url": "https://github.com/Haoming9527/Needle/commit/1938acbf5c79b1c126eae80e8ea85d661b0e735e"
+    },
+    {
+      "sha": "6f27063564f77bfd03f16c1818c663003230384e",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T19:50:24Z",
+      "additions": 304,
+      "deletions": 171,
+      "url": "https://github.com/Haoming9527/Needle/commit/6f27063564f77bfd03f16c1818c663003230384e"
+    },
+    {
+      "sha": "e6666c1a5b05e20c3602c5724ef04cbcd13bef95",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T20:07:09Z",
+      "additions": 890,
+      "deletions": 139,
+      "url": "https://github.com/Haoming9527/Needle/commit/e6666c1a5b05e20c3602c5724ef04cbcd13bef95"
+    },
+    {
+      "sha": "be51cdb69180f295dc32dafc717fe180601f1d58",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T20:55:35Z",
+      "additions": 1089,
+      "deletions": 50,
+      "url": "https://github.com/Haoming9527/Needle/commit/be51cdb69180f295dc32dafc717fe180601f1d58"
+    },
+    {
+      "sha": "9856ab3abee239b74a2803aed881935576603d18",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T21:17:14Z",
+      "additions": 649,
+      "deletions": 518,
+      "url": "https://github.com/Haoming9527/Needle/commit/9856ab3abee239b74a2803aed881935576603d18"
+    },
+    {
+      "sha": "8ad61abdd81b0ef35a0ecaf46b5b4dd429fbcbe4",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T23:52:22Z",
+      "additions": 969,
+      "deletions": 110,
+      "url": "https://github.com/Haoming9527/Needle/commit/8ad61abdd81b0ef35a0ecaf46b5b4dd429fbcbe4"
+    },
+    {
+      "sha": "803ce872bce45e27bf64461defc3daf0f9319a8e",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-24T23:52:49Z",
+      "additions": 27,
+      "deletions": 7,
+      "url": "https://github.com/Haoming9527/Needle/commit/803ce872bce45e27bf64461defc3daf0f9319a8e"
+    },
+    {
+      "sha": "741d7ca3ccd0aecbe89787429eb8176c39aabfa8",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T00:07:15Z",
+      "additions": 117,
+      "deletions": 23,
+      "url": "https://github.com/Haoming9527/Needle/commit/741d7ca3ccd0aecbe89787429eb8176c39aabfa8"
+    },
+    {
+      "sha": "de4c9084ffc486a730d81254ef07a62f081c7134",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T00:41:33Z",
+      "additions": 24,
+      "deletions": 45,
+      "url": "https://github.com/Haoming9527/Needle/commit/de4c9084ffc486a730d81254ef07a62f081c7134"
+    },
+    {
+      "sha": "7c62fd8cfeb10b7441d52f9a764638fc2fe13a52",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T14:26:22Z",
+      "additions": 12775,
+      "deletions": 16831,
+      "url": "https://github.com/Haoming9527/Needle/commit/7c62fd8cfeb10b7441d52f9a764638fc2fe13a52"
+    },
+    {
+      "sha": "ca4f0e38831eb3ab778445693ca0a75b1148158f",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T14:40:50Z",
+      "additions": 307,
+      "deletions": 116,
+      "url": "https://github.com/Haoming9527/Needle/commit/ca4f0e38831eb3ab778445693ca0a75b1148158f"
+    },
+    {
+      "sha": "c0a3113e2eb2a2bbd3eb941a5dfd715889ca8efc",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T14:54:42Z",
+      "additions": 2,
+      "deletions": 4,
+      "url": "https://github.com/Haoming9527/Needle/commit/c0a3113e2eb2a2bbd3eb941a5dfd715889ca8efc"
+    },
+    {
+      "sha": "a068fa3ef228656a6c571a5f4a802b94baed17e2",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:12:31Z",
+      "additions": 4,
+      "deletions": 2,
+      "url": "https://github.com/Haoming9527/Needle/commit/a068fa3ef228656a6c571a5f4a802b94baed17e2"
+    },
+    {
+      "sha": "dcea6d8d5fba493f41ceb45f5c56405267ebf78d",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:14:12Z",
+      "additions": 1,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/Needle/commit/dcea6d8d5fba493f41ceb45f5c56405267ebf78d"
+    },
+    {
+      "sha": "f4057733bfa3f24954e54bc6fa0e975fa0177944",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:17:05Z",
+      "additions": 1,
+      "deletions": 3,
+      "url": "https://github.com/Haoming9527/Needle/commit/f4057733bfa3f24954e54bc6fa0e975fa0177944"
+    },
+    {
+      "sha": "a3e4f63d20b1f0c7f2f69161932620ee4e70bd3d",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:17:39Z",
+      "additions": 1,
+      "deletions": 3,
+      "url": "https://github.com/Haoming9527/Needle/commit/a3e4f63d20b1f0c7f2f69161932620ee4e70bd3d"
+    },
+    {
+      "sha": "0f82efbd71641147b0aac0dc354917788a0eec36",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:20:58Z",
+      "additions": 0,
+      "deletions": 0,
+      "url": "https://github.com/Haoming9527/Needle/commit/0f82efbd71641147b0aac0dc354917788a0eec36"
+    },
+    {
+      "sha": "acd2c4a2e9bee20e1d45dad0f517ec7c443f1d70",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:24:36Z",
+      "additions": 5,
+      "deletions": 9,
+      "url": "https://github.com/Haoming9527/Needle/commit/acd2c4a2e9bee20e1d45dad0f517ec7c443f1d70"
+    },
+    {
+      "sha": "ffb21d92aefc4692887daee810dc0fe66e924a02",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:25:30Z",
+      "additions": 5,
+      "deletions": 9,
+      "url": "https://github.com/Haoming9527/Needle/commit/ffb21d92aefc4692887daee810dc0fe66e924a02"
+    },
+    {
+      "sha": "0eead7dad0cd39c0885bccd290f495f3e20001d6",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:27:55Z",
+      "additions": 3,
+      "deletions": 4,
+      "url": "https://github.com/Haoming9527/Needle/commit/0eead7dad0cd39c0885bccd290f495f3e20001d6"
+    },
+    {
+      "sha": "bf8a0db4c2d57fb7b77ba9e6d23b0bd1639c9147",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:33:14Z",
+      "additions": 426,
+      "deletions": 387,
+      "url": "https://github.com/Haoming9527/Needle/commit/bf8a0db4c2d57fb7b77ba9e6d23b0bd1639c9147"
+    },
+    {
+      "sha": "d77dd2948beaf663211d249cc19756bcaf03be2d",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:34:32Z",
+      "additions": 60,
+      "deletions": 22,
+      "url": "https://github.com/Haoming9527/Needle/commit/d77dd2948beaf663211d249cc19756bcaf03be2d"
+    },
+    {
+      "sha": "691134bdda5d03d09930f559ac74f682e5a66c6e",
+      "repository": "Haoming9527/Needle",
+      "timestamp": "2026-10-25T15:38:08Z",
+      "additions": 1,
+      "deletions": 1,
+      "url": "https://github.com/Haoming9527/Needle/commit/691134bdda5d03d09930f559ac74f682e5a66c6e"
+    },
+    {
+      "sha": "4d077062f888d9e27b1692154990efdd7dc45015",
+      "repository": "Haoming9527/Upload-History",
+      "timestamp": "2026-10-27T09:21:08Z",
+      "additions": 36,
+      "deletions": 50,
+      "url": "https://github.com/Haoming9527/Upload-History/commit/4d077062f888d9e27b1692154990efdd7dc45015"
+    }
+  ],
+  "open_source": {
+    "total_merged_prs": 59,
+    "repository_count": 5,
+    "repositories": [
+      {
+        "name": "T-Auto/dsh-ops",
+        "merged_prs": 53,
+        "url": "https://github.com/T-Auto/dsh-ops"
+      },
+      {
+        "name": "Yanguangchen/InteLiDar",
+        "merged_prs": 3,
+        "url": "https://github.com/Yanguangchen/InteLiDar"
+      },
+      {
+        "name": "Ebony-Vinyl/EAC-Desktop",
+        "merged_prs": 1,
+        "url": "https://github.com/Ebony-Vinyl/EAC-Desktop"
+      },
+      {
+        "name": "TeckTinkerere/ROUTR",
+        "merged_prs": 1,
+        "url": "https://github.com/TeckTinkerere/ROUTR"
+      },
+      {
+        "name": "jerememetan/StayWatch-Hackathon",
+        "merged_prs": 1,
+        "url": "https://github.com/jerememetan/StayWatch-Hackathon"
+      }
+    ],
+    "recent": [
+      {
+        "title": "feat(bench): route and separate model reasoning conditions",
+        "url": "https://github.com/T-Auto/dsh-ops/pull/402",
+        "repository": "T-Auto/dsh-ops",
+        "number": 402,
+        "updated_at": "2026-10-25T05:06:35Z"
+      },
+      {
+        "title": "feat(review): add bounded PR snapshot CLI",
+        "url": "https://github.com/T-Auto/dsh-ops/pull/403",
+        "repository": "T-Auto/dsh-ops",
+        "number": 403,
+        "updated_at": "2026-10-25T05:05:41Z"
+      },
+      {
+        "title": "feat(bench): configure and compare candidate component switches",
+        "url": "https://github.com/T-Auto/dsh-ops/pull/404",
+        "repository": "T-Auto/dsh-ops",
+        "number": 404,
+        "updated_at": "2026-10-25T05:03:58Z"
+      },
+      {
+        "title": "fix(bench): support portable setup and platform comparison guards",
+        "url": "https://github.com/T-Auto/dsh-ops/pull/399",
+        "repository": "T-Auto/dsh-ops",
+        "number": 399,
+        "updated_at": "2026-10-25T04:46:23Z"
+      },
+      {
+        "title": "docs: explain owned Bash restrictions and host integration failures",
+        "url": "https://github.com/T-Auto/dsh-ops/pull/400",
+        "repository": "T-Auto/dsh-ops",
+        "number": 400,
+        "updated_at": "2026-10-25T04:34:11Z"
+      }
+    ],
+    "recent_order": "Most recently updated merged pull requests",
+    "query": "is:pr author:Haoming9527 is:merged -user:Haoming9527 is:public",
+    "url": "https://github.com/search?q=is%3Apr+author%3AHaoming9527+is%3Amerged+-user%3AHaoming9527+is%3Apublic&type=issues",
+    "scope": "Public merged pull requests authored by the user in repositories they do not own; all time"
+  }
+}
