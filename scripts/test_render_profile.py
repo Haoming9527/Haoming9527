@@ -1,6 +1,5 @@
-"""Checks for the market-board renderer: every page is complete, and the stock-app maths is right."""
+"""Checks for the market-board renderer: every page is complete, and the chart maths is right."""
 
-from datetime import date, timedelta
 import re
 import unittest
 
@@ -10,7 +9,7 @@ import render_profile as render
 NOW = "2026-10-30T04:00:00Z"   # 12:00 on 30 Oct in Singapore, the configured timezone
 CONFIG = {
     "github_username": "Haoming9527", "display_name": "Economist", "role": "R&D AI Engineer",
-    "portfolio": "https://example.com/", "utc_offset_hours": 8, "timezone_label": "SGT",
+    "portfolio": "https://example.com/", "utc_offset_hours": 8,
     "projects": [{"repository": "Haoming9527/app", "name": "App", "ticker": "APP", "logo": "needle.png"}],
     "collaborations": [{"repository": "other/project", "name": "Project", "logo": "dsh-ops.png"}],
     "achievements": [{"rank": "Winner", "event": "Event", "tag": "App", "logo": "div0.png", "url": "https://example.com/"}],
@@ -51,10 +50,26 @@ class PageTests(unittest.TestCase):
                 for variant in ("light", "dark", "light-m", "dark-m"):
                     self.assertIn(f"{name}-{variant}.svg", files)
         self.assertIn("tab-w-on", readme)
-        self.assertIn("w-status", readme)
+        self.assertIn("w-range", readme)
 
-    def test_tabs_and_status_share_one_row(self):
-        self.assertLessEqual(len(render.VIEWS) * render.TAB_PCT + render.STATUS_PCT, 100)
+    def test_moving_average_keys_explain_themselves_on_hover(self):
+        _, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
+        self.assertIn('title="MA5: the average close of the last 5 weeks.', readme)
+        self.assertIn('title="MA10: the average close of the last 10 weeks.', readme)
+        self.assertIn('title="Lines index: lines added minus lines deleted', readme)
+        self.assertNotIn("-ma-0", pages["Y"])   # too few yearly candles for an average
+
+    def test_live_candle_says_why_it_is_red_or_green(self):
+        def live_title(code, commits):
+            view = render.View(render.Market(snapshot([dict(row) for row in commits]), CONFIG), code)
+            return render.candle_title(code, view.candles[-1])
+        self.assertIn("so far (updates live): no commits yet", live_title("D", HISTORY))
+        down = [commit("2026-10-20", 100, 10, "a"), commit("2026-10-29", 36, 50, "c")]
+        self.assertIn("+36 / \u221250 lines (\u221214); red because more lines were deleted than added", live_title("W", down))
+        self.assertIn("(+15); green because more lines were added than deleted", live_title("W", HISTORY))
+
+    def test_tabs_and_range_share_one_row(self):
+        self.assertLessEqual(len(render.VIEWS) * render.TAB_PCT + render.RANGE_PCT, 100)
 
     def test_an_empty_history_still_renders(self):
         files, readme, pages, _ = render.build(snapshot([]), CONFIG, "BASE/")
@@ -62,43 +77,17 @@ class PageTests(unittest.TestCase):
         self.assertTrue(all(name.endswith(".svg") for name in files))
 
 
-class MarketMathsTests(unittest.TestCase):
-    def view(self, code: str, commits=HISTORY) -> render.View:
-        return render.View(render.Market(snapshot([dict(row) for row in commits]), CONFIG), code)
-
-    def test_range_stats_follow_the_additions_first_rule(self):
-        stats = self.view("W").range_stats
-        self.assertEqual(stats, {"open": 90, "high": 140, "low": 60, "close": 75, "vol": 2, "added": 70, "deleted": 85})
-        self.assertEqual(self.view("W").lines_change, -15)
-
+class MovingAverageTests(unittest.TestCase):
     def test_moving_averages_need_enough_candles(self):
-        weekly = self.view("W")
+        market = render.Market(snapshot([dict(row) for row in HISTORY]), CONFIG)
+        weekly = render.View(market, "W")
         ma5, ma10 = weekly.moving_averages
         closes = [candle["close"] for candle in weekly.candles]
         self.assertEqual(len(ma5), len(closes))
         self.assertIsNone(ma5[3])
         self.assertAlmostEqual(ma5[-1], sum(closes[-5:]) / 5)
         self.assertAlmostEqual(ma10[-1], sum(closes[-10:]) / 10)
-        self.assertEqual(self.view("Y").moving_averages, [])
-
-    def test_last_commit_age_is_rounded_to_hours_and_days(self):
-        self.assertEqual(render.ago(timedelta(minutes=12)), "<1h ago")
-        self.assertEqual(render.ago(timedelta(hours=5, minutes=59)), "5h ago")
-        self.assertEqual(render.ago(timedelta(days=3, hours=4)), "3d ago")
-
-    def test_percentage_badges_and_new_listings(self):
-        since = date(2026, 10, 23)
-        self.assertEqual(render.change_badge(50, 0, date(2026, 10, 29), since), ("NEW", "new"))
-        self.assertEqual(render.change_badge(10, 100, date(2026, 1, 1), since), ("+10.00%", None))
-        self.assertEqual(render.change_badge(-5, 200, date(2026, 1, 1), since), ("\u22122.50%", None))
-        self.assertEqual(render.change_badge(0, 0, None, since), ("0.00%", None))
-
-    def test_view_badge_uses_the_value_at_the_start_of_the_range(self):
-        weekly = self.view("W")
-        lines = weekly.market.events("repo-lines", "Haoming9527/app")
-        self.assertEqual(weekly.badge(lines), (-15, "\u221216.67%", None))
-        newcomer = self.view("W", [commit("2026-10-28", 30, 0, "d")])
-        self.assertEqual(newcomer.badge(newcomer.market.events("repo-lines", "Haoming9527/app")), (30, "NEW", "new"))
+        self.assertEqual(render.View(market, "Y").moving_averages, [])
 
 
 if __name__ == "__main__":
