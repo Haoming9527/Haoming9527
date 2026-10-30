@@ -114,56 +114,85 @@ def index_tile(view: View, key: str, theme: str, mobile: bool) -> SVG:
     return s
 
 
-def legend(s: SVG, view: View, x: float, y: float, size: float, ohlc: bool = True, averages: bool = True):
-    """Latest candle O/H/L/C and moving averages, in the style of a trading app's chart legend."""
+# The Lines index header is a row of separate images so each part gets its own hover text:
+#   row 1: title and price | Open | High | Low
+#   row 2: range change    | Vol  | Added | Deleted   (with the divider along the bottom)
+#   row 3: O H L C MA5 MA10 legend items
+# Widths are shares of the full header, identical on desktop and phone.
+HEADER_W = {False: 846, True: 400}
+HEADER_LEFT_PCT, HEADER_STAT_PCT = 46.0, 17.9
+HEADER_STATS = (("open", "Open"), ("high", "High"), ("low", "Low"), ("vol", "Vol"), ("added", "Added"), ("deleted", "Deleted"))
+LEGEND_PCTS = {"O": 14.0, "H": 12.0, "L": 12.0, "C": 12.0, "MA5": 17.0, "MA10": 17.0}
+ROW_H = {False: (70, 40, 32), True: (66, 48, 40)}
+
+
+def _piece(view: View, pct: float, row: int, theme: str, mobile: bool, label: str) -> SVG:
+    return SVG(HEADER_W[mobile] * pct / 100, ROW_H[mobile][row], theme, label, TICK_CSS)
+
+
+def header_title(view: View, theme: str, mobile: bool) -> SVG:
+    s = _piece(view, HEADER_LEFT_PCT, 0, theme, mobile, "Lines index")
+    pad, size = (14, 15) if mobile else (24, 18)
+    s.text(pad, 22 if mobile else 26, "Lines index", size, "fg", 600)
+    s.text(pad + text_width("Lines index", size, 600) + 8, 22 if mobile else 26, f"since {view.market.first:%b %Y}",
+           11 if mobile else 13, "muted", 500)
+    price, price_size, price_y = num(view.market.lines), (28 if mobile else 32), (56 if mobile else 64)
+    flash(s, pad, price_y, text_width(price, price_size, 700), price_size, tone(view.lines_change))
+    s.text(pad, price_y, price, price_size, "fg", 700)
+    return s
+
+
+def header_change(view: View, theme: str, mobile: bool) -> SVG:
+    s = _piece(view, HEADER_LEFT_PCT, 1, theme, mobile, "Change")
+    change = view.lines_change
+    text = f"{signed(change)} {percent(change, view.range_stats['open'])} {view.label}".replace("  ", " ")
+    s.text(14 if mobile else 24, 24 if mobile else 22, text, 13 if mobile else 16, tone(change), 600 if mobile else 500)
+    s.line(0, s.h - 1, s.w, s.h - 1, "faint")
+    return s
+
+
+def header_stat(view: View, key: str, theme: str, mobile: bool) -> SVG:
+    label = dict(HEADER_STATS)[key]
+    row = [k for k, _ in HEADER_STATS].index(key) // 3
+    s = _piece(view, HEADER_STAT_PCT, row, theme, mobile, label)
+    stats = view.range_stats
+    value = (f"{stats['vol']:,}" if key == "vol" else f"+{compact(stats['added'])}" if key == "added"
+             else (f"{MINUS}{compact(stats['deleted'])}" if stats["deleted"] else "0") if key == "deleted"
+             else compact(stats[key]))
+    if mobile:   # label above value: a phone cell is narrow
+        y = (34, 52) if row == 0 else (18, 36)
+        s.text(4, y[0], label, 11, "muted", 500)
+        s.text(4, y[1], value, 13, "fg", 600)
+    else:
+        y = 60 if row == 0 else 22
+        s.text(8, y, label, 12, "muted", 500)
+        s.text(s.w - 14, y, value, 14, "fg", 600, "end")
+    if row == 1:
+        s.line(0, s.h - 1, s.w, s.h - 1, "faint")
+    return s
+
+
+def legend_items(view: View) -> list[str]:
+    """O H L C, plus each moving average that has a value on this view."""
+    averages = [f"MA{k}" for k, values in zip(MA_PERIODS, view.moving_averages) if values and values[-1] is not None]
+    return ["O", "H", "L", "C", *averages]
+
+
+def legend_item(view: View, key: str, theme: str, mobile: bool) -> SVG:
+    s = _piece(view, LEGEND_PCTS[key], 2, theme, mobile, key)
     candle = view.candles[-1]
-    items = [(label, compact(candle[key]), "muted", "fg") for label, key in
-             (("O", "open"), ("H", "high"), ("L", "low"), ("C", "close"))] if ohlc else []
-    if averages:
-        for k, values, color in zip(MA_PERIODS, view.moving_averages, s.p["ma"]):
-            if values[-1] is not None:
-                items.append((f"MA{k}", compact(values[-1]), color, color))
-    for label, value, label_color, value_color in items:
-        s.text(x, y, label, size, label_color, 500)
-        x += text_width(label, size, 500) + size * .4
-        s.text(x, y, value, size, value_color, 600)
-        x += text_width(value, size, 600) + size * 1.2
-
-
-def lines_header(view: View, theme: str, mobile: bool) -> SVG:
-    """A stock-detail header: price and range change, key stats for the range, and the chart legend."""
-    market, stats, change = view.market, view.range_stats, view.lines_change
-    w, h = (400, 248) if mobile else (846, 132)
-    s = SVG(w, h, theme, "Lines index: net lines of code I have added across my public repositories", TICK_CSS)
-    pad = 18 if mobile else 24
-    title_size = 22 if mobile else 18
-    title_y = 34 if mobile else 30
-    s.text(pad, title_y, "Lines index", title_size, "fg", 600)
-    s.text(pad + text_width("Lines index", title_size, 600) + 10, title_y, f"since {market.first:%b %Y}",
-           15 if mobile else 13, "muted", 500)
-    value_size, value_y = (38, 80) if mobile else (32, 76)
-    price = num(market.lines)
-    flash(s, pad, value_y, text_width(price, value_size, 700), value_size, tone(change))
-    s.text(pad, value_y, price, value_size, "fg", 700)
-    change_text = f"{signed(change)} {percent(change, stats['open'])} {view.label}".replace("  ", " ")
-    cells = (("Open", compact(stats["open"])), ("High", compact(stats["high"])), ("Low", compact(stats["low"])),
-             ("Vol", f"{stats['vol']:,}"), ("Added", f"+{compact(stats['added'])}"),
-             ("Deleted", f"{MINUS}{compact(stats['deleted'])}" if stats["deleted"] else "0"))
-    if mobile:
-        s.text(pad, 110, change_text, 17, tone(change), 600)
-        left, cell_w, rows, label_size, value_size2 = pad, (w - 2 * pad) / 3, (146, 172), 14, 15
+    if key.startswith("MA"):
+        index = MA_PERIODS.index(int(key[2:]))
+        value, color = compact(view.moving_averages[index][-1]), s.p["ma"][index]
+        label_color = color
     else:
-        s.text(pad + text_width(price, value_size, 700) + 14, value_y, change_text, 16, tone(change), 500)
-        left, cell_w, rows, label_size, value_size2 = 456, (w - pad - 456) / 3, (50, 76), 12, 14
-    for i, (label, value) in enumerate(cells):
-        x, y = left + (i % 3) * cell_w, rows[i // 3]
-        s.text(x, y, label, label_size, "muted", 500)
-        s.text(x + cell_w - 14, y, value, value_size2, "fg", 600, "end")
-    divider = 190 if mobile else 96
-    s.line(pad, divider, w - pad, divider, "faint")
+        value = compact(candle[{"O": "open", "H": "high", "L": "low", "C": "close"}[key]])
+        color, label_color = "fg", "muted"
+    x = (14 if mobile else 24) if key == "O" else 4
     if mobile:
-        legend(s, view, pad, 214, 13, averages=False)
-        legend(s, view, pad, 236, 13, ohlc=False)
+        s.text(x, 16, key, 11, label_color, 500)
+        s.text(x, 32, value, 12, color, 600)
     else:
-        legend(s, view, pad, 118, 12)
+        s.text(x, 22, key, 12, label_color, 500)
+        s.text(x + text_width(key, 12, 500) + 5, 22, value, 12, color, 600)
     return s

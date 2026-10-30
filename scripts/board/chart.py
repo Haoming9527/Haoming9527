@@ -159,12 +159,20 @@ def explain(view: View, what: str) -> str:
     noun = PERIOD_NOUNS[view.code]
     window = f"{view.days} day{'s' if view.days != 1 else ''}"
     return {
-        "header": f"Lines index: lines added minus lines deleted across my public repositories. "
-                  f"Open, High, Low: the index {window} ago and its extremes since; Vol: commits; Added/Deleted: lines in that time. "
-                  f"O H L C: the latest {noun}'s candle. " +
-                  (f"MA5 / MA10: average close of the last 5 / 10 {noun}s, drawn as the gold and purple lines. "
-                   if view.moving_averages else "") +
-                  "Green candles added more lines than they deleted, red ones deleted more.",
+        "price": f"Lines index: lines added minus lines deleted across my public repositories since {view.market.first:%B %Y}.",
+        "change": f"How much the index moved over the last {window}.",
+        "open": f"Open: the index {window} ago.",
+        "high": f"High: the highest the index reached in the last {window}.",
+        "low": f"Low: the lowest the index reached in the last {window}.",
+        "vol": f"Vol: commits in the last {window}.",
+        "added": f"Added: lines added in the last {window}.",
+        "deleted": f"Deleted: lines deleted in the last {window}.",
+        "O": f"O: the index when the latest {noun} began.",
+        "H": f"H: the highest point of the latest {noun}.",
+        "L": f"L: the lowest point of the latest {noun}.",
+        "C": f"C: the index now, the latest {noun}'s close so far. Green candles added more lines than they deleted, red ones deleted more.",
+        "MA5": f"MA5: average close of the last 5 {noun}s, the gold line on the chart.",
+        "MA10": f"MA10: average close of the last 10 {noun}s, the purple line on the chart.",
         "range": f"Every change on this page compares with {window} ago.",
         "axis": f"The tag and dashed line show the index now, coloured by the {view.label} change. "
                 f"VOL is the most commits in any one {noun}.",

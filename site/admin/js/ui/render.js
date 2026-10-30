@@ -22,7 +22,7 @@ function renderTabs() {
     coverage: countedRepos(), record: state.config.achievements, logos: state.logos };
   $("#tabs").replaceChildren(...TABS.map(([tab, label]) => h("button", { type: "button", role: "tab", "aria-selected": String(state.tab === tab),
     onclick: () => { state.tab = tab; state.filter = ""; renderTabs(); renderPanel(); } },
-  label, h("span", { class: "count" }, (counts[tab] || []).length))));
+  label, counts[tab] ? h("span", { class: "count" }, counts[tab].length) : null)));
 }
 
 function renderPanel() {
@@ -31,11 +31,11 @@ function renderPanel() {
 
 function renderFooter() {
   const changes = changedSections();
-  const uploads = Object.keys(state.uploads).length;
+  const uploads = Object.keys(state.uploads).length + Object.keys(state.bannerUploads).filter((name) => name === state.config.banner?.file).length;
   const removed = state.deletions.size;
   const dirty = isDirty();
   const issues = dirty ? problems() : [];
-  const summary = dirty ? `Unsaved: ${[...changes, uploads ? `${uploads} new logo${uploads > 1 ? "s" : ""}` : "",
+  const summary = dirty ? `Unsaved: ${[...changes, uploads ? `${uploads} new image${uploads > 1 ? "s" : ""}` : "",
     removed ? `${removed} logo${removed > 1 ? "s" : ""} deleted` : ""].filter(Boolean).join(", ")}`
     : "No unsaved changes";
   const canSave = dirty && !issues.length && state.user && !state.saving;

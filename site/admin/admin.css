@@ -128,6 +128,12 @@ input[type=text], input[type=password], input[type=url], input[type=search], sel
 .logos .logo-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 10px; }
 .logos .logo-row:hover { background: var(--card); }
 [hidden] { display: none !important; }
+.banner-preview { display: block; width: 100%; height: auto; border-radius: 12px; margin-bottom: 8px;
+  box-shadow: 0 0 0 1px var(--faint); }
+.banner-size { margin-bottom: 14px; }
+.panel-head .size-hint { font-size: 13px; font-weight: 600; color: var(--fg); }
+.fields.banner-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 14px; }
+@media (max-width: 560px) { .fields.banner-fields { grid-template-columns: minmax(0, 1fr); } .fields.banner-fields .span-2 { grid-column: auto; } }
 
 @media (max-width: 560px) {
   /* Header: photo, title and the profile link on one row; the description below at full width. */

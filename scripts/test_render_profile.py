@@ -54,11 +54,23 @@ class PageTests(unittest.TestCase):
         self.assertIn("tab-w-on", readme)
         self.assertIn("w-range", readme)
 
-    def test_header_explains_its_stats_and_legend_on_hover(self):
+    def test_each_header_part_has_its_own_hover(self):
+        files, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
+        for name, hover in (("w-lh-open", "Open: the index 7 days ago."), ("w-lh-vol", "Vol: commits in the last 7 days."),
+                            ("w-lh-c", "C: the index now"), ("w-lh-ma5", "MA5: average close of the last 5 weeks")):
+            with self.subTest(part=name):
+                self.assertRegex(readme, re.escape(f"BASE/assets/gen/{name}-light.svg") + r'"[^>]*title="' + re.escape(hover))
+                self.assertIn(f"{name}-dark-m.svg", files)
+        self.assertNotIn("lh-ma5", pages["Y"])   # too few yearly candles for an average
+
+    def test_banner_comes_from_profile_json_and_is_not_a_link(self):
         _, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
-        self.assertIn("MA5 / MA10: average close of the last 5 / 10 weeks", readme)
-        self.assertIn("Open, High, Low: the index 7 days ago", readme)
-        self.assertNotIn("MA5 / MA10", pages["Y"])   # too few yearly candles for an average
+        self.assertIn('<p><img src="assets/banners/nyse-banner.png"', readme)
+        self.assertIn('/main/assets/banners/nyse-banner.png"', pages["M"])
+        config = json.loads(json.dumps(CONFIG))
+        config["banner"] = {"file": "missing.png"}
+        with self.assertRaises(ValueError):
+            render.check_config(config)
 
     def test_live_candle_says_why_it_is_red_or_green(self):
         def live_title(code, commits):
@@ -86,7 +98,7 @@ class PageTests(unittest.TestCase):
 
     def test_an_empty_history_still_renders(self):
         files, readme, pages, _ = render.build(snapshot([]), CONFIG, "BASE/")
-        self.assertIn("w-lines-header", readme)
+        self.assertIn("w-lh-title", readme)
         self.assertTrue(all(name.endswith(".svg") for name in files))
 
 

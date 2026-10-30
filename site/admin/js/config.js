@@ -8,7 +8,10 @@ export const RAW = `https://raw.githubusercontent.com/${OWNER}/${REPO}`;
 export const VAULT_KEY = "board-manager.vault.v1";
 export const IDLE_LOCK_MS = 30 * 60 * 1000;
 export const LOGO_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(svg|png|jpe?g)$/i;
-export const WRITABLE = [/^profile\.json$/, /^assets\/logos\/[a-z0-9][a-z0-9-]*\.(png|svg)$/];
+export const BANNER_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(png|jpe?g)$/i;
+export const WRITABLE = [/^profile\.json$/, /^assets\/logos\/[a-z0-9][a-z0-9-]*\.(png|svg)$/, /^assets\/banners\/[a-z0-9][a-z0-9-]*\.(png|jpg)$/];
 export const DELETABLE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
-export const TABS = [["watchlist", "Watchlist"], ["collabs", "Collaborations"], ["coverage", "Chart coverage"], ["record", "Track record"], ["logos", "Logos"]];
-export const SECTIONS = { watchlist: "projects", collabs: "collaborations", coverage: "activity_exclusions", record: "achievements", logos: null };
+export const TABS = [["watchlist", "Watchlist"], ["collabs", "Collaborations"], ["coverage", "Chart coverage"], ["record", "Track record"],
+  ["banner", "Banner"], ["logos", "Logos"]];
+export const SECTIONS = { watchlist: "projects", collabs: "collaborations", coverage: "activity_exclusions", record: "achievements",
+  banner: "banner", logos: null };

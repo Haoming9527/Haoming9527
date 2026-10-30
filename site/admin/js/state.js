@@ -2,5 +2,5 @@
 
 export const state = {
   token: "", user: "", config: null, original: null, sha: "", repos: [], external: [], logos: [], commits: {}, snapshotMissing: false,
-  uploads: {}, deletions: new Set(), protected: new Set(), protectedKnown: false, tab: "watchlist", filter: "", saving: false, busy: false, idleTimer: 0,
+  uploads: {}, banners: [], bannerUploads: {}, deletions: new Set(), protected: new Set(), protectedKnown: false, tab: "watchlist", filter: "", saving: false, busy: false, idleTimer: 0,
 };

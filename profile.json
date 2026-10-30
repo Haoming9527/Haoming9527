@@ -4,6 +4,7 @@
   "role": "R&D AI Engineer",
   "portfolio": "https://www.shen-haoming.com/",
   "utc_offset_hours": 8,
+  "banner": {"file": "nyse-banner.png", "alt": "The New York Stock Exchange facade at dusk"},
   "projects": [
     {"repository": "Haoming9527/DGX-Spark-Platform", "name": "DGX Spark Platform", "ticker": "DGX", "logo": "dgx-spark-platform.png", "logo_fit": "contain"},
     {"repository": "Haoming9527/Needle", "name": "Needle", "ticker": "NDL", "logo": "needle.png"},

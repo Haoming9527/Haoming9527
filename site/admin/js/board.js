@@ -1,16 +1,17 @@
 // The board model: loads profile.json and the logo library, tracks edits, validates them and
 // saves everything as one fast-forward commit. No DOM here.
 
-import { BRANCH, DELETABLE, LOGO_FILE, OWNER, RAW, REPO, SECTIONS, TABS, WRITABLE } from "./config.js";
+import { BANNER_FILE, BRANCH, DELETABLE, LOGO_FILE, OWNER, RAW, REPO, SECTIONS, TABS, WRITABLE } from "./config.js";
 import { api, ownedRepos } from "./github.js";
 import { clone, formatConfig, fromBase64, toBase64, utf8 } from "./lib/format.js";
 import { state } from "./state.js";
 
 export async function load() {
-  const [repos, file, logos, snapshot, catalog] = await Promise.all([
+  const [repos, file, logos, banners, snapshot, catalog] = await Promise.all([
     ownedRepos(),
     api(`/repos/${OWNER}/${REPO}/contents/profile.json?ref=${BRANCH}`),
     api(`/repos/${OWNER}/${REPO}/contents/assets/logos?ref=${BRANCH}`),
+    api(`/repos/${OWNER}/${REPO}/contents/assets/banners?ref=${BRANCH}`).catch((error) => { if (error.status === 404) return []; throw error; }),
     fetch(`${RAW}/market/data/activity.json`, { cache: "no-store", credentials: "omit" })
       .then((r) => (r.ok ? r.json() : null)).catch(() => null),
     fetch(`${RAW}/${BRANCH}/scripts/catalog.py`, { cache: "no-store", credentials: "omit" })
@@ -22,6 +23,8 @@ export async function load() {
   state.original = clone(state.config);
   state.logos = logos.filter((f) => f.type === "file" && LOGO_FILE.test(f.name)).map((f) => f.name).sort();
   state.uploads = {};
+  state.banners = banners.filter((f) => f.type === "file" && BANNER_FILE.test(f.name)).map((f) => f.name).sort();
+  state.bannerUploads = {};
   state.deletions = new Set();
   // Language and tool logos used by the renderer itself (catalog.VENDORED) can never be deleted.
   const vendored = /VENDORED = \{([\s\S]*?)\n\}/.exec(catalog)?.[1] || "";
@@ -41,11 +44,13 @@ export function changedSections() {
     .map(([, label]) => label);
 }
 
-export const isDirty = () => Boolean(state.config) && (changedSections().length > 0 || Object.keys(state.uploads).length > 0 || state.deletions.size > 0);
+export const isDirty = () => Boolean(state.config) && (changedSections().length > 0 || Object.keys(state.uploads).length > 0
+  || Object.keys(state.bannerUploads).length > 0 || state.deletions.size > 0);
 
 export function discard() {
   state.config = clone(state.original);
   state.uploads = {};
+  state.bannerUploads = {};
   state.deletions = new Set();
 }
 
@@ -94,6 +99,8 @@ export function problems() {
   const shown = (entry) => entryFiles(entry).every(logoOk);
   const needs = (entry) => (entry.wordmark ? "light and dark wordmarks" : "a logo");
   if (!countedRepos().length) list.push("Chart coverage needs at least one repository.");
+  const banner = c.banner?.file;
+  if (!banner || !(state.banners.includes(banner) || state.bannerUploads[banner])) list.push("Banner: choose or upload a photo.");
   (c.projects || []).forEach((p) => {
     const where = p.name || p.repository;
     if (!p.name?.trim()) list.push(`Watchlist: ${p.repository} needs a name.`);
@@ -119,7 +126,9 @@ export function problems() {
  */
 export async function commit() {
   const files = [{ path: "profile.json", content: toBase64(utf8(formatConfig(state.config))) },
-    ...Object.values(state.uploads).map((u) => ({ path: `assets/logos/${u.name}`, content: u.base64 }))];
+    ...Object.values(state.uploads).map((u) => ({ path: `assets/logos/${u.name}`, content: u.base64 })),
+    ...Object.values(state.bannerUploads).filter((u) => u.name === state.config.banner?.file)
+      .map((u) => ({ path: `assets/banners/${u.name}`, content: u.base64 }))];
   if (!files.every((f) => WRITABLE.some((rule) => rule.test(f.path)))) throw new Error("Refusing to write outside profile.json and assets/logos.");
   const usage = logoUsage();
   const removals = [...state.deletions];
