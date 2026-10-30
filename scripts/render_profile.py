@@ -803,7 +803,7 @@ def stack_tile(view: View, tool: str, theme: str, mobile: bool) -> SVG:
 
 
 def achievement_tile(achievement: dict, theme: str, mobile: bool) -> SVG:
-    w, h = (200, 188) if mobile else (421, 112)
+    w, h = (200, 206) if mobile else (421, 112)
     s = SVG(w, h, theme, f"{achievement['rank']}, {achievement['event']}")
     s.rect(4, 4, w - 8, h - 8, "card", 16 if mobile else 14)
     box = 48 if mobile else 60
@@ -822,7 +822,7 @@ def achievement_tile(achievement: dict, theme: str, mobile: bool) -> SVG:
         for line in wrap(achievement["rank"], 20, w - 36, 700)[:2]:
             s.text(18, y, line, 20, "fg", 700)
             y += 24
-        for line in wrap(achievement["event"], 14, w - 36)[:2]:
+        for line in wrap(achievement["event"], 14, w - 36)[:3]:
             s.text(18, y + 2, line, 14, "muted", 500)
             y += 19
     else:
