@@ -57,6 +57,12 @@ input[type=text], input[type=password], input[type=url], input[type=search], sel
 .btn.primary { background: var(--up-fill); border-color: var(--up-fill); color: #fff; }
 .btn.danger { color: var(--down); }
 .btn.small { padding: 3px 9px; font-size: 13px; }
+.btn:has(.spinner) { display: inline-flex; align-items: center; gap: 8px; }
+.btn:disabled:has(.spinner) { opacity: .8; cursor: progress; }
+.spinner { flex: none; width: 1em; height: 1em; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
 .icon { border: 0; background: transparent; cursor: pointer; color: var(--muted); padding: 4px 6px; border-radius: 6px; font-size: 15px; }
 .icon:hover { background: var(--pill); color: var(--fg); }
 

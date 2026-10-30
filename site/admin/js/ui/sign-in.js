@@ -15,6 +15,25 @@ const guide = () => h("details", {}, h("summary", {}, "How to create the token")
 
 const status = (on, text) => h("span", { class: "status" }, h("span", { class: on ? "dot on" : "dot" }), text);
 
+/** Locks the card and shows a spinner on the button while signing in. step() changes the label; done() unlocks. */
+function busy(button, text) {
+  const card = $("#token");
+  const label = button.textContent;
+  const controls = [...card.querySelectorAll("button, input")].filter((el) => !el.disabled);
+  for (const el of controls) el.disabled = true;
+  card.setAttribute("aria-busy", "true");
+  const step = (next) => button.replaceChildren(h("span", { class: "spinner", "aria-hidden": "true" }), next);
+  step(text);
+  return {
+    step,
+    done() {
+      for (const el of controls) el.disabled = false;
+      card.removeAttribute("aria-busy");
+      button.textContent = label;
+    },
+  };
+}
+
 function signedIn() {
   return [h("div", { class: "row" }, status(true, `Signed in as ${state.user}`),
     h("button", { class: "btn small", type: "button", onclick: () => signOut() }, "Sign out"),
@@ -24,13 +43,26 @@ function signedIn() {
 
 function passphraseForm(onSignedIn, fail, message) {
   const pass = h("input", { type: "password", placeholder: "Passphrase", autocomplete: "current-password", "aria-label": "Passphrase" });
+  const button = h("button", { class: "btn primary", type: "button", onclick: () => unlock() }, "Sign in");
   const unlock = async () => {
-    try { await connect(await unlockToken(pass.value)); await onSignedIn(); toast("Signed in."); }
-    catch (error) { fail(error); }
+    if (button.disabled) return;
+    const progress = busy(button, "Unlocking…");
+    try {
+      const token = await unlockToken(pass.value);
+      progress.step("Checking token…");
+      await connect(token);
+      progress.step("Loading board…");
+      await onSignedIn();
+      toast("Signed in.");
+    } catch (error) {
+      progress.done();
+      fail(error);
+      pass.focus();
+    }
   };
   pass.addEventListener("keydown", (e) => { if (e.key === "Enter") unlock(); });
   return [h("div", { class: "row" }, status(false, "Enter your passphrase to sign in."),
-    pass, h("button", { class: "btn primary", type: "button", onclick: unlock }, "Sign in"),
+    pass, button,
     h("button", { class: "btn small danger", type: "button", onclick: () => { forgetSavedToken(); renderSignIn(onSignedIn); } }, "Forget saved token")),
   message];
 }
@@ -41,18 +73,26 @@ function tokenForm(onSignedIn, fail, message) {
   const pass = h("input", { type: "password", placeholder: "Passphrase to protect it (8+ characters)", autocomplete: "new-password",
     "aria-label": "Passphrase", hidden: true });
   remember.addEventListener("change", () => { pass.hidden = !remember.checked; });
+  const button = h("button", { class: "btn primary", type: "button", onclick: () => go() }, "Sign in");
   const go = async () => {
+    if (button.disabled) return;
+    if (remember.checked && pass.value.length < 8) return fail(new Error("Choose a passphrase of at least 8 characters to remember the token."));
+    const progress = busy(button, "Checking token…");
     try {
-      if (remember.checked && pass.value.length < 8) throw new Error("Choose a passphrase of at least 8 characters to remember the token.");
       await connect(token.value);
-      if (remember.checked) await rememberToken(state.token, pass.value);
+      if (remember.checked) { progress.step("Encrypting token…"); await rememberToken(state.token, pass.value); }
+      progress.step("Loading board…");
       await onSignedIn();
       toast(remember.checked ? "Signed in. The token is saved, encrypted with your passphrase." : "Signed in for this visit.");
-    } catch (error) { fail(error); }
+    } catch (error) {
+      progress.done();
+      fail(error);
+      token.focus();
+    }
   };
   token.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
   return [h("div", { class: "row" }, status(false, "Sign in with your access token to manage the board."),
-    token, h("button", { class: "btn primary", type: "button", onclick: go }, "Sign in")),
+    token, button),
   h("div", { class: "row" }, h("label", { class: "hint" }, remember, " Remember on this device, protected by a passphrase"), pass),
   message, guide()];
 }
