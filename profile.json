@@ -3,21 +3,21 @@
   "display_name": "Economist",
   "role": "R&D AI Engineer",
   "portfolio": "https://www.shen-haoming.com/",
+  "utc_offset_hours": 8,
   "projects": [
     {"repository": "Haoming9527/DGX-Spark-Platform", "name": "DGX Spark Platform", "ticker": "DGX", "logo": "dgx-spark-platform.png", "logo_fit": "contain"},
     {"repository": "Haoming9527/Needle", "name": "Needle", "ticker": "NDL", "logo": "needle.png"},
     {"repository": "Haoming9527/Upload-History", "name": "Upload History", "ticker": "UPLD", "logo": "upload-history.png"}
   ],
   "collaborations": [
-    {"repository": "T-Auto/dsh-ops", "name": "dsh-ops", "logo": "dsh-ops.jpg"},
-    {"repository": "Yanguangchen/InteLiDar", "name": "InteLiDar", "logo": "intelidar.jpg"}
+    {"repository": "T-Auto/dsh-ops", "name": "dsh-ops", "logo": "dsh-ops.png"},
+    {"repository": "Yanguangchen/InteLiDar", "name": "InteLiDar", "wordmark": {"light": "intelidar-light.png", "dark": "intelidar-dark.png"}}
   ],
-  "stack": ["React", "Next.js", "Node.js", "PostgreSQL", "Docker", "Ollama", "AI SDK", "MCP"],
   "achievements": [
-    {"rank": "Top 10", "event": "AI Grand Prix Singapore", "tag": "Needle", "url": "https://github.com/Haoming9527/Needle#readme"},
-    {"rank": "1st runner-up", "event": "SG × Sarawak AI Hackathon", "tag": "2026", "url": "https://www.shen-haoming.com/"},
-    {"rank": "2nd runner-up", "event": "SEED Code League", "tag": "2024", "url": "https://www.shen-haoming.com/"},
-    {"rank": "Semifinalist", "event": "Undergraduate Policy Competition", "tag": "2024", "url": "https://www.shen-haoming.com/"}
+    {"rank": "Top 10", "event": "AI Grand Prix Singapore", "tag": "Needle", "logo": "ai-grand-prix.png", "url": "https://github.com/Haoming9527/Needle#readme"},
+    {"rank": "Top 5", "event": "Astra Hackathon 2026, People's Choice", "tag": "InteLiDar", "logo": "openai.svg", "url": "https://github.com/Yanguangchen/InteLiDar"},
+    {"rank": "Winner", "event": "Lovable Founder Series", "tag": "Decide Anything", "logo": "lovable.svg", "url": "https://decide-anything.lovable.app"},
+    {"rank": "Project Work Winner", "event": "Singapore Cybersecurity Camp 2025", "tag": "Canary-WAF", "logo": "div0.png", "url": "https://github.com/umiyuikaiteitan/Canary-WAF"}
   ],
   "activity_days": 90,
   "activity_repositories": [

@@ -1,27 +1,35 @@
-"""Render the brokerage-app profile: live SVG widgets and README.md.
+"""Render the brokerage-app profile: live SVG widgets, README.md and the other range views.
 
-Every number comes from data/activity.json; profile.json supplies names, links,
-logos and the curated achievements. Each widget is written in light/dark and
-desktop/phone variants that GitHub picks between with <picture> media queries.
+Every number comes from data/activity.json; profile.json supplies names, links, logos
+and the curated achievements. Each widget is written in light/dark and desktop/phone
+variants that GitHub picks between with <picture> media queries.
 
-The widgets are published to the `market` branch on every refresh, so the images
-stay live without touching main. README.md only changes when its structure or a
-closed candle's hover text changes, which keeps main's history quiet.
+The D/W/M/Q/Y tabs are links. README.md is the weekly view; the other four are full
+copies of the dashboard rendered for their range and published with the widgets on
+the `market` branch. Choosing a tab therefore changes every number on the page.
 """
 from __future__ import annotations
 
 import argparse
 import base64
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from functools import cached_property
 from html import escape
 import json
 import math
+import os
 from pathlib import Path
 import re
 
+import catalog
+
 ROOT = Path(__file__).resolve().parents[1]
 LOGOS = ROOT / "assets/logos"
-LIVE_BASE = "https://raw.githubusercontent.com/Haoming9527/Haoming9527/market/"
+OWNER = "Haoming9527"
+LIVE_BASE = f"https://raw.githubusercontent.com/{OWNER}/{OWNER}/market/"
+BANNER_LIVE = f"https://raw.githubusercontent.com/{OWNER}/{OWNER}/main/assets/nyse-banner.png"
+PROFILE_URL = f"https://github.com/{OWNER}"
+VIEW_URL = f"https://github.com/{OWNER}/{OWNER}/blob/market/views/{{}}.md"
 FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif"
 THEMES = {
     "light": dict(bg="#ffffff", card="#f6f8fa", fg="#1f2328", muted="#59636e", faint="#d8dee4",
@@ -29,26 +37,16 @@ THEMES = {
                   flat="#8c959f", ring="#d0d7de", pill="#eaeef2"),
     "dark": dict(bg="#0d1117", card="#151b23", fg="#f0f6fc", muted="#9198a1", faint="#2a313c",
                  grid="#1f2630", up="#3fb950", up_fill="#2ea043", down="#f85149", down_fill="#da3633",
-                 flat="#6e7681", ring="#0d1117", pill="#212830"),
+                 flat="#6e7681", ring="#0d1117", pill="#262c36"),
 }
-# Logo file and how much of the circle it fills.
-LANGUAGE_LOGOS = {
-    "JavaScript": ("javascript.svg", .56), "TypeScript": ("typescript.svg", .56), "HTML": ("html.svg", .6),
-    "CSS": ("css.svg", .6), "Java": ("java.svg", .62), "Go": ("go.svg", .7), "PLpgSQL": ("postgresql.svg", .6),
-    "Shell": ("shell.svg", .6), "Batchfile": ("batchfile.svg", .5), "Rust": ("rust.svg", .62),
-    "Dockerfile": ("docker.svg", .64), "PowerShell": ("powershell.svg", .6),
-}
-STACK_LOGOS = {
-    "React": ("react.svg", .64), "Next.js": ("nextjs.svg", .6), "Node.js": ("nodejs.svg", .6),
-    "PostgreSQL": ("postgresql.svg", .6), "Docker": ("docker.svg", .64), "Ollama": ("ollama.svg", .56),
-    "AI SDK": ("aisdk.svg", .5), "MCP": ("mcp.svg", .56),
-}
-TIMEFRAMES = (("D", "1D", "Daily", "today"), ("W", "1W", "Weekly", "this week"), ("M", "1M", "Monthly", "this month"),
-              ("Q", "1Q", "Quarterly", "this quarter"), ("Y", "1Y", "Yearly", "this year"))
-DEFAULT_TIMEFRAME = "W"
+# code: (name, days behind every change figure, change label)
+VIEWS = {"D": ("Daily", 1, "1D"), "W": ("Weekly", 7, "7D"), "M": ("Monthly", 30, "1M"),
+         "Q": ("Quarterly", 91, "3M"), "Y": ("Yearly", 365, "1Y")}
+DEFAULT_VIEW = "W"
 MINUS = "\u2212"
 VISIBLE_LANGUAGES = 6
-RECENT = 30  # days behind every row badge
+VISIBLE_TOOLS = 8
+GENERIC_LOGO = "M8 7 L3 12 L8 17 M16 7 L21 12 L16 17 M14 5 L10 19"
 
 
 # ---------------------------------------------------------------- formatting
@@ -126,10 +124,6 @@ def wrap(value: str, size: float, room: float, weight: int = 400) -> list[str]:
     return lines + [line] if line else lines
 
 
-def day(value: str) -> date:
-    return date.fromisoformat(value[:10])
-
-
 def tone(value: float) -> str:
     return "up" if value > 0 else "down" if value < 0 else "flat"
 
@@ -201,29 +195,48 @@ class SVG:
             self.add(f'<circle class="pulse" cx="{px:.1f}" cy="{py:.1f}" r="3" fill="{color}"/>'
                      f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3" fill="{color}"/>')
 
-    def logo(self, cx, cy, r, filename: str, scale: float = .6, fit_mode: str = "contain"):
-        """A real logo in a white disc, the way brokerage apps show tickers."""
-        clip = self.next_id()
-        self.add(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:g}" fill="#ffffff" stroke="{self.color("ring")}" '
-                 f'stroke-width="1"/><clipPath id="{clip}"><circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r - .5:g}"/></clipPath>')
+    def image(self, filename: str, x, y, w, h, aspect="xMidYMid meet", clip: str | None = None):
         source = LOGOS / filename
-        if source.suffix == ".svg":
-            markup = source.read_text(encoding="utf-8")
-            view_box = re.search(r'viewBox="([^"]+)"', markup).group(1)
-            inner = re.sub(r"(?s)^.*?<svg[^>]*>|</svg>\s*$|<title>.*?</title>", "", markup)
-            prefix = self.next_id()
-            inner = re.sub(r'id="([^"]+)"', lambda m: f'id="{prefix}{m.group(1)}"', inner)
-            inner = re.sub(r"url\(#([^)]+)\)", lambda m: f"url(#{prefix}{m.group(1)})", inner)
+        mime = "image/png" if source.suffix == ".png" else "image/jpeg"
+        data = base64.b64encode(source.read_bytes()).decode()
+        clip_attr = f' clip-path="url(#{clip})"' if clip else ""
+        self.add(f'<image href="data:{mime};base64,{data}" x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" '
+                 f'preserveAspectRatio="{aspect}"{clip_attr}/>')
+
+    def vector(self, markup: str, x, y, side):
+        view_box = re.search(r'viewBox="([^"]+)"', markup)
+        attrs = re.search(r"<svg\b([^>]*)>", markup)
+        fill = re.search(r'\sfill="([^"]+)"', attrs.group(1)) if attrs else None
+        inner = re.sub(r"(?s)^.*?<svg[^>]*>|</svg>\s*$|<title>.*?</title>", "", markup)
+        prefix = self.next_id()
+        inner = re.sub(r'id="([^"]+)"', lambda m: f'id="{prefix}{m.group(1)}"', inner)
+        inner = re.sub(r"url\(#([^)]+)\)", lambda m: f"url(#{prefix}{m.group(1)})", inner)
+        fill_attr = f' fill="{fill.group(1)}"' if fill and fill.group(1) != "currentColor" else ""
+        self.add(f'<svg x="{x:.1f}" y="{y:.1f}" width="{side:.1f}" height="{side:.1f}" '
+                 f'viewBox="{view_box.group(1) if view_box else "0 0 24 24"}"{fill_attr}>{inner}</svg>')
+
+    def logo(self, cx, cy, r, spec: dict, square: bool = False):
+        """A real logo in a white disc (or rounded tile), the way brokerage apps show tickers."""
+        clip = self.next_id()
+        shape = (f'<rect x="{cx - r:.1f}" y="{cy - r:.1f}" width="{2 * r:.1f}" height="{2 * r:.1f}" rx="{r * .32:.1f}"'
+                 if square else f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{r:g}"')
+        self.add(f'{shape} fill="#ffffff" stroke="{self.color("ring")}" stroke-width="1"/>'
+                 f'<clipPath id="{clip}">{shape}/></clipPath>')
+        scale = spec.get("scale", .6)
+        if "file" in spec and not spec["file"].endswith(".svg"):
+            cover = spec.get("fit") == "cover"
+            side = 2 * r if cover else 2 * r * scale
+            self.image(spec["file"], cx - side / 2, cy - side / 2, side, side,
+                       "xMidYMid slice" if cover else "xMidYMid meet", clip)
+        elif "file" in spec or "svg" in spec:
+            markup = spec["svg"] if "svg" in spec else (LOGOS / spec["file"]).read_text(encoding="utf-8")
             side = 2 * r * scale
-            self.add(f'<svg x="{cx - side / 2:.1f}" y="{cy - side / 2:.1f}" width="{side:.1f}" height="{side:.1f}" '
-                     f'viewBox="{view_box}">{inner}</svg>')
+            self.vector(markup, cx - side / 2, cy - side / 2, side)
         else:
-            mime = "image/png" if source.suffix == ".png" else "image/jpeg"
-            data = base64.b64encode(source.read_bytes()).decode()
-            side = 2 * r if fit_mode == "cover" else 2 * r * scale
-            aspect = "xMidYMid slice" if fit_mode == "cover" else "xMidYMid meet"
-            self.add(f'<image href="data:{mime};base64,{data}" x="{cx - side / 2:.1f}" y="{cy - side / 2:.1f}" '
-                     f'width="{side:.1f}" height="{side:.1f}" preserveAspectRatio="{aspect}" clip-path="url(#{clip})"/>')
+            side = 2 * r * .56
+            self.add(f'<path d="{GENERIC_LOGO}" transform="translate({cx - side / 2:.1f} {cy - side / 2:.1f}) '
+                     f'scale({side / 24:.3f})" fill="none" stroke="#59636e" stroke-width="2.2" '
+                     'stroke-linecap="round" stroke-linejoin="round"/>')
 
     def chevron(self, x, y, size=9, stroke="muted"):
         self.add(f'<path d="M{x:.1f} {y - size:.1f} L{x + size * .62:.1f} {y:.1f} L{x:.1f} {y + size:.1f}" fill="none" '
@@ -245,13 +258,14 @@ def month_start(when: date, offset: int = 0) -> date:
     return date(index // 12, index % 12 + 1, 1)
 
 
-def periods(timeframe: str, first: date, today: date) -> list[tuple[date, date]]:
-    if timeframe == "D":
+def periods(code: str, first: date, today: date) -> list[tuple[date, date]]:
+    if code == "D":
         return [(today - timedelta(days=29 - i),) * 2 for i in range(30)]
-    if timeframe == "W":
+    if code == "W":
         monday = today - timedelta(days=today.weekday())
         return [(monday - timedelta(weeks=25 - i), monday - timedelta(weeks=25 - i) + timedelta(days=6)) for i in range(26)]
-    span, count = {"M": (1, 24), "Q": (3, 12), "Y": (12, 8)}[timeframe]
+    span, count = {"M": (1, 24), "Q": (3, 12), "Y": (12, 8)}[code]
+
     def floor(when: date) -> date:
         index = when.year * 12 + when.month - 1
         index -= index % span
@@ -264,72 +278,118 @@ def periods(timeframe: str, first: date, today: date) -> list[tuple[date, date]]
     return [(begin, month_start(begin, span) - timedelta(days=1)) for begin in starts]
 
 
-def period_label(timeframe: str, begin: date, long: bool = False) -> str:
-    if timeframe == "D":
+def period_label(code: str, begin: date, long: bool = False) -> str:
+    if code == "D":
         return f"{begin:%a %d %b %Y}" if long else f"{begin:%b} {begin.day}"
-    if timeframe == "W":
+    if code == "W":
         return f"Week of {begin:%d %b %Y}" if long else f"{begin:%b} {begin.day}"
-    if timeframe == "M":
+    if code == "M":
         return f"{begin:%B %Y}" if long else (f"{begin:%b} '{begin:%y}" if begin.month == 1 else f"{begin:%b}")
-    if timeframe == "Q":
+    if code == "Q":
         return f"Q{(begin.month - 1) // 3 + 1} {begin.year}" if long else f"Q{(begin.month - 1) // 3 + 1} '{begin:%y}"
     return str(begin.year)
 
 
+def add(events: dict, when: date, value: float = 1):
+    events[when] = events.get(when, 0) + value
+
+
 class Market:
-    """Daily series, candles and summaries derived from one activity snapshot."""
+    """Everything derived from one snapshot that does not depend on the selected range."""
 
     def __init__(self, data: dict, config: dict):
         self.data, self.config = data, config
         self.username = data["github_username"]
-        self.today = day(data["generated_at"])
-        self.start = day(data["window"]["start"])
-        self.days = [self.start + timedelta(days=i) for i in range((self.today - self.start).days + 1)]
+        self.offset = timedelta(hours=config.get("utc_offset_hours", 0))
+        self.today = self.local(data["generated_at"])
         self.commits = sorted(data["commits"], key=lambda row: (row["timestamp"], row["sha"]))
-        self.first = day(self.commits[0]["timestamp"]) if self.commits else self.today
-        self.open_source = data["open_source"]
+        for row in self.commits:
+            row["day"] = self.local(row["timestamp"])
+        self.first = self.commits[0]["day"] if self.commits else self.today
         self.lines = sum(row["additions"] - row["deletions"] for row in self.commits)
+        self.open_source = data["open_source"]
+        sizes = data["languages"]["bytes"]
+        self.language_total = sum(sizes.values()) or 1
+        self.languages = list(sizes.items())
+        stack = data.get("stack", {})
+        self.tools = sorted(stack, key=lambda tool: (-len(self.stack_events(tool)), -len(stack[tool]), tool))
 
-    # Daily cumulative series over the activity window, for the index tiles.
-    def cumulative(self, events: dict[date, int], base: int = 0) -> list[int]:
-        series, total = [], base
-        for current in self.days:
-            total += events.get(current, 0)
-            series.append(total)
-        return series
+    def local(self, stamp: str) -> date:
+        return (datetime.fromisoformat(stamp.replace("Z", "+00:00")) + self.offset).date()
 
-    def index(self, key: str) -> dict:
-        if key == "stars":
-            events: dict[date, int] = {}
+    def events(self, kind: str, key: str = "") -> dict[date, float]:
+        """Dated increments for one series: commits, lines, stars, PRs, a language or a tool."""
+        result: dict[date, float] = {}
+        if kind == "commits":
+            for row in self.commits:
+                add(result, row["day"])
+        elif kind == "repo-lines":
+            for row in self.commits:
+                if row["repository"].lower() == key.lower():
+                    add(result, row["day"], row["additions"] - row["deletions"])
+        elif kind == "language":
+            for row in self.commits:
+                added, deleted = row.get("languages", {}).get(key, (0, 0))
+                if added or deleted:
+                    add(result, row["day"], added - deleted)
+        elif kind == "stars":
             for repo in self.data["stars"]["repositories"]:
                 for when, count in repo["starred_on"].items():
-                    events[day(when)] = events.get(day(when), 0) + count
-            dated = events
-        elif key == "commits":
-            dated = {}
-            for row in self.commits:
-                dated[day(row["timestamp"])] = dated.get(day(row["timestamp"]), 0) + 1
-        else:
-            dated = {}
+                    add(result, date.fromisoformat(when), count)
+        elif kind == "prs":
             for repo in self.open_source["repositories"]:
-                for stamp in repo["merged_at"]:
-                    dated[day(stamp)] = dated.get(day(stamp), 0) + 1
-        recent = {when: count for when, count in dated.items() if when >= self.start}
-        # Stars without dates (hidden stargazer lists) count as older than the window.
-        total = self.data["stars"]["total"] if key == "stars" else sum(dated.values())
-        series = self.cumulative(recent, total - sum(recent.values()))
-        previous = series[-8] if len(series) > 7 else series[0]
-        return {"series": series, "value": series[-1], "delta": series[-1] - previous, "previous": previous}
+                if not key or repo["name"].lower() == key.lower():
+                    for stamp in repo["merged_at"]:
+                        add(result, self.local(stamp))
+        return result
 
-    def candles(self, timeframe: str) -> list[dict]:
-        spans = periods(timeframe, self.first, self.today)
-        index = sum(row["additions"] - row["deletions"] for row in self.commits if day(row["timestamp"]) < spans[0][0])
+    def stack_events(self, tool: str) -> dict[date, float]:
+        repos = {name.lower() for name in self.data.get("stack", {}).get(tool, [])}
+        result: dict[date, float] = {}
+        for row in self.commits:
+            if row["repository"].lower() in repos:
+                add(result, row["day"])
+        return result
+
+    def undated_stars(self) -> int:
+        return sum(repo.get("undated", 0) for repo in self.data["stars"]["repositories"])
+
+    def stars_of(self, repository: str) -> int:
+        return next((row["stars"] for row in self.data["stars"]["repositories"]
+                     if row["name"].lower() == repository.lower()), 0)
+
+    def logo(self, name: str) -> dict:
+        if name in catalog.VENDORED:
+            filename, scale = catalog.VENDORED[name]
+            return {"file": filename, "scale": scale}
+        cached = self.data.get("logos", {}).get(name, {})
+        return {"svg": cached["svg"], "scale": .58} if cached.get("svg") else {}
+
+    def missing_logos(self) -> list[str]:
+        names = [name for name, _ in self.languages] + self.tools
+        return [name for name in names if not self.logo(name)]
+
+
+class View:
+    """One tab: candle size, the trailing window behind every change, and the series on its axis."""
+
+    def __init__(self, market: Market, code: str):
+        self.market, self.code = market, code
+        self.name, self.days, self.label = VIEWS[code]
+        self.periods = periods(code, market.first, market.today)
+        self.prefix = code.lower()
+
+    @cached_property
+    def candles(self) -> list[dict]:
+        rows = self.market.commits
+        first_day = self.periods[0][0]
+        index = sum(row["additions"] - row["deletions"] for row in rows if row["day"] < first_day)
         result = []
-        for begin, end in spans:
+        for begin, end in self.periods:
             candle = {"start": begin, "end": end, "open": index, "high": index, "low": index, "close": index,
-                      "additions": 0, "deletions": 0, "commits": 0, "current": begin <= self.today <= end}
-            for row in self.commits:
-                if begin <= day(row["timestamp"]) <= end:
+                      "additions": 0, "deletions": 0, "commits": 0, "current": begin <= self.market.today <= end}
+            for row in rows:
+                if begin <= row["day"] <= end:
                     index += row["additions"]
                     candle["high"] = max(candle["high"], index)
                     index -= row["deletions"]
@@ -341,75 +401,48 @@ class Market:
             result.append(candle)
         return result
 
-    def trend(self, events: dict[date, float], points: int = 60, minimum_days: int = 30) -> list[float]:
-        """Cumulative values from the first event to today, resampled for a sparkline."""
-        if not events:
-            return [0, 0]
-        first = min(min(events), self.today - timedelta(days=minimum_days))
-        span = max((self.today - first).days, 1)
+    def series(self, events: dict[date, float], base: float = 0) -> list[float]:
+        """Cumulative value just before the first candle and at the end of every candle."""
+        cutoffs = [self.periods[0][0] - timedelta(days=1)] + [min(end, self.market.today) for _, end in self.periods]
         ordered = sorted(events.items())
-        series, total, cursor = [], 0.0, 0
-        for i in range(points + 1):
-            cutoff = first + timedelta(days=span * i / points)
+        values, total, cursor = [], base, 0
+        for cutoff in cutoffs:
             while cursor < len(ordered) and ordered[cursor][0] <= cutoff:
                 total += ordered[cursor][1]
                 cursor += 1
-            series.append(total)
-        return series
+            values.append(total)
+        return values
 
-    def recent(self, events: dict[date, float]) -> float:
-        return sum(value for when, value in events.items() if when > self.today - timedelta(days=RECENT))
+    def change(self, events: dict[date, float]) -> float:
+        since = self.market.today - timedelta(days=self.days)
+        return sum(value for when, value in events.items() if since < when <= self.market.today)
 
-    def repo_events(self, repository: str, lines: bool = True) -> dict[date, float]:
-        events: dict[date, float] = {}
-        for row in self.commits:
-            if row["repository"].lower() == repository.lower():
-                when = day(row["timestamp"])
-                events[when] = events.get(when, 0) + (row["additions"] - row["deletions"] if lines else 1)
-        return events
-
-    def language_events(self, language: str) -> dict[date, float]:
-        events: dict[date, float] = {}
-        for row in self.commits:
-            added, deleted = row.get("languages", {}).get(language, (0, 0))
-            if added or deleted:
-                when = day(row["timestamp"])
-                events[when] = events.get(when, 0) + added - deleted
-        return events
-
-    def stack_events(self, tool: str) -> dict[date, float]:
-        repos = {name.lower() for name in self.data["stack"].get(tool, [])}
-        events: dict[date, float] = {}
-        for row in self.commits:
-            if row["repository"].lower() in repos:
-                when = day(row["timestamp"])
-                events[when] = events.get(when, 0) + 1
-        return events
-
-    def stars_of(self, repository: str) -> int:
-        return next((row["stars"] for row in self.data["stars"]["repositories"]
-                     if row["name"].lower() == repository.lower()), 0)
+    def index(self, key: str) -> dict:
+        events = self.market.events(key)
+        base = self.market.undated_stars() if key == "stars" else 0
+        value = base + sum(events.values())
+        delta = self.change(events)
+        return {"series": self.series(events, base), "value": value, "delta": delta, "previous": value - delta}
 
 
 # ---------------------------------------------------------------- widgets
 
-def tape(market: Market, theme: str, mobile: bool) -> SVG:
+def tape(view: View, theme: str, mobile: bool) -> SVG:
+    market = view.market
     w, h, size = (400, 46, 17) if mobile else (846, 40, 14)
     items = [("ECON", market.config["role"], "", "none")]
     for key, label in (("stars", "STARS"), ("commits", "COMMITS"), ("prs", "MERGED PRS")):
-        index = market.index(key)
+        index = view.index(key)
         items.append((label, num(index["value"]), signed(index["delta"]), tone(index["delta"])))
-    today = market.candles("D")[-1]
-    change = today["close"] - today["open"]
-    items.append(("LINES", num(market.lines), signed(change), tone(change)))
-    sizes = market.data["languages"]["bytes"]
-    total = sum(sizes.values()) or 1
-    for name, size_bytes in list(sizes.items())[:4]:
-        recent = market.recent(market.language_events(name))
-        items.append((name.upper(), f"{size_bytes / total * 100:.1f}%", signed(recent, True), tone(recent)))
+    since = market.today - timedelta(days=view.days)
+    lines = sum(row["additions"] - row["deletions"] for row in market.commits if row["day"] > since)
+    items.append(("LINES", num(market.lines), signed(lines), tone(lines)))
+    for name, size_bytes in market.languages[:4]:
+        recent = view.change(market.events("language", name))
+        items.append((name.upper(), f"{size_bytes / market.language_total * 100:.1f}%", signed(recent, True), tone(recent)))
     for project in market.config["projects"]:
-        events = market.repo_events(project["repository"])
-        recent = market.recent(events)
+        events = market.events("repo-lines", project["repository"])
+        recent = view.change(events)
         items.append((project["ticker"], num(sum(events.values())), signed(recent, True), tone(recent)))
     pieces, x = [], 0.0
     for label, value, change, direction in items:
@@ -436,12 +469,37 @@ def tape(market: Market, theme: str, mobile: bool) -> SVG:
     return s
 
 
+TAB_PCT, RANGE_PCT = 11.0, 44.6
+
+
+def tab(code: str, active: bool, theme: str, mobile: bool) -> SVG:
+    unit = 4.0 if mobile else 8.46
+    w, h = TAB_PCT * unit, (40 if mobile else 44)
+    s = SVG(w, h, theme, f"{VIEWS[code][0]} view")
+    size = 17 if mobile else 15
+    if active:
+        s.rect(3, 4, w - 6, h - 8, "pill", (h - 8) / 2)
+    s.text(w / 2, h / 2 + size * .36, code, size, "fg" if active else "muted", 700 if active else 600, "middle")
+    return s
+
+
+def range_label(view: View, theme: str, mobile: bool) -> SVG:
+    unit = 4.0 if mobile else 8.46
+    w, h = RANGE_PCT * unit, (40 if mobile else 44)
+    s = SVG(w, h, theme, f"{view.name} candles; changes over {view.label}")
+    size = 15 if mobile else 13
+    note, title = (view.label, view.name) if mobile else (f"{view.label} change", f"{view.name} candles")
+    s.text(w - 4, h / 2 + size * .36, note, size, "muted", 500, "end")
+    s.text(w - 4 - text_width(note, size, 500) - 10, h / 2 + size * .36, title, size, "fg", 600, "end")
+    return s
+
+
 INDEX_TILES = (("stars", "Stars", "mine + collab"), ("commits", "Commits", "all time"), ("prs", "Merged PRs", "external"))
 
 
-def index_tile(market: Market, key: str, theme: str, mobile: bool) -> SVG:
+def index_tile(view: View, key: str, theme: str, mobile: bool) -> SVG:
     title, hint = next((title, hint) for k, title, hint in INDEX_TILES if k == key)
-    index = market.index(key)
+    index = view.index(key)
     color = tone(index["delta"])
     w, h = (200, 214) if mobile else (282, 178)
     s = SVG(w, h, theme, f"{title} index")
@@ -457,8 +515,38 @@ def index_tile(market: Market, key: str, theme: str, mobile: bool) -> SVG:
         s.text(x, 38, title, 18, "fg", 500)
         s.text(w - x, 38, hint, 12, "muted", 500, "end")
         s.text(x, 78, num(index["value"]), 32, color, 700)
-        s.text(x, 104, f"{change}  7D", 14, color, 500)
+        s.text(x, 104, f"{change}  {view.label}", 14, color, 500)
         s.sparkline(index["series"], x, 118, w - 2 * x, 40, color)
+    return s
+
+
+def lines_header(view: View, theme: str, mobile: bool) -> SVG:
+    market = view.market
+    additions = sum(row["additions"] for row in market.commits)
+    deletions = sum(row["deletions"] for row in market.commits)
+    since = market.today - timedelta(days=view.days)
+    change = sum(row["additions"] - row["deletions"] for row in market.commits if row["day"] > since)
+    w, h = (400, 128) if mobile else (846, 96)
+    s = SVG(w, h, theme, "Lines index: net lines of code I have added across my public repositories")
+    pad = 18 if mobile else 24
+    title_size = 22 if mobile else 18
+    s.text(pad, 34 if mobile else 30, "Lines index", title_size, "fg", 600)
+    s.text(pad + text_width("Lines index", title_size, 600) + 10, 34 if mobile else 30,
+           f"since {market.first:%b %Y}", 15 if mobile else 13, "muted", 500)
+    value_size, value_y = (38, 80) if mobile else (32, 72)
+    s.text(pad, value_y, num(market.lines), value_size, "fg", 700)
+    change_text = f"{signed(change)} {percent(change, market.lines - change)} {view.label}".replace("  ", " ")
+    if mobile:
+        s.text(pad, 112, change_text, 17, tone(change), 600)
+    else:
+        s.text(pad + text_width(num(market.lines), value_size, 700) + 14, value_y, change_text, 16, tone(change), 500)
+        stats = (("Commits", f"{len(market.commits):,}"), ("Added", f"+{compact(additions)}"),
+                 ("Deleted", f"{MINUS}{compact(deletions)}"))
+        x = w - pad
+        for label, value in reversed(stats):
+            s.text(x, 50, value, 15, "fg", 600, "end")
+            s.text(x, 72, label, 12, "muted", 500, "end")
+            x -= max(text_width(value, 15, 600), text_width(label, 12, 500)) + 26
     return s
 
 
@@ -472,8 +560,7 @@ class Geometry:
         self.candles, self.n, self.mobile = candles, len(candles), mobile
         self.slice_pct = round((99.6 - AXIS_PCT) / self.n, 3)
         unit = 4.0 if mobile else 8.46            # canvas units per percent of README width
-        self.slice_w, self.axis_w = self.slice_pct * unit, AXIS_PCT * unit
-        self.full_w = 100 * unit
+        self.slice_w, self.axis_w, self.full_w = self.slice_pct * unit, AXIS_PCT * unit, 100 * unit
         if mobile:
             self.h, self.top, self.bottom, self.vol_top, self.vol_bottom = 440, 24, 318, 344, 428
         else:
@@ -502,8 +589,8 @@ def direction(candle: dict) -> str:
     return "down" if candle["close"] < candle["open"] else "up"
 
 
-def candle_title(timeframe: str, candle: dict) -> str:
-    label = period_label(timeframe, candle["start"], True)
+def candle_title(code: str, candle: dict) -> str:
+    label = period_label(code, candle["start"], True)
     if candle["current"]:
         return f"{label}, in progress (updates live)"
     if not candle["commits"]:
@@ -513,14 +600,14 @@ def candle_title(timeframe: str, candle: dict) -> str:
             f"high {num(candle['high'])}, low {num(candle['low'])}, close {num(candle['close'])}")
 
 
-def chart_slice(market: Market, timeframe: str, index: int, theme: str, mobile: bool) -> SVG:
-    candles = market.candles(timeframe)
+def chart_slice(view: View, index: int, theme: str, mobile: bool) -> SVG:
+    candles = view.candles
     g = Geometry(candles, mobile)
     candle, w = candles[index], g.slice_w
     delay = index * min(.07, .9 / g.n)
     css = ('.rise{transform-box:fill-box;transform-origin:50% 100%;animation:rise .7s cubic-bezier(.2,.8,.2,1) both;'
            f'animation-delay:{delay:.2f}s}}@keyframes rise{{from{{transform:scaleY(0);opacity:0}}}}')
-    s = SVG(w, g.h, theme, candle_title(timeframe, candle), css)
+    s = SVG(w, g.h, theme, candle_title(view.code, candle), css)
     for tick in g.ticks():
         s.line(0, g.y(tick), w, g.y(tick), "grid")
     s.line(0, g.vol_bottom + .5, w, g.vol_bottom + .5, "grid")
@@ -555,8 +642,8 @@ def chart_slice(market: Market, timeframe: str, index: int, theme: str, mobile: 
     return s
 
 
-def chart_axis(market: Market, timeframe: str, theme: str, mobile: bool) -> SVG:
-    candles = market.candles(timeframe)
+def chart_axis(view: View, theme: str, mobile: bool) -> SVG:
+    candles = view.candles
     g = Geometry(candles, mobile)
     w = g.axis_w
     s = SVG(w, g.h, theme, "Price axis; the tag marks the latest close")
@@ -576,74 +663,18 @@ def chart_axis(market: Market, timeframe: str, theme: str, mobile: bool) -> SVG:
     return s
 
 
-def chart_dates(market: Market, timeframe: str, theme: str, mobile: bool) -> SVG:
-    candles = market.candles(timeframe)
+def chart_dates(view: View, theme: str, mobile: bool) -> SVG:
+    candles = view.candles
     g = Geometry(candles, mobile)
-    size = 15 if mobile else 11
-    h = 30 if mobile else 24
+    size, h = (15, 30) if mobile else (11, 24)
     s = SVG(g.full_w, h, theme, "Dates")
-    labels = [period_label(timeframe, candle["start"]) for candle in candles]
+    labels = [period_label(view.code, candle["start"]) for candle in candles]
     widest = max(text_width(label, size, 500) for label in labels) + (10 if mobile else 14)
     step = max(1, math.ceil(widest / g.slice_w))
     for i in range(g.n - 1, -1, -step):
         x = (i + .5) * g.slice_w
         if x - text_width(labels[i], size, 500) / 2 >= 0:
             s.text(x, h - 9, labels[i], size, "muted", 500, "middle")
-    return s
-
-
-def chart_header(market: Market, theme: str, mobile: bool) -> SVG:
-    commits = market.commits
-    additions = sum(row["additions"] for row in commits)
-    deletions = sum(row["deletions"] for row in commits)
-    today = market.candles("D")[-1]
-    change = today["close"] - today["open"]
-    w, h = (400, 128) if mobile else (846, 96)
-    s = SVG(w, h, theme, "Lines index: net lines of code I have added across my public repositories")
-    pad = 18 if mobile else 24
-    title_size = 22 if mobile else 18
-    s.text(pad, 34 if mobile else 30, "Lines index", title_size, "fg", 600)
-    s.text(pad + text_width("Lines index", title_size, 600) + 10, 34 if mobile else 30,
-           f"since {market.first:%b %Y}", 15 if mobile else 13, "muted", 500)
-    value_size = 38 if mobile else 32
-    value_y = 80 if mobile else 72
-    s.text(pad, value_y, num(market.lines), value_size, "fg", 700)
-    today_text = f"{signed(change)} today" if change else "flat today"
-    if mobile:
-        s.text(pad, 112, f"{today_text}   +{compact(additions)} / {MINUS}{compact(deletions)}   {len(commits)} commits",
-               16, "muted", 500)
-    else:
-        s.text(pad + text_width(num(market.lines), value_size, 700) + 14, value_y, today_text, 16, tone(change), 500)
-        stats = (("Commits", f"{len(commits):,}"), ("Added", f"+{compact(additions)}"), ("Deleted", f"{MINUS}{compact(deletions)}"))
-        x = w - pad
-        for label, value in reversed(stats):
-            s.text(x, 50, value, 15, "fg", 600, "end")
-            s.text(x, 72, label, 12, "muted", 500, "end")
-            x -= max(text_width(value, 15, 600), text_width(label, 12, 500)) + 26
-    return s
-
-
-def timeframe_row(market: Market, code: str, theme: str, mobile: bool) -> SVG:
-    """The clickable summary for one timeframe of the accordion."""
-    _, pill, name, period = next(item for item in TIMEFRAMES if item[0] == code)
-    candles = market.candles(code)
-    current = candles[-1]
-    change = current["close"] - current["open"]
-    w, h = (376, 70) if mobile else (800, 58)
-    s = SVG(w, h, theme, f"{pill} {name} candles")
-    pill_w, pill_h = (56, 38) if mobile else (52, 34)
-    s.rect(2, (h - pill_h) / 2, pill_w, pill_h, "pill", pill_h / 2)
-    s.text(2 + pill_w / 2, h / 2 + (16 if mobile else 14) * .36, pill, 16 if mobile else 14, "fg", 700, "middle")
-    x = pill_w + (14 if mobile else 18)
-    s.text(x, h / 2 - (3 if mobile else 2), name, 19 if mobile else 16, "fg", 600)
-    s.text(x, h / 2 + (19 if mobile else 16), f"{len(candles)} candles", 14 if mobile else 12, "muted", 500)
-    spark_x, spark_w = (178, 92) if mobile else (330, 220)
-    s.sparkline([candle["close"] for candle in candles], spark_x, h / 2 - 16, spark_w, 32, tone(change) if change else "up",
-                fill=False, dot=False, width=1.8)
-    badge_w, badge_h = (88, 38) if mobile else (104, 34)
-    if not mobile:
-        s.text(w - badge_w - 14, h / 2 + 5, period, 13, "muted", 500, "end")
-    s.badge(w - badge_w - 2, (h - badge_h) / 2, badge_w, badge_h, change, signed(change, True), 16 if mobile else 15)
     return s
 
 
@@ -675,18 +706,23 @@ def section_header(title: str, columns: tuple[str, ...], theme: str, mobile: boo
     return s
 
 
-def list_row(theme: str, mobile: bool, *, logo: tuple, name: str, sub: str, series: list, value: str,
+def list_row(theme: str, mobile: bool, *, logo: dict, name: str, sub: str, series: list, value: str,
              value_sub: str, change: float, change_label: str, label: str) -> SVG:
     L = ROW[mobile]
     w, h = L["w"], L["h"]
     s = SVG(w, h, theme, label)
     lx, r = L["logo"]
-    filename, scale, fit_mode = logo
-    s.logo(lx, h / 2, r, filename, scale, fit_mode)
-    room = L["spark"][0] - L["text_x"] - 14
-    s.text(L["text_x"], h / 2 - 4, fit(name, L["name"], room, 500), L["name"], "fg", 500)
-    s.text(L["text_x"], h / 2 + L["sub"] + 6, fit(sub, L["sub"], room), L["sub"], "muted", 400)
     sx, sw = L["spark"]
+    if "wordmark" in logo:
+        # A wordmark is the name itself, so it takes the place of the disc and the title.
+        mark_h = 26 if mobile else 24
+        s.image(logo["wordmark"][theme], lx - r, h / 2 - mark_h - 2, sx - (lx - r) - 18, mark_h, "xMinYMid meet")
+        s.text(lx - r, h / 2 + L["sub"] + 6, fit(sub, L["sub"], sx - lx), L["sub"], "muted", 400)
+    else:
+        s.logo(lx, h / 2, r, logo)
+        room = sx - L["text_x"] - 14
+        s.text(L["text_x"], h / 2 - 4, fit(name, L["name"], room, 500), L["name"], "fg", 500)
+        s.text(L["text_x"], h / 2 + L["sub"] + 6, fit(sub, L["sub"], room), L["sub"], "muted", 400)
     s.sparkline(series, sx, h / 2 - 22, sw, 40, tone(change) if change else "up", dot=False)
     value_room = L["badge"][0] - (sx + sw) - 14
     s.text(L["value_x"], h / 2 - 2, fit(value, L["value"], value_room, 600), L["value"], "fg", 600, "end")
@@ -698,136 +734,108 @@ def list_row(theme: str, mobile: bool, *, logo: tuple, name: str, sub: str, seri
     return s
 
 
-def project_rows(market: Market) -> list[tuple[str, callable, str, str]]:
-    rows = []
-    for i, project in enumerate(market.config["projects"]):
-        repository = project["repository"]
-        lines = market.repo_events(repository)
-        commits = sum(market.repo_events(repository, lines=False).values())
-        recent = market.recent(lines)
-        logo = (project["logo"], .7, project.get("logo_fit", "cover"))
-
-        def render(theme, mobile, project=project, lines=lines, commits=commits, recent=recent, logo=logo):
-            return list_row(theme, mobile, logo=logo, name=project["name"], sub=project["ticker"],
-                            series=market.trend(lines), value=num(sum(lines.values())),
-                            value_sub=f"{commits:,} commits", change=recent, change_label=signed(recent, True),
-                            label=f"{project['name']} repository")
-        rows.append((f"project-{i}", render, f"{project['name']} on GitHub", f"https://github.com/{repository}"))
-    return rows
+def project_row(view: View, i: int, theme: str, mobile: bool) -> SVG:
+    project = view.market.config["projects"][i]
+    events = view.market.events("repo-lines", project["repository"])
+    commits = sum(1 for row in view.market.commits if row["repository"].lower() == project["repository"].lower())
+    recent = view.change(events)
+    logo = {"file": project["logo"], "scale": .7, "fit": project.get("logo_fit", "cover")}
+    return list_row(theme, mobile, logo=logo, name=project["name"], sub=project["ticker"], series=view.series(events),
+                    value=num(sum(events.values())), value_sub=f"{commits:,} commits", change=recent,
+                    change_label=signed(recent, True), label=f"{project['name']} repository")
 
 
-def language_rows(market: Market) -> list[tuple[str, callable, str, str]]:
-    rows = []
-    sizes = market.data["languages"]["bytes"]
-    total = sum(sizes.values()) or 1
-    for i, (language, size) in enumerate(sizes.items()):
-        events = market.language_events(language)
-        recent = market.recent(events)
-        filename, scale = LANGUAGE_LOGOS.get(language, ("shell.svg", .6))
-        share = size / total * 100
-
-        def render(theme, mobile, language=language, size=size, events=events, recent=recent,
-                   logo=(filename, scale, "contain"), share=share):
-            net = sum(events.values())
-            return list_row(theme, mobile, logo=logo, name=language, sub=size_label(size),
-                            series=market.trend(events), value="<0.1%" if share < .1 else f"{share:.1f}%",
-                            value_sub=signed(net, True) if mobile else f"{signed(net, True)} lines", change=recent,
-                            change_label=signed(recent, True),
-                            label=language)
-        rows.append((f"lang-{i}", render, language,
-                     f"https://github.com/search?q=user%3A{market.username}+language%3A{language}&type=repositories"))
-    return rows
+def language_row(view: View, i: int, theme: str, mobile: bool) -> SVG:
+    market = view.market
+    language, size = market.languages[i]
+    events = market.events("language", language)
+    recent, net, share = view.change(events), sum(events.values()), size / market.language_total * 100
+    return list_row(theme, mobile, logo=market.logo(language), name=language, sub=size_label(size),
+                    series=view.series(events), value="<0.1%" if share < .1 else f"{share:.1f}%",
+                    value_sub=signed(net, True) if mobile else f"{signed(net, True)} lines", change=recent,
+                    change_label=signed(recent, True), label=language)
 
 
-def collaboration_rows(market: Market) -> list[tuple[str, callable, str, str]]:
-    rows = []
-    for i, entry in enumerate(market.config["collaborations"]):
-        repository = entry["repository"]
-        source = next((row for row in market.open_source["repositories"] if row["name"].lower() == repository.lower()), {})
-        events: dict[date, float] = {}
-        for stamp in source.get("merged_at", []):
-            events[day(stamp)] = events.get(day(stamp), 0) + 1
-        recent = market.recent(events)
-        stars = market.stars_of(repository)
-
-        def render(theme, mobile, entry=entry, events=events, recent=recent, stars=stars, source=source):
-            return list_row(theme, mobile, logo=(entry["logo"], .7, "cover"), name=entry["name"],
-                            sub=source.get("language") or "Open source", series=market.trend(events),
-                            value=f"{int(sum(events.values())):,}", value_sub=f"★ {kilo(stars)}", change=recent,
-                            change_label=signed(recent), label=f"{entry['name']} merged pull requests")
-        link = f"https://github.com/{repository}/pulls?q=is%3Apr+is%3Amerged+author%3A{market.username}"
-        rows.append((f"collab-{i}", render, f"My merged pull requests in {entry['name']}", link))
-    return rows
+def collaboration_row(view: View, i: int, theme: str, mobile: bool) -> SVG:
+    market = view.market
+    entry = market.config["collaborations"][i]
+    repository = entry["repository"]
+    source = next((row for row in market.open_source["repositories"] if row["name"].lower() == repository.lower()), {})
+    events = market.events("prs", repository)
+    recent = view.change(events)
+    logo = {"wordmark": entry["wordmark"]} if "wordmark" in entry else {"file": entry["logo"], "fit": "cover"}
+    return list_row(theme, mobile, logo=logo, name=entry["name"], sub=source.get("language") or "Open source",
+                    series=view.series(events), value=f"{int(sum(events.values())):,}",
+                    value_sub=f"★ {kilo(market.stars_of(repository))}", change=recent, change_label=signed(recent),
+                    label=f"{entry['name']} merged pull requests")
 
 
-def stack_tile(market: Market, tool: str, theme: str, mobile: bool) -> SVG:
-    filename, scale = STACK_LOGOS[tool]
-    repos = market.data["stack"].get(tool, [])
+def stack_tile(view: View, tool: str, theme: str, mobile: bool) -> SVG:
+    market = view.market
+    repos = market.data.get("stack", {}).get(tool, [])
     events = market.stack_events(tool)
-    commits, recent = int(sum(events.values())), market.recent(events)
+    commits, recent = int(sum(events.values())), view.change(events)
     color = tone(recent) if recent else "up"
     w, h = (200, 168) if mobile else (421, 104)
-    s = SVG(w, h, theme, f"{tool}")
+    s = SVG(w, h, theme, tool)
     s.rect(4, 4, w - 8, h - 8, "card", 16 if mobile else 14)
     repo_text = f"{len(repos)} repo{'s' if len(repos) != 1 else ''}"
+    spec = market.logo(tool)
     if mobile:
-        s.logo(36, 38, 18, filename, scale)
+        s.logo(36, 38, 18, spec)
         s.text(62, 44, fit(tool, 17, w - 76, 600), 17, "fg", 600)
         s.text(20, 92, f"{commits:,}", 28, "fg", 700)
         s.text(20, 116, f"commits · {repo_text}", 14, "muted", 500)
-        s.sparkline(market.trend(events), 20, 126, w - 40, 26, color, dot=False)
+        s.sparkline(view.series(events), 20, 126, w - 40, 26, color, dot=False)
     else:
-        s.logo(46, h / 2, 22, filename, scale)
-        s.text(80, h / 2 - 4, tool, 18, "fg", 600)
+        s.logo(46, h / 2, 22, spec)
+        s.text(80, h / 2 - 4, fit(tool, 18, 132, 600), 18, "fg", 600)
         s.text(80, h / 2 + 18, repo_text, 13, "muted", 500)
-        s.sparkline(market.trend(events), 196, h / 2 - 20, 110, 40, color, dot=False)
+        s.sparkline(view.series(events), 222, h / 2 - 20, 92, 40, color, dot=False)
         s.text(w - 22, h / 2 - 2, f"{commits:,}", 20, "fg", 700, "end")
-        s.text(w - 22, h / 2 + 18, f"{signed(recent)} 30D", 13, color if recent else "muted", 600, "end")
+        s.text(w - 22, h / 2 + 18, f"{signed(recent)} {view.label}", 13, color if recent else "muted", 600, "end")
     return s
 
 
-MEDAL = ("M10 2 L14 9 M22 2 L18 9 M16 30 A9 9 0 1 0 16 12 A9 9 0 1 0 16 30 Z M16 16 L17.6 19.4 L21.2 19.8 "
-         "L18.5 22.2 L19.3 25.8 L16 24 L12.7 25.8 L13.5 22.2 L10.8 19.8 L14.4 19.4 Z")
-TROPHY = "M9 4 H23 V11 A7 7 0 0 1 9 11 Z M9 6 H4 V8 A5 5 0 0 0 9.5 13 M23 6 H28 V8 A5 5 0 0 1 22.5 13 M16 18 V24 M10 28 H22 M12 24 H20 V28"
-MEDAL_COLORS = {"light": ("#bf8700", "#8250df", "#0969da", "#1a7f37"), "dark": ("#e3b341", "#a371f7", "#4493f8", "#3fb950")}
-
-
-def achievement_tile(achievement: dict, i: int, theme: str, mobile: bool) -> SVG:
-    w, h = (200, 168) if mobile else (421, 112)
+def achievement_tile(achievement: dict, theme: str, mobile: bool) -> SVG:
+    w, h = (200, 188) if mobile else (421, 112)
     s = SVG(w, h, theme, f"{achievement['rank']}, {achievement['event']}")
     s.rect(4, 4, w - 8, h - 8, "card", 16 if mobile else 14)
-    color = MEDAL_COLORS[theme][i % 4]
-    box = 44 if mobile else 52
-    bx, by = (18, 18) if mobile else (22, (h - 52) / 2)
-    s.rect(bx, by, box, box, "bg", 12, stroke=color, stroke_width="1.6")
-    s.add(f'<path d="{TROPHY if i == 0 else MEDAL}" transform="translate({bx + box * .14:.1f} {by + box * .14:.1f}) '
-          f'scale({box * .72 / 32:.3f})" fill="none" stroke="{color}" stroke-width="2.2" stroke-linecap="round" '
-          'stroke-linejoin="round"/>')
-    tag_size, tag_h = (15, 26) if mobile else (12, 22)
+    box = 48 if mobile else 60
+    bx, by = (18, 18) if mobile else (20, (h - 60) / 2)
+    filename = achievement["logo"]
+    s.logo(bx + box / 2, by + box / 2, box / 2, {"file": filename, "scale": .78 if filename.endswith(".png") else .62},
+           square=True)
+    tag_size, tag_h = (14, 26) if mobile else (12, 22)
     tag_w = text_width(achievement["tag"], tag_size, 600) + 18
-    tx = w - 18 - tag_w
-    s.rect(tx, 18, tag_w, tag_h, "bg", tag_h / 2)
-    s.text(tx + tag_w / 2, 18 + tag_h / 2 + tag_size * .36, achievement["tag"], tag_size, "muted", 600, "middle")
+    if tag_w < w - (bx + box) - 30:
+        tx = w - 16 - tag_w
+        s.rect(tx, 18, tag_w, tag_h, "bg", tag_h / 2)
+        s.text(tx + tag_w / 2, 18 + tag_h / 2 + tag_size * .36, achievement["tag"], tag_size, "muted", 600, "middle")
     if mobile:
-        s.text(18, 98, fit(achievement["rank"], 22, w - 36, 700), 22, "fg", 700)
-        for j, line in enumerate(wrap(achievement["event"], 15, w - 36)[:2]):
-            s.text(18, 124 + j * 20, line, 15, "muted", 500)
+        y = 96
+        for line in wrap(achievement["rank"], 20, w - 36, 700)[:2]:
+            s.text(18, y, line, 20, "fg", 700)
+            y += 24
+        for line in wrap(achievement["event"], 14, w - 36)[:2]:
+            s.text(18, y + 2, line, 14, "muted", 500)
+            y += 19
     else:
         x = bx + box + 18
-        s.text(x, h / 2 - 2, achievement["rank"], 22, "fg", 700)
-        s.text(x, h / 2 + 22, fit(achievement["event"], 14, w - x - 22, 500), 14, "muted", 500)
+        s.text(x, h / 2 - 2, fit(achievement["rank"], 21, w - x - 20, 700), 21, "fg", 700)
+        s.text(x, h / 2 + 22, fit(achievement["event"], 14, w - x - 20, 500), 14, "muted", 500)
     return s
 
 
-# ---------------------------------------------------------------- README
+# ---------------------------------------------------------------- pages
 
-class Readme:
+class Page:
     def __init__(self, base: str):
         self.base = base
 
-    def picture(self, name: str, alt: str, width: str, title: str | None = None, align: str | None = None) -> str:
+    def picture(self, name: str, alt: str, width: str, title: str | None = None) -> str:
         url = f"{self.base}assets/gen/{name}"
-        hover = (f' title="{escape(title)}"' if title else "") + (f' align="{align}"' if align else "")
+        hover = f' title="{escape(title)}"' if title else ""
         return (f'<picture><source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="{url}-dark-m.svg">'
                 f'<source media="(max-width: 600px)" srcset="{url}-light-m.svg">'
                 f'<source media="(prefers-color-scheme: dark)" srcset="{url}-dark.svg">'
@@ -847,7 +855,67 @@ def commit_search(username: str, first: date, last: date) -> str:
     return "https://github.com/search?type=commits&q=" + query.replace(":", "%3A").replace(" ", "+").replace("/", "%2F")
 
 
-def build(data: dict, config: dict, base: str) -> tuple[dict[str, str], str]:
+def tab_url(code: str) -> str:
+    return PROFILE_URL if code == DEFAULT_VIEW else VIEW_URL.format(code)
+
+
+def render_page(view: View, base: str, banner: str) -> str:
+    market, config = view.market, view.market.config
+    r = Page(base)
+    username, portfolio, p = market.username, config["portfolio"], view.prefix
+    rows = lambda items: "<br>".join(r.link(href, r.picture(name, label, "100%", label), label) for name, label, href in items)
+    pairs = lambda cells: "<br>".join("".join(cells[i:i + 2]) for i in range(0, len(cells), 2))
+    tabs = "".join(r.link(tab_url(code), r.picture(f"tab-{code.lower()}-{'on' if code == view.code else 'off'}",
+                                                     f"{name} view", f"{TAB_PCT}%", f"{name} view"), f"{name} view")
+                   for code, (name, _, _) in VIEWS.items())
+    tiles = "".join(r.link(href, r.picture(f"{p}-index-{key}", f"{title} index", "33.2%", tip), tip)
+                    for (key, title, _), href, tip in zip(INDEX_TILES, (
+                        f"https://github.com/{username}?tab=repositories&sort=stargazers",
+                        commit_search(username, market.first, market.today),
+                        market.open_source["url"]), (
+                        "Stars on my repositories plus the projects that merged my pull requests",
+                        "Every commit I have authored in my public repositories",
+                        "Pull requests merged into other people's projects")))
+    g = Geometry(view.candles, False)
+    slices = "".join(r.link(commit_search(username, candle["start"], min(candle["end"], market.today)),
+                            r.picture(f"{p}-chart-{i:02d}", candle_title(view.code, candle), f"{g.slice_pct}%",
+                                      candle_title(view.code, candle)), candle_title(view.code, candle))
+                     for i, candle in enumerate(view.candles))
+    projects = [(f"{p}-project-{i}", f"{project['name']} on GitHub", f"https://github.com/{project['repository']}")
+                for i, project in enumerate(config["projects"])]
+    languages = [(f"{p}-lang-{i}", language,
+                  f"https://github.com/search?q=user%3A{username}+language%3A{language.replace(' ', '+')}&type=repositories")
+                 for i, (language, _) in enumerate(market.languages)]
+    collabs = [(f"{p}-collab-{i}", f"My merged pull requests in {entry['name']}",
+                f"https://github.com/{entry['repository']}/pulls?q=is%3Apr+is%3Amerged+author%3A{username}")
+               for i, entry in enumerate(config["collaborations"])]
+    stack = [r.link(f"https://github.com/{username}?tab=repositories", r.picture(f"{p}-stack-{i}", tool, "49.8%", tool), tool)
+             for i, tool in enumerate(market.tools)]
+    record = [r.link(a["url"], r.picture(f"record-{i}", f"{a['rank']}: {a['event']}", "49.8%", f"{a['rank']}, {a['event']}"))
+              for i, a in enumerate(config["achievements"])]
+    more = lambda count, noun, body: f"<details><summary>All {count} {noun}</summary>\n\n<p>{body}</p>\n\n</details>"
+    banner_img = f'<img src="{banner}" width="100%" alt="The New York Stock Exchange facade at dusk">'
+    return "\n\n".join(filter(None, [
+        "<!-- Generated by scripts/render_profile.py. Edit profile.json or the script, not this file. -->",
+        f'<p>{r.link(portfolio, banner_img, "Portfolio")}<br>{r.picture(f"{p}-tape", "Live tape", "100%")}</p>',
+        f'<p>{tabs}{r.picture(f"{p}-range", f"{view.name} candles", f"{RANGE_PCT}%")}</p>',
+        f"<p>{tiles}</p>",
+        f'<p>{r.picture(f"{p}-lines-header", "Lines index", "100%")}<br>{slices}'
+        f'{r.picture(f"{p}-chart-axis", "Price axis", f"{AXIS_PCT}%")}<br>{r.picture(f"{p}-chart-dates", "Dates", "100%")}</p>',
+        f'<p>{r.link(f"https://github.com/{username}?tab=repositories", r.picture(f"{p}-section-watchlist", "Watchlist", "100%"), "All repositories")}'
+        f"<br>{rows(projects)}</p>",
+        f'<p>{r.picture(f"{p}-section-languages", "Languages", "100%")}<br>{rows(languages[:VISIBLE_LANGUAGES])}</p>',
+        more(len(languages), "languages", rows(languages[VISIBLE_LANGUAGES:])) if len(languages) > VISIBLE_LANGUAGES else "",
+        f'<p>{r.picture(f"{p}-section-stack", "Tech stack", "100%")}<br>{pairs(stack[:VISIBLE_TOOLS])}</p>',
+        more(len(stack), "tools", pairs(stack[VISIBLE_TOOLS:])) if len(stack) > VISIBLE_TOOLS else "",
+        f'<p>{r.link(market.open_source["url"], r.picture(f"{p}-section-collabs", "Collaborations", "100%"), "Every merged pull request")}'
+        f"<br>{rows(collabs)}</p>",
+        f'<p>{r.link(portfolio, r.picture("section-record", "Track record", "100%"), "Portfolio")}<br>{pairs(record)}</p>',
+        '<p align="right"><sub>Live public data, refreshed every 15 minutes</sub></p>',
+    ])) + "\n"
+
+
+def build(data: dict, config: dict, base: str) -> tuple[dict[str, str], str, dict[str, str], list[str]]:
     market = Market(data, config)
     files: dict[str, str] = {}
 
@@ -856,81 +924,41 @@ def build(data: dict, config: dict, base: str) -> tuple[dict[str, str], str]:
             for mobile in (False, True):
                 files[f"{name}-{theme}{'-m' if mobile else ''}.svg"] = render(theme, mobile).svg()
 
-    emit("tape", lambda t, m: tape(market, t, m))
-    for key, *_ in INDEX_TILES:
-        emit(f"index-{key}", lambda t, m, key=key: index_tile(market, key, t, m))
-    emit("lines-header", lambda t, m: chart_header(market, t, m))
-    for code, *_ in TIMEFRAMES:
-        emit(f"tf-{code.lower()}", lambda t, m, code=code: timeframe_row(market, code, t, m))
-        emit(f"chart-{code.lower()}-axis", lambda t, m, code=code: chart_axis(market, code, t, m))
-        emit(f"chart-{code.lower()}-dates", lambda t, m, code=code: chart_dates(market, code, t, m))
-        for i in range(len(market.candles(code))):
-            emit(f"chart-{code.lower()}-{i:02d}", lambda t, m, code=code, i=i: chart_slice(market, code, i, t, m))
-    sections = {
-        "watchlist": ("Watchlist", ("Project", "Net lines", f"{RECENT}D")),
-        "languages": ("Languages", ("Language", "Share", f"{RECENT}D")),
-        "stack": ("Tech stack", ()),
-        "collabs": ("Collaborations", ("Repository", "Merged PRs", f"{RECENT}D")),
-        "record": ("Track record", ()),
-    }
-    for key, (title, columns) in sections.items():
-        emit(f"section-{key}", lambda t, m, title=title, columns=columns: section_header(title, columns, t, m))
-    projects, languages, collabs = project_rows(market), language_rows(market), collaboration_rows(market)
-    for name, render, *_ in projects + languages + collabs:
-        emit(name, render)
-    for i, tool in enumerate(config["stack"]):
-        emit(f"stack-{i}", lambda t, m, tool=tool: stack_tile(market, tool, t, m))
+    for code in VIEWS:
+        for active in (True, False):
+            emit(f"tab-{code.lower()}-{'on' if active else 'off'}", lambda t, m, code=code, active=active: tab(code, active, t, m))
+    emit("section-record", lambda t, m: section_header("Track record", (), t, m))
     for i, achievement in enumerate(config["achievements"]):
-        emit(f"record-{i}", lambda t, m, a=achievement, i=i: achievement_tile(a, i, t, m))
-
-    r = Readme(base)
-    username, portfolio = market.username, config["portfolio"]
-    rows = lambda items: "<br>".join(r.link(href, r.picture(name, label, "100%", label), label) for name, _, label, href in items)
-    pairs = lambda cells: "<br>".join("".join(cells[i:i + 2]) for i in range(0, len(cells), 2))
-    tiles = "".join(r.link(href, r.picture(f"index-{key}", f"{title} index", "33.2%", tip), tip)
-                    for (key, title, _), href, tip in zip(INDEX_TILES, (
-                        f"https://github.com/{username}?tab=repositories&sort=stargazers",
-                        commit_search(username, market.first, market.today),
-                        data["open_source"]["url"]), (
-                        "Stars on my repositories plus the projects that merged my pull requests",
-                        "Every commit I have authored in my public repositories",
-                        "Pull requests merged into other people's projects")))
-    timeframes = []
-    for code, pill, name, _ in TIMEFRAMES:
-        candles = market.candles(code)
-        g = Geometry(candles, False)
-        slices = "".join(r.link(commit_search(username, candle["start"], min(candle["end"], market.today)),
-                                r.picture(f"chart-{code.lower()}-{i:02d}", candle_title(code, candle), f"{g.slice_pct}%",
-                                          candle_title(code, candle)), candle_title(code, candle))
-                         for i, candle in enumerate(candles))
-        axis = r.picture(f"chart-{code.lower()}-axis", "Price axis", f"{AXIS_PCT}%")
-        dates = r.picture(f"chart-{code.lower()}-dates", "Dates", "100%")
-        summary = r.picture(f"tf-{code.lower()}", f"{pill} {name}", "94%", f"Show {name.lower()} candles", "middle")
-        timeframes.append(f'<details name="timeframe"{" open" if code == DEFAULT_TIMEFRAME else ""}>'
-                          f"<summary>{summary}</summary>\n\n<p>{slices}{axis}<br>{dates}</p>\n\n</details>")
-    stack = [r.link(f"https://github.com/{username}?tab=repositories", r.picture(f"stack-{i}", tool, "49.8%", tool), tool)
-             for i, tool in enumerate(config["stack"])]
-    record = [r.link(a["url"], r.picture(f"record-{i}", f"{a['rank']}: {a['event']}", "49.8%", f"{a['rank']}, {a['event']}"))
-              for i, a in enumerate(config["achievements"])]
-    hidden = languages[VISIBLE_LANGUAGES:]
-    banner = '<img src="assets/nyse-banner.png" width="100%" alt="The New York Stock Exchange facade at dusk">'
-    readme = "\n\n".join(filter(None, [
-        "<!-- Generated by scripts/render_profile.py. Edit profile.json or the script, not this file. -->",
-        f'<p>{r.link(portfolio, banner, "Portfolio")}<br>{r.picture("tape", "Live tape", "100%")}</p>',
-        f"<p>{tiles}</p>",
-        f'<p>{r.picture("lines-header", "Lines index", "100%")}</p>',
-        "\n".join(timeframes),
-        f'<p>{r.link(f"https://github.com/{username}?tab=repositories", r.picture("section-watchlist", "Watchlist", "100%"), "All repositories")}'
-        f"<br>{rows(projects)}</p>",
-        f'<p>{r.picture("section-languages", "Languages", "100%")}<br>{rows(languages[:VISIBLE_LANGUAGES])}</p>',
-        (f"<details><summary>All {len(languages)} languages</summary>\n\n<p>{rows(hidden)}</p>\n\n</details>" if hidden else ""),
-        f'<p>{r.picture("section-stack", "Tech stack", "100%")}<br>{pairs(stack)}</p>',
-        f'<p>{r.link(data["open_source"]["url"], r.picture("section-collabs", "Collaborations", "100%"), "Every merged pull request")}'
-        f"<br>{rows(collabs)}</p>",
-        f'<p>{r.link(portfolio, r.picture("section-record", "Track record", "100%"), "Portfolio")}<br>{pairs(record)}</p>',
-        '<p align="right"><sub>Live public data, refreshed every 15 minutes</sub></p>',
-    ])) + "\n"
-    return files, readme
+        emit(f"record-{i}", lambda t, m, a=achievement: achievement_tile(a, t, m))
+    pages: dict[str, str] = {}
+    for code in VIEWS:
+        view, p = View(market, code), code.lower()
+        emit(f"{p}-tape", lambda t, m, v=view: tape(v, t, m))
+        emit(f"{p}-range", lambda t, m, v=view: range_label(v, t, m))
+        for key, *_ in INDEX_TILES:
+            emit(f"{p}-index-{key}", lambda t, m, v=view, key=key: index_tile(v, key, t, m))
+        emit(f"{p}-lines-header", lambda t, m, v=view: lines_header(v, t, m))
+        emit(f"{p}-chart-axis", lambda t, m, v=view: chart_axis(v, t, m))
+        emit(f"{p}-chart-dates", lambda t, m, v=view: chart_dates(v, t, m))
+        for i in range(len(view.candles)):
+            emit(f"{p}-chart-{i:02d}", lambda t, m, v=view, i=i: chart_slice(v, i, t, m))
+        label = view.label
+        for key, title, columns in (("watchlist", "Watchlist", ("Project", "Net lines", label)),
+                                    ("languages", "Languages", ("Language", "Share", label)),
+                                    ("stack", "Tech stack", ()),
+                                    ("collabs", "Collaborations", ("Repository", "Merged PRs", label))):
+            emit(f"{p}-section-{key}", lambda t, m, title=title, columns=columns: section_header(title, columns, t, m))
+        for i in range(len(config["projects"])):
+            emit(f"{p}-project-{i}", lambda t, m, v=view, i=i: project_row(v, i, t, m))
+        for i in range(len(market.languages)):
+            emit(f"{p}-lang-{i}", lambda t, m, v=view, i=i: language_row(v, i, t, m))
+        for i, tool in enumerate(market.tools):
+            emit(f"{p}-stack-{i}", lambda t, m, v=view, tool=tool: stack_tile(v, tool, t, m))
+        for i in range(len(config["collaborations"])):
+            emit(f"{p}-collab-{i}", lambda t, m, v=view, i=i: collaboration_row(v, i, t, m))
+        pages[code] = render_page(view, base, "assets/nyse-banner.png" if code == DEFAULT_VIEW else BANNER_LIVE)
+    readme = pages.pop(DEFAULT_VIEW)
+    return files, readme, pages, market.missing_logos()
 
 
 def main():
@@ -938,22 +966,32 @@ def main():
     parser.add_argument("--data", type=Path, default=ROOT / "data/activity.json")
     parser.add_argument("--config", type=Path, default=ROOT / "profile.json")
     parser.add_argument("--output", type=Path, default=ROOT / "assets/gen")
-    parser.add_argument("--base", default=LIVE_BASE, help="URL prefix for widget images in README.md")
+    parser.add_argument("--views", type=Path, default=ROOT / "views")
+    parser.add_argument("--base", default=LIVE_BASE, help="URL prefix for widget images")
     args = parser.parse_args()
     data = json.loads(args.data.read_text(encoding="utf-8"))
     config = json.loads(args.config.read_text(encoding="utf-8"))
     if not data["coverage"]["complete"] or data.get("schema_version", 1) < 3:
         raise ValueError("Refusing to render an incomplete or outdated activity snapshot")
-    files, readme = build(data, config, args.base)
+    files, readme, pages, missing = build(data, config, args.base)
     args.output.mkdir(parents=True, exist_ok=True)
-    # The folder is fully generated; clearing it drops widgets for candles that left the chart.
+    args.views.mkdir(parents=True, exist_ok=True)
+    # Both folders are fully generated; clearing them drops widgets that no longer exist.
     for stale in args.output.glob("*.svg"):
         if stale.name not in files:
             stale.unlink()
     for name, content in files.items():
         (args.output / name).write_text(content, encoding="utf-8", newline="\n")
+    for code, content in pages.items():
+        (args.views / f"{code}.md").write_text(content, encoding="utf-8", newline="\n")
     (ROOT / "README.md").write_text(readme, encoding="utf-8", newline="\n")
-    print(f"Rendered {len(files)} widgets and README.md.")
+    print(f"Rendered {len(files)} widgets, README.md and {len(pages)} range views.")
+    if missing:
+        note = "No logo found yet for: " + ", ".join(missing) + ". Add a file to assets/logos and map it in scripts/catalog.py."
+        print(note)
+        if os.environ.get("GITHUB_STEP_SUMMARY"):
+            with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+                summary.write(f"{note}\n")
 
 
 if __name__ == "__main__":

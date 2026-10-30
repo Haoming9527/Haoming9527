@@ -21,11 +21,14 @@ from pathlib import Path
 import re
 import sys
 import tempfile
+import tomllib
 import time as clock
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
+
+import catalog
 
 
 UTC = timezone.utc
@@ -56,8 +59,6 @@ LANGUAGE_EXTENSIONS = {
 }
 LANGUAGE_FILENAMES = {"Dockerfile": "Dockerfile", "Makefile": "Makefile"}
 VENDORED = {"node_modules", "vendor", "dist", "build", ".next", "coverage"}
-MANIFESTS = ("package.json", "go.mod", "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml")
-POSTGRES_PACKAGES = {"pg", "postgres", "pg-promise", "@neondatabase/serverless", "@vercel/postgres"}
 
 
 class CollectionError(RuntimeError):
@@ -322,47 +323,98 @@ def contribution_exclusions(config: dict[str, Any]) -> list[str]:
     return exclusions
 
 
+def package_names(base: str, text: str) -> tuple[str, set[str]]:
+    """Dependency names declared by one manifest, keyed by ecosystem."""
+    def python_name(spec: str) -> str:
+        match = re.match(r"\s*([A-Za-z0-9][A-Za-z0-9._-]*)", spec)
+        return match.group(1).lower().replace("_", "-") if match else ""
+    try:
+        if base == "package.json":
+            manifest = json.loads(text)
+            return "npm", {name for field in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies")
+                           for name in (manifest.get(field) or {})}
+        if base.startswith("requirements"):
+            return "python", {python_name(line) for line in text.splitlines() if line.strip() and not line.lstrip().startswith(("#", "-"))}
+        if base in ("pyproject.toml", "Pipfile", "Cargo.toml"):
+            data = tomllib.loads(text)
+            if base == "Cargo.toml":
+                return "cargo", set(data.get("dependencies", {})) | set(data.get("dev-dependencies", {}))
+            project = data.get("project", {})
+            specs = list(project.get("dependencies", [])) + [spec for group in project.get("optional-dependencies", {}).values() for spec in group]
+            names = {python_name(spec) for spec in specs} | set(data.get("packages", {})) | set(data.get("dev-packages", {}))
+            names |= set(data.get("tool", {}).get("poetry", {}).get("dependencies", {}))
+            return "python", {name.lower().replace("_", "-") for name in names}
+    except (ValueError, TypeError, AttributeError, tomllib.TOMLDecodeError):
+        pass
+    return "", set()
+
+
 def detect_stack(repository: str, branch: str, client: GitHubClient) -> list[str]:
-    """Name the tools a repository uses, from its manifests and container files."""
+    """Name the tools a repository uses, from its manifests, container files and layout."""
     tree, _ = client.get(f"/repos/{repository}/git/trees/{quote(branch, safe='')}?recursive=1")
     paths = [item.get("path", "") for item in tree.get("tree", []) if item.get("type") == "blob"]
     paths = [path for path in paths if not set(path.split("/")) & VENDORED]
-    names = {path: path.rsplit("/", 1)[-1] for path in paths}
-    packages: set[str] = set()
-    texts = ""
-    for path in [path for path in paths if names[path] in MANIFESTS][:16]:
+    facts: dict[str, Any] = {"npm": set(), "python": set(), "cargo": set(), "go": "", "maven": "", "text": "",
+                             "files": {path.rsplit("/", 1)[-1] for path in paths}, "paths": paths}
+    for path in [path for path in paths if path.rsplit("/", 1)[-1] in catalog.MANIFESTS][:24]:
         body, _ = client.get(f"/repos/{repository}/contents/{quote(path)}?{urlencode({'ref': branch})}")
         try:
             text = base64.b64decode(body.get("content", "")).decode("utf-8", "replace")
         except (ValueError, TypeError) as error:
             raise CollectionError(f"Unreadable manifest {repository}/{path}") from error
-        if names[path] != "package.json":
-            texts += text.lower() + "\n"
+        base = path.rsplit("/", 1)[-1]
+        ecosystem, names = package_names(base, text)
+        if ecosystem:
+            facts[ecosystem] |= names
+        elif base == "go.mod":
+            facts["go"] += text
+        elif base in ("pom.xml", "build.gradle", "build.gradle.kts"):
+            facts["maven"] += text
+        elif base not in ("package.json", "pyproject.toml", "Pipfile", "Cargo.toml") and not base.startswith("requirements"):
+            facts["text"] += text.lower() + "\n"
+    return sorted(name for name, rules in catalog.TOOLS.items() if catalog.tool_matches(rules, facts))
+
+
+def fetch_logo(url: str) -> str | None:
+    """Download a public SVG logo from jsDelivr; any failure just means "not found yet"."""
+    if not url.startswith("https://cdn.jsdelivr.net/"):
+        return None
+    try:
+        with urlopen(Request(url, headers={"User-Agent": "Economist-profile-activity"}), timeout=15) as response:
+            body = response.read(200_000)
+        text = body.decode("utf-8")
+        return text if "<svg" in text else None
+    except (OSError, ValueError, UnicodeError):
+        return None
+
+
+def clean_svg(markup: str, colour: str | None) -> str:
+    markup = re.sub(r"(?is)<script.*?</script>|<title>.*?</title>|<\?xml.*?\?>|<!--.*?-->", "", markup)
+    markup = re.sub(r"(?i)\son[a-z]+=\"[^\"]*\"", "", markup).strip()
+    if colour:
+        markup = re.sub(r"<svg\b", f'<svg fill="#{colour}"', markup, count=1)
+    return markup
+
+
+def resolve_logos(names: list[str], previous: dict[str, Any], today: str,
+                  fetch: Callable[[str], str | None] | None) -> dict[str, Any]:
+    """Logos for every language and tool without a vendored file, cached between runs."""
+    logos: dict[str, Any] = {}
+    for name in dict.fromkeys(names):
+        if name in catalog.VENDORED:
             continue
-        try:
-            manifest = json.loads(text)
-        except ValueError:
+        cached = previous.get(name)
+        if cached and (cached.get("svg") or cached.get("checked") == today or fetch is None):
+            logos[name] = cached
             continue
-        for field in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies"):
-            packages.update((manifest.get(field) or {}).keys())
-    found = set()
-    if "package.json" in names.values():
-        found.add("Node.js")
-    if "react" in packages:
-        found.add("React")
-    if "next" in packages:
-        found.add("Next.js")
-    if "ai" in packages or any(name.startswith("@ai-sdk/") for name in packages):
-        found.add("AI SDK")
-    if "@modelcontextprotocol/sdk" in packages or "modelcontextprotocol/go-sdk" in texts or "mark3labs/mcp-go" in texts:
-        found.add("MCP")
-    if any("ollama" in name for name in packages) or "ollama" in texts:
-        found.add("Ollama")
-    if packages & POSTGRES_PACKAGES or "jackc/pgx" in texts or "lib/pq" in texts or "postgres" in texts:
-        found.add("PostgreSQL")
-    if any(name == "Dockerfile" or name in MANIFESTS[2:] for name in names.values()):
-        found.add("Docker")
-    return sorted(found)
+        found = None
+        for url, colour in (catalog.logo_urls(name) if fetch else []):
+            markup = fetch(url)
+            if markup:
+                found = {"svg": clean_svg(markup, colour), "source": url}
+                break
+        logos[name] = found or {"missing": True, "checked": today}
+    return logos
 
 
 def commit_detail(repository: str, sha: str, committed_at: datetime, client: GitHubClient) -> dict[str, Any]:
@@ -420,7 +472,8 @@ def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -
 
 
 def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
-            progress: Callable[[str], None] | None = None, previous: dict[str, Any] | None = None) -> dict[str, Any]:
+            progress: Callable[[str], None] | None = None, previous: dict[str, Any] | None = None,
+            fetch: Callable[[str], str | None] | None = None) -> dict[str, Any]:
     username, repositories, days = validate_config(config)
     exclusion_names = contribution_exclusions(config)
     previous = previous if (previous or {}).get("schema_version") == 3 else {}
@@ -446,13 +499,15 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             raise CollectionError(f"No default branch found for {repository}")
         row = {"name": repository, "default_branch": default_branch, "pushed_at": metadata.get("pushed_at"),
                "stars": metadata.get("stargazers_count", 0), "language": metadata.get("language"),
-               "shas": [], "languages": {}, "stack": [], "excluded": dict.fromkeys(("merge_commits", "other_authors"), 0)}
+               "rules": catalog.RULES_VERSION, "shas": [], "languages": {}, "stack": [],
+               "excluded": dict.fromkeys(("merge_commits", "other_authors"), 0)}
         cached = cached_repos.get(repository.lower())
         if (cached and cached.get("pushed_at") == row["pushed_at"] and cached.get("default_branch") == default_branch
                 and all(sha in cached_commits for sha in cached["shas"])):
             # Nothing was pushed since the last snapshot, so nothing can have changed.
-            row.update(shas=cached["shas"], languages=cached["languages"], stack=cached["stack"],
-                       excluded=cached["excluded"])
+            row.update(shas=cached["shas"], languages=cached["languages"], excluded=cached["excluded"],
+                       stack=cached["stack"] if cached.get("rules") == catalog.RULES_VERSION
+                       else detect_stack(repository, default_branch, client))
             reused += 1
         elif metadata.get("size") == 0 and not list(client.pages(f"/repos/{repository}/branches?per_page=100")):
             pass  # Empty repository: GitHub answers 409 for its commits.
@@ -514,6 +569,7 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             language_bytes[language] = language_bytes.get(language, 0) + size
         for tool in row["stack"]:
             stack.setdefault(tool, []).append(row["name"])
+    logos = resolve_logos(list(language_bytes) + list(stack), previous.get("logos", {}), end.date().isoformat(), fetch)
     return {
         "schema_version": 3,
         "github_username": username,
@@ -534,6 +590,7 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
         "languages": {"bytes": dict(sorted(language_bytes.items(), key=lambda pair: (-pair[1], pair[0]))),
                       "scope": "GitHub Linguist bytes in the configured public repositories' default branches"},
         "stack": dict(sorted(stack.items())),
+        "logos": logos,
         "stars": stars,
     }
 
@@ -574,7 +631,8 @@ def main(argv: list[str] | None = None) -> int:
         client = (ReplayClient(json.loads(args.responses.read_text(encoding="utf-8-sig"))) if args.responses
                   else GitHubClient(os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")))
         previous = load_previous(args.output)
-        snapshot = collect(config, client, now, lambda message: print(message, file=sys.stderr, flush=True), previous)
+        snapshot = collect(config, client, now, lambda message: print(message, file=sys.stderr, flush=True), previous,
+                           None if args.responses else fetch_logo)
         write_snapshot(args.output, snapshot)
     except (CollectionError, OSError, ValueError) as error:
         print(f"Activity refresh failed; previous snapshot preserved: {error}", file=sys.stderr)

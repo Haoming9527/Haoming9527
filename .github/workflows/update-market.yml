@@ -1,8 +1,8 @@
 name: Refresh the market board
 
 # Near-real-time: every 15 minutes (GitHub may start scheduled runs a little late).
-# Widgets go to the `market` branch as a single replaced commit, so main only changes
-# when README.md's structure or a closed candle's hover text changes.
+# Widgets and the D/M/Q/Y range pages go to the `market` branch as a single replaced
+# commit, so main only changes when README.md's structure or a candle's hover text does.
 on:
   schedule:
     - cron: '*/15 * * * *'
@@ -60,7 +60,7 @@ jobs:
         env:
           PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          digest=$(cd assets/gen && LC_ALL=C sha256sum *.svg | sha256sum | cut -d' ' -f1)
+          digest=$(LC_ALL=C sha256sum assets/gen/*.svg views/*.md | sha256sum | cut -d' ' -f1)
           if [ -f previous-digest.txt ] && [ "$digest" = "$(cat previous-digest.txt)" ]; then
             echo 'Widgets unchanged.'
             exit 0
@@ -68,6 +68,7 @@ jobs:
           site=$(mktemp -d)
           mkdir -p "$site/assets" "$site/data"
           cp -r assets/gen "$site/assets/gen"
+          cp -r views "$site/views"
           cp data/activity.json "$site/data/activity.json"
           echo "$digest" > "$site/digest.txt"
           cd "$site"

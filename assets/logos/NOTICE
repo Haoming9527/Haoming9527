@@ -7,6 +7,10 @@ Devicon (MIT License, Copyright (c) 2015 konpa), https://devicon.dev, v2.17.0:
   javascript.svg, typescript.svg, html.svg, css.svg, java.svg, postgresql.svg,
   shell.svg, batchfile.svg (Windows 11), docker.svg, powershell.svg, react.svg
 
+LobeHub Icons (MIT License, Copyright (c) LobeHub), https://github.com/lobehub/lobe-icons, v1.70.0:
+  openai.svg, lovable.svg
+
+  The MIT licence for Devicon and LobeHub Icons:
   Permission is hereby granted, free of charge, to any person obtaining a copy of
   this software and associated documentation files (the "Software"), to deal in
   the Software without restriction, including without limitation the rights to
@@ -17,6 +21,8 @@ Devicon (MIT License, Copyright (c) 2015 konpa), https://devicon.dev, v2.17.0:
   the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 Project icons come from their repositories (DGX-Spark-Platform, Needle,
-Upload-History). dsh-ops.jpg and intelidar.jpg are the GitHub avatars of the
-accounts that own those projects.
-All marks belong to their owners and identify the technologies and projects used.
+Upload-History). intelidar-light.png, intelidar-dark.png, dsh-ops.png and
+ai-grand-prix.png were supplied by the profile owner; div0.png is Div0's site icon.
+Logos for languages and tools without a file here are fetched from Devicon or
+Simple Icons at refresh time and cached in the live snapshot.
+All marks belong to their owners and identify the technologies, projects and events.

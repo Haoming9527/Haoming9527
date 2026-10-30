@@ -163,6 +163,41 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(second["stars"]["repositories"][0]["starred_on"],
                          {"2026-10-01": 1, "2026-10-02": 1, "2026-10-03": 1})
 
+    def test_stack_detection_reads_every_ecosystem(self):
+        files = {
+            "web/package.json": json.dumps({"dependencies": {"next": "16", "@ai-sdk/openai": "4"},
+                                            "devDependencies": {"tailwindcss": "4"}}),
+            "api/requirements.txt": "FastAPI==0.115\n# comment\ntorch>=2\n",
+            "svc/pyproject.toml": '[project]\ndependencies = ["langchain>=0.3", "psycopg[binary]"]\n',
+            "go/go.mod": "module x\nrequire github.com/gin-gonic/gin v1.10.0\n",
+            "deploy/compose.yml": "services:\n  llm:\n    image: ollama/ollama\n",
+        }
+        client = activity.GitHubClient()
+        def get(path, accept=None):
+            if "/git/trees/" in path:
+                return {"tree": [{"path": name, "type": "blob"} for name in [*files, "infra/main.tf", "node_modules/a/package.json"]]}, {}
+            name = next(name for name in files if path.split("/contents/")[1].startswith(name.replace("/", "%2F"))
+                        or path.split("/contents/")[1].startswith(name))
+            return {"content": base64.b64encode(files[name].encode()).decode()}, {}
+        client.get = get
+        self.assertEqual(activity.detect_stack("Haoming9527/example", "main", client),
+                         ["AI SDK", "Docker", "FastAPI", "Gin", "LangChain", "Next.js", "Node.js", "Ollama", "OpenAI",
+                          "PostgreSQL", "PyTorch", "Tailwind CSS", "Terraform"])
+
+    def test_logos_resolve_once_and_cache_misses_for_a_day(self):
+        calls = []
+        def fetch(url):
+            calls.append(url)
+            return '<svg viewBox="0 0 24 24"><script>x</script><path d="M0 0"/></svg>' if "python" in url else None
+        logos = activity.resolve_logos(["Python", "JavaScript", "Mystery Lang"], {}, "2026-10-30", fetch)
+        self.assertNotIn("JavaScript", logos)
+        self.assertIn("<path", logos["Python"]["svg"])
+        self.assertNotIn("script", logos["Python"]["svg"])
+        self.assertEqual(logos["Mystery Lang"], {"missing": True, "checked": "2026-10-30"})
+        calls.clear()
+        again = activity.resolve_logos(["Python", "Mystery Lang"], logos, "2026-10-30", fetch)
+        self.assertEqual((again, calls), (logos, []))
+
     def test_hidden_stargazer_list_keeps_the_count_without_dates(self):
         client = activity.GitHubClient()
         def get(path, accept=None):
