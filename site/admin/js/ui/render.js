@@ -88,6 +88,11 @@ function renderAll() {
 }
 
 export function startUi() {
+  // The save bar is fixed and its height varies (error list, wrapping on phones). The page's bottom
+  // padding and the toast position read --savebar so nothing ends up hidden behind it.
+  const bar = $("#footer");
+  new ResizeObserver(() => document.documentElement.style.setProperty("--savebar", `${bar.hidden ? 0 : bar.offsetHeight}px`))
+    .observe(bar);
   Object.assign(ui, {
     all: renderAll,
     panel: renderPanel,

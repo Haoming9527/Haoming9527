@@ -7,7 +7,7 @@ import { state } from "../state.js";
 import { redraw, ui } from "./hooks.js";
 
 export function textField(label, value, onInput, attrs = {}) {
-  return h("label", { class: attrs.wide ? "wide" : null }, label,
+  return h("label", { class: attrs.class || (attrs.wide ? "wide" : null) }, label,
     h("input", { type: attrs.type || "text", value: value || "", maxlength: attrs.maxlength || 120, placeholder: attrs.placeholder,
       autocomplete: "off", spellcheck: attrs.spellcheck ?? "true",
       oninput: (event) => { onInput(event.target.value); ui.edited(); } }));
