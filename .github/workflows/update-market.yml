@@ -1,11 +1,12 @@
 name: Refresh the market board
 
-# Near-real-time: every 15 minutes (GitHub may start scheduled runs a little late).
+# Near-real-time: every 15 minutes, offset from :00/:15/:30/:45, where GitHub's scheduler is
+# busiest and drops the most scheduled runs (it may still start them late).
 # Widgets and the D/M/Q/Y range pages go to the `market` branch as a single replaced
 # commit, so main only changes when README.md's structure or a candle's hover text does.
 on:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '7,22,37,52 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
