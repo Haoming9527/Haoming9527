@@ -28,7 +28,9 @@ def tape(view: View, theme: str, mobile: bool) -> SVG:
     pieces, x = [], 0.0
     for label, value, change, direction in items:
         pieces.append((x, label, value, change, direction))
-        x += sum(text_width(part, size, 600) for part in (label, value, change)) + size * 4.4
+        # Room for each part actually shown (the role has no value or change), then a fixed gap.
+        x += (text_width(label, size, 600) + (size * .6 + text_width(value, size, 600) if value else 0)
+              + (size * .6 + text_width(f"▲ {change}", size, 600) if direction != "none" else 0) + size * 2.2)
     loop, duration = x, x / (30 if mobile else 38)
     s = SVG(w, h, theme, "Live tape of the profile indexes",
             f'.run{{animation:run {duration:.0f}s linear infinite}}@keyframes run{{to{{transform:translateX(-{loop:.1f}px)}}}}')
