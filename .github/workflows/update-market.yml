@@ -18,9 +18,10 @@ on:
 permissions:
   contents: read
 
+# A newer run (for example after a code change) cancels an older one still in flight.
 concurrency:
   group: profile-market
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   refresh:
@@ -56,7 +57,17 @@ jobs:
         run: python scripts/activity_data.py
       - name: Render widgets and README
         run: python scripts/render_profile.py
+      - name: Stop if main moved while this run was working
+        id: current
+        run: |
+          git fetch -q origin main
+          if [ "$(git rev-parse FETCH_HEAD)" = "$(git rev-parse HEAD)" ]; then
+            echo 'fresh=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'main has newer code; its own run publishes instead.'
+          fi
       - name: Publish live widgets to the market branch
+        if: steps.current.outputs.fresh == 'true'
         env:
           PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -77,6 +88,7 @@ jobs:
           git commit -q -m 'Publish live market widgets'
           git push -q --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" market
       - name: Commit README when its structure changes
+        if: steps.current.outputs.fresh == 'true'
         run: |
           git add README.md
           if git diff --cached --quiet; then
@@ -84,4 +96,4 @@ jobs:
             exit 0
           fi
           git commit -q -m 'Refresh profile board'
-          git pull -q --rebase origin main && git push -q origin HEAD:main || echo 'main moved; the next refresh retries.'
+          git push -q origin HEAD:main || echo 'main moved; the next refresh retries.'
