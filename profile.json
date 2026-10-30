@@ -15,7 +15,7 @@
     {"repository": "Yanguangchen/InteLiDar", "name": "InteLiDar", "wordmark": {"light": "intelidar-light.png", "dark": "intelidar-dark.png"}}
   ],
   "achievements": [
-    {"rank": "Top 10", "event": "AI Grand Prix Singapore", "tag": "Needle", "logo": "ai-grand-prix.png", "url": "https://github.com/Haoming9527/Needle#readme"},
+    {"rank": "Top 10", "event": "AI Grand Prix Singapore", "tag": "Needle", "logo": "ai-grand-prix.png", "url": "https://github.com/Haoming9527/Needle"},
     {"rank": "Top 5", "event": "Astra Hackathon 2026, People's Choice", "tag": "InteLiDar", "logo": "openai.svg", "url": "https://github.com/Yanguangchen/InteLiDar"},
     {"rank": "Winner", "event": "Lovable Founder Series", "tag": "Decide Anything", "logo": "lovable.svg", "url": "https://decide-anything.lovable.app"},
     {"rank": "Project Work Winner", "event": "Singapore Cybersecurity Camp 2025", "tag": "Canary-WAF", "logo": "div0.png", "url": "https://github.com/umiyuikaiteitan/Canary-WAF"}
