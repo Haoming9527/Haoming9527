@@ -11,7 +11,7 @@ from .market import MA_PERIODS, VIEWS, View
 def tape(view: View, theme: str, mobile: bool) -> SVG:
     market = view.market
     w, h, size = (400, 46, 17) if mobile else (846, 40, 14)
-    items = [(market.config["role"].upper(), "", "", "none")]
+    items = [("ECON", market.config["role"].upper(), "", "none")]
     for key, label in (("stars", "STARS"), ("commits", "COMMITS"), ("prs", "MERGED PRS")):
         index = view.index(key)
         items.append((label, num(index["value"]), signed(index["delta"]), tone(index["delta"])))
