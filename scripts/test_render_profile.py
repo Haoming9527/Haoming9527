@@ -1,5 +1,6 @@
 """Checks for the market-board renderer: every page is complete, and the chart maths is right."""
 
+import json
 import re
 import unittest
 
@@ -74,6 +75,16 @@ class PageTests(unittest.TestCase):
         files, readme, pages, _ = render.build(snapshot([]), CONFIG, "BASE/")
         self.assertIn("w-lines-header", readme)
         self.assertTrue(all(name.endswith(".svg") for name in files))
+
+
+class ConfigTests(unittest.TestCase):
+    def test_unsafe_logo_or_link_is_refused(self):
+        render.check_config(CONFIG)
+        for change in ({"logo": "../README.md"}, {"logo": "missing.png"}, {"url": "javascript:alert(1)"}):
+            config = json.loads(json.dumps(CONFIG))
+            config["achievements"][0].update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                render.check_config(config)
 
 
 class MovingAverageTests(unittest.TestCase):

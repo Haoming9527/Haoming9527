@@ -1125,6 +1125,22 @@ def build(data: dict, config: dict, base: str) -> tuple[dict[str, str], str, dic
     return files, readme, pages, market.missing_logos()
 
 
+LOGO_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*\.(svg|png|jpe?g)", re.I)
+
+
+def check_config(config: dict) -> None:
+    """profile.json can be edited from the dashboard, so refuse logos outside assets/logos and non-https links."""
+    files = [entry.get("logo") for entry in config.get("projects", []) + config.get("achievements", [])]
+    for entry in config.get("collaborations", []):
+        files += list(entry["wordmark"].values()) if "wordmark" in entry else [entry.get("logo")]
+    for name in files:
+        if not isinstance(name, str) or not LOGO_NAME.fullmatch(name) or not (LOGOS / name).is_file():
+            raise ValueError(f"profile.json names a missing or unsafe logo: {name!r}")
+    for url in [config.get("portfolio", "")] + [entry.get("url", "") for entry in config.get("achievements", [])]:
+        if not isinstance(url, str) or not url.startswith("https://"):
+            raise ValueError(f"profile.json links must use https: {url!r}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, default=ROOT / "data/activity.json")
@@ -1135,6 +1151,7 @@ def main():
     args = parser.parse_args()
     data = json.loads(args.data.read_text(encoding="utf-8"))
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    check_config(config)
     if not data["coverage"]["complete"] or data.get("schema_version", 1) < 3:
         raise ValueError("Refusing to render an incomplete or outdated activity snapshot")
     files, readme, pages, missing = build(data, config, args.base)
