@@ -15,7 +15,7 @@ export function choices() {
       if (on) collabs.push({ repository: repo.name, name: repo.name.split("/").pop(), logo: "" });
       else collabs.splice(collabs.findIndex((e) => sameRepo(e.repository, repo.name)), 1);
     },
-    (repo) => ({ title: repo.name, sub: [repo.merged_prs ? `${repo.merged_prs} merged PRs` : "", repo.language,
+    (repo) => ({ title: repo.name, sub: [repo.merged_prs ? `${repo.merged_prs} merged PR${repo.merged_prs === 1 ? "" : "s"}` : "", repo.language,
       repo.stars ? `★ ${repo.stars}` : ""].filter(Boolean).join(" · ") }));
 }
 
@@ -34,6 +34,9 @@ export function panel() {
             e.wordmark ? wordmarkSelects(e, e.name) : logoSelect(e.logo, e.repository.split("/").pop(), (f) => { e.logo = f; }),
             h("p", { class: "meta" }, e.repository)),
         ]))) : h("p", { class: "empty-state" }, "Pick projects you have contributed to.")),
-      h("div", {}, h("h3", {}, "Repositories with your merged pull requests"), filterBox(), choices())),
+      h("div", {}, h("h3", {}, "Repositories with your merged pull requests"),
+        state.snapshotMissing ? h("p", { class: "hint error" },
+          "Couldn't read the activity data on the market branch, so only repositories already on the board are listed.") : null,
+        filterBox(), choices())),
   ];
 }

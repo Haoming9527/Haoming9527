@@ -27,6 +27,7 @@ export async function load() {
   const vendored = /VENDORED = \{([\s\S]*?)\n\}/.exec(catalog)?.[1] || "";
   state.protected = new Set([...vendored.matchAll(/"([A-Za-z0-9._-]+\.(?:svg|png|jpe?g))"/gi)].map((m) => m[1]));
   state.protectedKnown = state.protected.size > 0;
+  state.snapshotMissing = !snapshot;
   state.commits = Object.fromEntries((snapshot?.repositories || []).map((row) => [row.name.toLowerCase(), row.shas?.length || 0]));
   const external = new Map((snapshot?.open_source?.repositories || []).map((row) => [row.name.toLowerCase(), row]));
   for (const entry of state.config.collaborations || []) {
