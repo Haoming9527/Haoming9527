@@ -1,78 +1,86 @@
 name: Refresh the market board
 
+# Near-real-time: every 15 minutes (GitHub may start scheduled runs a little late).
+# Widgets go to the `market` branch as a single replaced commit, so main only changes
+# when README.md's structure or a closed candle's hover text changes.
 on:
   schedule:
-    - cron: '17 0 * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:
   push:
     branches: [main]
     paths:
       - profile.json
       - scripts/**
+      - assets/logos/**
       - .github/workflows/update-market.yml
 
 permissions:
   contents: read
 
 concurrency:
-  group: profile-market-${{ github.ref }}
+  group: profile-market
   cancel-in-progress: false
 
 jobs:
-  render:
-    if: github.repository == 'Haoming9527/Haoming9527' && github.ref == 'refs/heads/main'
+  refresh:
+    if: github.repository == 'Haoming9527/Haoming9527'
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      GIT_AUTHOR_NAME: Shen Haoming
+      GIT_AUTHOR_EMAIL: 167516473+Haoming9527@users.noreply.github.com
+      GIT_COMMITTER_NAME: Shen Haoming
+      GIT_COMMITTER_EMAIL: 167516473+Haoming9527@users.noreply.github.com
     steps:
       - uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Restore the last published snapshot as a cache
+        run: |
+          mkdir -p data
+          if git fetch --depth=1 origin market; then
+            git show FETCH_HEAD:data/activity.json > data/activity.json || rm -f data/activity.json
+            git show FETCH_HEAD:digest.txt > previous-digest.txt || rm -f previous-digest.txt
+          fi
       - name: Check candle calculations and API completeness
-        run: python -m unittest discover -s scripts -p 'test_*.py' -v
+        run: python -m unittest discover -s scripts -p 'test_*.py'
       - name: Collect public activity
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/activity_data.py
-      - name: Render profile boards
+      - name: Render widgets and README
         run: python scripts/render_profile.py
-      - name: Preserve completed boards
-        uses: actions/upload-artifact@v4
-        with:
-          name: profile-market
-          path: |
-            data/activity.json
-            assets/gen/*.svg
-            README.md
-          if-no-files-found: error
-          retention-days: 1
-
-  publish:
-    needs: render
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.sha }}
-      - name: Drop widgets so weeks that left the window disappear
-        run: rm -rf assets/gen
-      - uses: actions/download-artifact@v4
-        with:
-          name: profile-market
-          path: .
-      - name: Save refreshed boards
+      - name: Publish live widgets to the market branch
+        env:
+          PUSH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name 'Shen Haoming'
-          git config user.email '167516473+Haoming9527@users.noreply.github.com'
-          git add -A data/activity.json assets/gen README.md
-          if git diff --cached --quiet; then
-            echo 'The market board is already current.'
+          digest=$(cd assets/gen && LC_ALL=C sha256sum *.svg | sha256sum | cut -d' ' -f1)
+          if [ -f previous-digest.txt ] && [ "$digest" = "$(cat previous-digest.txt)" ]; then
+            echo 'Widgets unchanged.'
             exit 0
           fi
-          git commit -m 'Refresh profile activity'
-          git push origin HEAD:main
+          site=$(mktemp -d)
+          mkdir -p "$site/assets" "$site/data"
+          cp -r assets/gen "$site/assets/gen"
+          cp data/activity.json "$site/data/activity.json"
+          echo "$digest" > "$site/digest.txt"
+          cd "$site"
+          git init -q -b market
+          git add -A
+          git commit -q -m 'Publish live market widgets'
+          git push -q --force "https://x-access-token:${PUSH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" market
+      - name: Commit README when its structure changes
+        run: |
+          git add README.md
+          if git diff --cached --quiet; then
+            echo 'README is current.'
+            exit 0
+          fi
+          git commit -q -m 'Refresh profile board'
+          git pull -q --rebase origin main && git push -q origin HEAD:main || echo 'main moved; the next refresh retries.'

@@ -1,14 +1,19 @@
 #!/usr/bin/env python3
-"""Fetch an auditable, complete public commit tape and derive weekly code candles.
+"""Fetch an auditable, complete public commit tape for the market board.
 
 Only Python's standard library is required. A failed API request leaves the last
 successful output untouched. GITHUB_TOKEN is optional, but strongly recommended
 because GitHub's unauthenticated API allowance is small.
+
+Refreshes are incremental so they can run every few minutes: repositories whose
+pushed_at did not move reuse the previous snapshot, commit statistics are cached
+by SHA (they never change), and stargazer histories only fetch their newest pages.
 """
 
 from __future__ import annotations
 
 import argparse
+import base64
 from datetime import date, datetime, time, timedelta, timezone
 import json
 import os
@@ -19,15 +24,15 @@ import tempfile
 import time as clock
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
 
 UTC = timezone.utc
 API_ROOT = "https://api.github.com"
 METHODOLOGY = (
-    "One candle per UTC calendar week, starting Monday. The index starts at zero "
-    "at the beginning of the displayed window. Commits are ordered by Git "
+    "Candles cover UTC days, Monday-start weeks, months, quarters or years. The "
+    "index starts at zero before the first collected commit. Commits are ordered by Git "
     "committer timestamp, then SHA. For each commit, additions raise the index "
     "before deletions lower it. Open is the previous close; high and low capture "
     "those constructed excursions; close is cumulative additions minus deletions. "
@@ -51,10 +56,16 @@ LANGUAGE_EXTENSIONS = {
 }
 LANGUAGE_FILENAMES = {"Dockerfile": "Dockerfile", "Makefile": "Makefile"}
 VENDORED = {"node_modules", "vendor", "dist", "build", ".next", "coverage"}
+MANIFESTS = ("package.json", "go.mod", "docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml")
+POSTGRES_PACKAGES = {"pg", "postgres", "pg-promise", "@neondatabase/serverless", "@vercel/postgres"}
 
 
 class CollectionError(RuntimeError):
     """A complete, trustworthy activity snapshot could not be collected."""
+
+
+class NotFound(CollectionError):
+    """GitHub answered 404 for an endpoint that some repositories do not expose."""
 
 
 def iso(value: datetime) -> str:
@@ -100,7 +111,8 @@ class GitHubClient:
                     "use GITHUB_TOKEN with access to public repository contents."
                     if error.code in (401, 403, 429) else ""
                 )
-                raise CollectionError(f"GitHub API returned HTTP {error.code} for {url}.{detail}") from error
+                kind = NotFound if error.code == 404 else CollectionError
+                raise kind(f"GitHub API returned HTTP {error.code} for {url}.{detail}") from error
             except (URLError, TimeoutError) as error:
                 if attempt < 2:
                     clock.sleep(2 ** (attempt + 1))
@@ -222,34 +234,44 @@ def collect_open_source(username: str, client: GitHubClient, exclusions: list[st
     }
 
 
-def collect_languages(repositories: list[str], client: GitHubClient) -> dict[str, Any]:
-    """Sum GitHub Linguist byte counts across the configured public repositories."""
-    totals: dict[str, int] = {}
-    per_repository: dict[str, dict[str, int]] = {}
-    for repository in repositories:
-        languages, _ = client.get(f"/repos/{repository}/languages")
-        if not isinstance(languages, dict) or any(
-                isinstance(size, bool) or not isinstance(size, int) or size < 0 for size in languages.values()):
-            raise CollectionError(f"Invalid language breakdown for {repository}")
-        per_repository[repository] = languages
-        for language, size in languages.items():
-            totals[language] = totals.get(language, 0) + size
-    return {"bytes": dict(sorted(totals.items(), key=lambda pair: (-pair[1], pair[0]))),
-            "repositories": per_repository,
-            "scope": "GitHub Linguist bytes in the configured public repositories' default branches"}
+def star_days(stargazers) -> dict[str, int]:
+    days: dict[str, int] = {}
+    for stargazer in stargazers:
+        try:
+            day = parse_datetime(stargazer["starred_at"]).date().isoformat()
+        except (TypeError, KeyError, ValueError) as error:
+            raise CollectionError("Stargazer without a star date") from error
+        days[day] = days.get(day, 0) + 1
+    return days
 
 
-def collect_stars(repositories: list[str], client: GitHubClient) -> dict[str, Any]:
-    """Read each stargazer's star date. Unstarred repositories disappear from history."""
+def collect_stars(targets: list[tuple[str, int]], client: GitHubClient,
+                  previous: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Star dates per repository. Stargazers are listed oldest first, so a growing
+    count only needs the newest pages; anything else triggers a full re-read."""
+    known = {row["name"].lower(): row for row in (previous or {}).get("repositories", [])}
     result = []
-    for repository in repositories:
-        starred_on: dict[str, int] = {}
-        for stargazer in client.pages(f"/repos/{repository}/stargazers?per_page=100", STAR_ACCEPT):
+    for repository, count in targets:
+        cached = known.get(repository.lower())
+        starred_on = None
+        if cached and cached["stars"] == count:
+            result.append(cached)
+            continue
+        if cached and count > cached["stars"] and not cached.get("undated"):
+            first_page = cached["stars"] // 100 + 1
+            fresh = list(client.pages(f"/repos/{repository}/stargazers?per_page=100&page={first_page}", STAR_ACCEPT))
+            starred_on = dict(cached["starred_on"])
+            for day, number in star_days(fresh[cached["stars"] - (first_page - 1) * 100:]).items():
+                starred_on[day] = starred_on.get(day, 0) + number
+            if sum(starred_on.values()) != count:
+                starred_on = None
+        if starred_on is None:
             try:
-                day = parse_datetime(stargazer["starred_at"]).date().isoformat()
-            except (TypeError, KeyError, ValueError) as error:
-                raise CollectionError(f"Stargazer without a star date in {repository}") from error
-            starred_on[day] = starred_on.get(day, 0) + 1
+                starred_on = star_days(client.pages(f"/repos/{repository}/stargazers?per_page=100", STAR_ACCEPT))
+            except NotFound:
+                # Some repositories hide their stargazer list; keep the count without dates.
+                result.append({"name": repository, "stars": count, "starred_on": {}, "undated": count})
+                continue
         result.append({"name": repository, "stars": sum(starred_on.values()),
                        "starred_on": dict(sorted(starred_on.items()))})
     return {"total": sum(row["stars"] for row in result), "repositories": result,
@@ -292,19 +314,75 @@ def validate_config(config: dict[str, Any]) -> tuple[str, list[str], int]:
     return username, normalized, days
 
 
-def featured_and_excluded(config: dict[str, Any], username: str, repositories: list[str]) -> tuple[set[str], list[str]]:
-    """Owned repositories whose lifetime commit dates are collected, and excluded contribution repos."""
-    named = [entry.get("repository") if isinstance(entry, dict) else entry
-             for entry in config.get("projects", []) + config.get("collaborations", [])]
+def contribution_exclusions(config: dict[str, Any]) -> list[str]:
     exclusions = config.get("contribution_exclusions", [])
-    for repository in named + list(exclusions):
-        if not isinstance(repository, str) or not re.fullmatch(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+", repository):
-            raise CollectionError(f"Invalid featured or excluded repository: {repository!r}")
-    selected = {name.lower() for name in repositories}
-    featured = {name.lower() for name in named if name.split("/")[0].lower() == username.lower()}
-    if featured - selected:
-        raise CollectionError("Featured owned repositories must also be listed in activity_repositories")
-    return featured, list(exclusions)
+    if not isinstance(exclusions, list) or not all(
+            isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+", name) for name in exclusions):
+        raise CollectionError("contribution_exclusions must be a list of owner/repository names")
+    return exclusions
+
+
+def detect_stack(repository: str, branch: str, client: GitHubClient) -> list[str]:
+    """Name the tools a repository uses, from its manifests and container files."""
+    tree, _ = client.get(f"/repos/{repository}/git/trees/{quote(branch, safe='')}?recursive=1")
+    paths = [item.get("path", "") for item in tree.get("tree", []) if item.get("type") == "blob"]
+    paths = [path for path in paths if not set(path.split("/")) & VENDORED]
+    names = {path: path.rsplit("/", 1)[-1] for path in paths}
+    packages: set[str] = set()
+    texts = ""
+    for path in [path for path in paths if names[path] in MANIFESTS][:16]:
+        body, _ = client.get(f"/repos/{repository}/contents/{quote(path)}?{urlencode({'ref': branch})}")
+        try:
+            text = base64.b64decode(body.get("content", "")).decode("utf-8", "replace")
+        except (ValueError, TypeError) as error:
+            raise CollectionError(f"Unreadable manifest {repository}/{path}") from error
+        if names[path] != "package.json":
+            texts += text.lower() + "\n"
+            continue
+        try:
+            manifest = json.loads(text)
+        except ValueError:
+            continue
+        for field in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies"):
+            packages.update((manifest.get(field) or {}).keys())
+    found = set()
+    if "package.json" in names.values():
+        found.add("Node.js")
+    if "react" in packages:
+        found.add("React")
+    if "next" in packages:
+        found.add("Next.js")
+    if "ai" in packages or any(name.startswith("@ai-sdk/") for name in packages):
+        found.add("AI SDK")
+    if "@modelcontextprotocol/sdk" in packages or "modelcontextprotocol/go-sdk" in texts or "mark3labs/mcp-go" in texts:
+        found.add("MCP")
+    if any("ollama" in name for name in packages) or "ollama" in texts:
+        found.add("Ollama")
+    if packages & POSTGRES_PACKAGES or "jackc/pgx" in texts or "lib/pq" in texts or "postgres" in texts:
+        found.add("PostgreSQL")
+    if any(name == "Dockerfile" or name in MANIFESTS[2:] for name in names.values()):
+        found.add("Docker")
+    return sorted(found)
+
+
+def commit_detail(repository: str, sha: str, committed_at: datetime, client: GitHubClient) -> dict[str, Any]:
+    detail, _ = client.get(f"/repos/{repository}/commits/{sha}")
+    stats = detail.get("stats") or {}
+    additions, deletions = stats.get("additions"), stats.get("deletions")
+    if any(isinstance(value, bool) or not isinstance(value, int) or value < 0 for value in (additions, deletions)):
+        raise CollectionError(f"Missing line statistics for {repository}/{sha}")
+    files = detail.get("files") or []
+    languages: dict[str, list[int]] = {}
+    for changed in files:
+        language = file_language(str(changed.get("filename", "")))
+        if language:
+            row = languages.setdefault(language, [0, 0])
+            row[0] += int(changed.get("additions") or 0)
+            row[1] += int(changed.get("deletions") or 0)
+    # GitHub lists at most 300 files per commit response; the rest stays unattributed.
+    return {"sha": sha, "repository": repository, "timestamp": iso(committed_at),
+            "additions": additions, "deletions": deletions, "languages": languages,
+            "files_truncated": len(files) >= 300, "url": f"https://github.com/{repository}/commit/{sha}"}
 
 
 def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -> list[dict[str, Any]]:
@@ -342,17 +420,19 @@ def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -
 
 
 def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
-            progress: Callable[[str], None] | None = None) -> dict[str, Any]:
+            progress: Callable[[str], None] | None = None, previous: dict[str, Any] | None = None) -> dict[str, Any]:
     username, repositories, days = validate_config(config)
-    featured, contribution_exclusions = featured_and_excluded(config, username, repositories)
-    lifetime: dict[str, dict[str, int]] = {}
-    files_truncated = 0
+    exclusion_names = contribution_exclusions(config)
+    previous = previous if (previous or {}).get("schema_version") == 3 else {}
+    cached_repos = {row["name"].lower(): row for row in previous.get("repositories", [])}
+    cached_commits = {row["sha"]: row for row in previous.get("commits", [])}
     end = now.astimezone(UTC).replace(microsecond=0)
     start = datetime.combine(end.date() - timedelta(days=days - 1), time.min, UTC)
     commits: list[dict[str, Any]] = []
-    repository_totals: list[dict[str, Any]] = []
+    rows: list[dict[str, Any]] = []
     seen_shas: set[str] = set()
-    exclusions = {"merge_commits": 0, "duplicate_commits": 0, "other_authors": 0, "outside_window": 0}
+    exclusions = {"merge_commits": 0, "duplicate_commits": 0, "other_authors": 0}
+    reused = 0
     for repository in repositories:
         if progress:
             progress(f"Reading {repository}...")
@@ -364,108 +444,97 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
         default_branch = metadata.get("default_branch")
         if not isinstance(default_branch, str) or not default_branch:
             raise CollectionError(f"No default branch found for {repository}")
-        repo_summary = {"name": repository, "default_branch": default_branch,
-                        "commits": 0, "additions": 0, "deletions": 0}
-        # GitHub reports size zero for empty repositories. Querying their commit
-        # endpoint produces 409; branch existence distinguishes them from errors.
-        if metadata.get("size") == 0:
-            branches = list(client.pages(f"/repos/{repository}/branches?per_page=100"))
-            if not branches:
-                repository_totals.append(repo_summary)
-                continue
-        # Featured repositories are read from their first commit so the profile can
-        # chart their lifetime; only commits inside the window become candles.
-        is_featured = repository.lower() in featured
-        params = {"sha": default_branch, "author": username, "until": iso(end), "per_page": 100}
-        if not is_featured:
-            params["since"] = iso(start)
-        commit_days: dict[str, int] = {}
-        for summary in client.pages(f"/repos/{repository}/commits?{urlencode(params)}"):
-            sha = summary.get("sha", "")
-            if not re.fullmatch(r"[0-9a-f]{40,64}", sha):
-                raise CollectionError(f"Invalid commit SHA returned for {repository}")
-            timestamp = summary.get("commit", {}).get("committer", {}).get("date")
-            try:
-                committed_at = parse_datetime(timestamp)
-            except (TypeError, AttributeError, ValueError) as error:
-                raise CollectionError(f"Missing commit timestamp for {repository}/{sha}") from error
-            in_window = start <= committed_at <= end
-            author = summary.get("author") or {}
-            if author.get("login", "").lower() != username.lower():
-                exclusions["other_authors"] += in_window
-                continue
-            if len(summary.get("parents", [])) > 1:
-                exclusions["merge_commits"] += in_window
-                continue
-            if is_featured:
-                day = committed_at.date().isoformat()
-                commit_days[day] = commit_days.get(day, 0) + 1
-            if not in_window:
-                exclusions["outside_window"] += not is_featured
-                continue
+        row = {"name": repository, "default_branch": default_branch, "pushed_at": metadata.get("pushed_at"),
+               "stars": metadata.get("stargazers_count", 0), "language": metadata.get("language"),
+               "shas": [], "languages": {}, "stack": [], "excluded": dict.fromkeys(("merge_commits", "other_authors"), 0)}
+        cached = cached_repos.get(repository.lower())
+        if (cached and cached.get("pushed_at") == row["pushed_at"] and cached.get("default_branch") == default_branch
+                and all(sha in cached_commits for sha in cached["shas"])):
+            # Nothing was pushed since the last snapshot, so nothing can have changed.
+            row.update(shas=cached["shas"], languages=cached["languages"], stack=cached["stack"],
+                       excluded=cached["excluded"])
+            reused += 1
+        elif metadata.get("size") == 0 and not list(client.pages(f"/repos/{repository}/branches?per_page=100")):
+            pass  # Empty repository: GitHub answers 409 for its commits.
+        else:
+            query = urlencode({"sha": default_branch, "author": username, "until": iso(end), "per_page": 100})
+            for summary in client.pages(f"/repos/{repository}/commits?{query}"):
+                sha = summary.get("sha", "")
+                if not re.fullmatch(r"[0-9a-f]{40,64}", sha):
+                    raise CollectionError(f"Invalid commit SHA returned for {repository}")
+                if (summary.get("author") or {}).get("login", "").lower() != username.lower():
+                    row["excluded"]["other_authors"] += 1
+                    continue
+                if len(summary.get("parents", [])) > 1:
+                    row["excluded"]["merge_commits"] += 1
+                    continue
+                try:
+                    committed_at = parse_datetime(summary.get("commit", {}).get("committer", {}).get("date"))
+                except (TypeError, AttributeError, ValueError) as error:
+                    raise CollectionError(f"Missing commit timestamp for {repository}/{sha}") from error
+                if sha not in cached_commits:
+                    cached_commits[sha] = commit_detail(repository, sha, committed_at, client)
+                row["shas"].append(sha)
+            languages, _ = client.get(f"/repos/{repository}/languages")
+            if not isinstance(languages, dict) or any(
+                    isinstance(size, bool) or not isinstance(size, int) or size < 0 for size in languages.values()):
+                raise CollectionError(f"Invalid language breakdown for {repository}")
+            row["languages"] = languages
+            row["stack"] = detect_stack(repository, default_branch, client)
+        for key, count in row["excluded"].items():
+            exclusions[key] += count
+        for sha in row["shas"]:
             if sha in seen_shas:
                 exclusions["duplicate_commits"] += 1
                 continue
-            detail, _ = client.get(f"/repos/{repository}/commits/{sha}")
-            stats = detail.get("stats") or {}
-            additions, deletions = stats.get("additions"), stats.get("deletions")
-            if any(isinstance(value, bool) or not isinstance(value, int) or value < 0
-                   for value in (additions, deletions)):
-                raise CollectionError(f"Missing line statistics for {repository}/{sha}")
-            files = detail.get("files") or []
-            # GitHub lists at most 300 files per commit response; the rest stays unattributed.
-            files_truncated += len(files) >= 300
-            languages: dict[str, list[int]] = {}
-            for changed in files:
-                language = file_language(str(changed.get("filename", "")))
-                if language:
-                    row = languages.setdefault(language, [0, 0])
-                    row[0] += int(changed.get("additions") or 0)
-                    row[1] += int(changed.get("deletions") or 0)
             seen_shas.add(sha)
-            commits.append({"sha": sha, "repository": repository, "timestamp": iso(committed_at),
-                            "additions": additions, "deletions": deletions, "languages": languages,
-                            "url": f"https://github.com/{repository}/commit/{sha}"})
-            repo_summary["commits"] += 1
-            repo_summary["additions"] += additions
-            repo_summary["deletions"] += deletions
-        repository_totals.append(repo_summary)
-        if is_featured:
-            lifetime[repository] = dict(sorted(commit_days.items()))
+            commits.append(cached_commits[sha])
+        rows.append(row)
         if progress:
-            progress(f"  {repo_summary['commits']} authored commits; "
-                     f"+{repo_summary['additions']} / -{repo_summary['deletions']} lines")
-    commits.sort(key=lambda row: (row["timestamp"], row["sha"]))
-    weeks = build_weeks(commits, start, end)
-    additions = sum(row["additions"] for row in commits)
-    deletions = sum(row["deletions"] for row in commits)
+            progress(f"  {len(row['shas'])} authored commits" + (" (unchanged)" if cached and row["shas"] is cached["shas"] else ""))
+    commits.sort(key=lambda commit: (commit["timestamp"], commit["sha"]))
+    window = [commit for commit in commits if start <= parse_datetime(commit["timestamp"]) <= end]
+    weeks = build_weeks(window, start, end)
+    additions = sum(commit["additions"] for commit in window)
+    deletions = sum(commit["deletions"] for commit in window)
     if progress:
-        progress("Reading public merged pull requests to other repositories...")
-    open_source = collect_open_source(username, client, contribution_exclusions)
-    if progress:
-        progress("Reading language breakdowns and stargazers...")
-    languages = collect_languages(repositories, client)
-    stars = collect_stars(repositories + [row["name"] for row in open_source["repositories"]], client)
+        progress("Reading public merged pull requests and stargazers...")
+    open_source = collect_open_source(username, client, exclusion_names)
+    targets = [(row["name"], row["stars"]) for row in rows]
+    for external in open_source["repositories"]:
+        metadata, _ = client.get(f"/repos/{external['name']}")
+        external["stars"] = metadata.get("stargazers_count", 0)
+        external["language"] = metadata.get("language")
+        targets.append((external["name"], external["stars"]))
+    stars = collect_stars(targets, client, previous.get("stars"))
+    language_bytes: dict[str, int] = {}
+    stack: dict[str, list[str]] = {}
+    for row in rows:
+        for language, size in row["languages"].items():
+            language_bytes[language] = language_bytes.get(language, 0) + size
+        for tool in row["stack"]:
+            stack.setdefault(tool, []).append(row["name"])
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "github_username": username,
         "generated_at": iso(end),
         "window": {"start": iso(start), "end": iso(end), "days": days, "timezone": "UTC"},
-        "totals": {"additions": additions, "deletions": deletions, "commits": len(commits),
+        "totals": {"additions": additions, "deletions": deletions, "commits": len(window),
                    "net_lines": additions - deletions, "active_weeks": sum(week["commits"] > 0 for week in weeks)},
         "weeks": weeks,
-        "repositories": repository_totals,
-        "coverage": {"scope": "Selected public owned repositories; default branches; authored non-merge commits",
-                     "complete": True, "repository_count": len(repositories),
+        "repositories": rows,
+        "coverage": {"scope": "Selected public owned repositories; default branches; authored non-merge commits; all time",
+                     "complete": True, "repository_count": len(repositories), "reused_repositories": reused,
                      "api_requests": client.requests, "excluded": exclusions,
-                     "commits_with_truncated_file_lists": files_truncated},
+                     "commits_with_truncated_file_lists": sum(commit.get("files_truncated", False) for commit in commits)},
         "warnings": [],
         "methodology": METHODOLOGY,
         "commits": commits,
         "open_source": open_source,
-        "languages": languages,
+        "languages": {"bytes": dict(sorted(language_bytes.items(), key=lambda pair: (-pair[1], pair[0]))),
+                      "scope": "GitHub Linguist bytes in the configured public repositories' default branches"},
+        "stack": dict(sorted(stack.items())),
         "stars": stars,
-        "lifetime_commit_days": lifetime,
     }
 
 
@@ -484,6 +553,14 @@ def write_snapshot(path: Path, snapshot: dict[str, Any]) -> None:
             temporary.unlink()
 
 
+def load_previous(path: Path) -> dict[str, Any] | None:
+    """The last snapshot seeds the cache; an unreadable one just means a full refresh."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=Path("profile.json"))
@@ -496,13 +573,15 @@ def main(argv: list[str] | None = None) -> int:
         now = parse_datetime(args.now) if args.now else datetime.now(UTC)
         client = (ReplayClient(json.loads(args.responses.read_text(encoding="utf-8-sig"))) if args.responses
                   else GitHubClient(os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")))
-        snapshot = collect(config, client, now, lambda message: print(message, file=sys.stderr, flush=True))
+        previous = load_previous(args.output)
+        snapshot = collect(config, client, now, lambda message: print(message, file=sys.stderr, flush=True), previous)
         write_snapshot(args.output, snapshot)
     except (CollectionError, OSError, ValueError) as error:
         print(f"Activity refresh failed; previous snapshot preserved: {error}", file=sys.stderr)
         return 1
-    print(f"Wrote {args.output}: {snapshot['totals']['commits']} commits across "
-          f"{snapshot['coverage']['repository_count']} public repositories.")
+    coverage = snapshot["coverage"]
+    print(f"Wrote {args.output}: {len(snapshot['commits'])} commits across {coverage['repository_count']} "
+          f"public repositories ({coverage['reused_repositories']} unchanged); {coverage['api_requests']} API requests.")
     return 0
 
 

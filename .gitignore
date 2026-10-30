@@ -3,3 +3,5 @@ __pycache__/
 .preview/
 .cache/
 docs/
+assets/gen/
+data/

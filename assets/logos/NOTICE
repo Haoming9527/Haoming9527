@@ -1,0 +1,22 @@
+Third-party logos in this folder
+
+Simple Icons (CC0 1.0), https://simpleicons.org, v16.35.0:
+  go.svg, rust.svg, nextjs.svg, nodejs.svg, ollama.svg, aisdk.svg (Vercel), mcp.svg
+
+Devicon (MIT License, Copyright (c) 2015 konpa), https://devicon.dev, v2.17.0:
+  javascript.svg, typescript.svg, html.svg, css.svg, java.svg, postgresql.svg,
+  shell.svg, batchfile.svg (Windows 11), docker.svg, powershell.svg, react.svg
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of
+  this software and associated documentation files (the "Software"), to deal in
+  the Software without restriction, including without limitation the rights to
+  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+  the Software, and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions: The above copyright notice and this
+  permission notice shall be included in all copies or substantial portions of
+  the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+Project icons come from their repositories (DGX-Spark-Platform, Needle,
+Upload-History). dsh-ops.jpg and intelidar.jpg are the GitHub avatars of the
+accounts that own those projects.
+All marks belong to their owners and identify the technologies and projects used.
