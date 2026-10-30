@@ -427,6 +427,27 @@ class View:
         return sum(row["additions"] - row["deletions"] for row in self.market.commits if row["day"] > since)
 
     @cached_property
+    def since(self) -> date:
+        return self.market.today - timedelta(days=self.days)
+
+    @cached_property
+    def range_stats(self) -> dict:
+        """Key stats for the selected range, with the candles' additions-first rule for high and low."""
+        index = sum(row["additions"] - row["deletions"] for row in self.market.commits if row["day"] <= self.since)
+        stats = {"open": index, "high": index, "low": index, "vol": 0, "added": 0, "deleted": 0}
+        for row in self.market.commits:
+            if self.since < row["day"] <= self.market.today:
+                index += row["additions"]
+                stats["high"] = max(stats["high"], index)
+                index -= row["deletions"]
+                stats["low"] = min(stats["low"], index)
+                stats["vol"] += 1
+                stats["added"] += row["additions"]
+                stats["deleted"] += row["deletions"]
+        stats["close"] = index
+        return stats
+
+    @cached_property
     def moving_averages(self) -> list[list[float | None]]:
         """MA5 and MA10 of candle closes; empty for views too short to make them meaningful."""
         closes = [candle["close"] for candle in self.candles]
@@ -538,32 +559,94 @@ def index_tile(view: View, key: str, theme: str, mobile: bool) -> SVG:
     return s
 
 
+TICK_CSS = ".tick{animation:tick 1.8s ease-out .3s both}@keyframes tick{0%{opacity:0}12%{opacity:1}100%{opacity:0}}"
+
+
+def flash(s: SVG, x: float, baseline: float, text_w: float, size: float, direction: str):
+    """A one-off highlight behind a value when the image loads, like a live price tick."""
+    if direction != "flat":
+        s.rect(x - size * .18, baseline - size * .9, text_w + size * .36, size * 1.16, direction, size * .2,
+               opacity="0", fill_opacity=".18", **{"class": "tick"})
+
+
+def index_tile(view: View, key: str, theme: str, mobile: bool) -> SVG:
+    title, hint = next((title, hint) for k, title, hint in INDEX_TILES if k == key)
+    index = view.index(key)
+    color = tone(index["delta"])
+    w, h = (200, 214) if mobile else (282, 178)
+    s = SVG(w, h, theme, f"{title} index", TICK_CSS)
+    s.rect(4, 4, w - 8, h - 8, "card", 16 if mobile else 14)
+    x = 20 if mobile else 22
+    change = f"{signed(index['delta'])} {percent(index['delta'], index['previous'])}".strip()
+    value = num(index["value"])
+    if mobile:
+        s.text(x, 44, title, 22, "fg", 500)
+        flash(s, x, 90, text_width(value, 36, 700), 36, color)
+        s.text(x, 90, value, 36, color, 700)
+        s.text(x, 122, change, 19, color, 500)
+        s.sparkline(index["series"], x, 140, w - 2 * x, 46, color)
+    else:
+        s.text(x, 38, title, 18, "fg", 500)
+        s.text(w - x, 38, hint, 12, "muted", 500, "end")
+        flash(s, x, 78, text_width(value, 32, 700), 32, color)
+        s.text(x, 78, value, 32, color, 700)
+        s.text(x, 104, f"{change}  {view.label}", 14, color, 500)
+        s.sparkline(index["series"], x, 118, w - 2 * x, 40, color)
+    return s
+
+
+def legend(s: SVG, view: View, x: float, y: float, size: float, ohlc: bool = True, averages: bool = True):
+    """Latest candle O/H/L/C and moving averages, in the style of a trading app's chart legend."""
+    candle = view.candles[-1]
+    items = [(label, compact(candle[key]), "muted", "fg") for label, key in
+             (("O", "open"), ("H", "high"), ("L", "low"), ("C", "close"))] if ohlc else []
+    if averages:
+        for k, values, color in zip(MA_PERIODS, view.moving_averages, s.p["ma"]):
+            if values[-1] is not None:
+                items.append((f"MA{k}", compact(values[-1]), color, color))
+    for label, value, label_color, value_color in items:
+        s.text(x, y, label, size, label_color, 500)
+        x += text_width(label, size, 500) + size * .4
+        s.text(x, y, value, size, value_color, 600)
+        x += text_width(value, size, 600) + size * 1.2
+
+
 def lines_header(view: View, theme: str, mobile: bool) -> SVG:
-    market = view.market
-    additions = sum(row["additions"] for row in market.commits)
-    deletions = sum(row["deletions"] for row in market.commits)
-    change = view.lines_change
-    w, h = (400, 128) if mobile else (846, 96)
-    s = SVG(w, h, theme, "Lines index: net lines of code I have added across my public repositories")
+    """A stock-detail header: price and range change, key stats for the range, and the chart legend."""
+    market, stats, change = view.market, view.range_stats, view.lines_change
+    w, h = (400, 248) if mobile else (846, 132)
+    s = SVG(w, h, theme, "Lines index: net lines of code I have added across my public repositories", TICK_CSS)
     pad = 18 if mobile else 24
     title_size = 22 if mobile else 18
-    s.text(pad, 34 if mobile else 30, "Lines index", title_size, "fg", 600)
-    s.text(pad + text_width("Lines index", title_size, 600) + 10, 34 if mobile else 30,
-           f"since {market.first:%b %Y}", 15 if mobile else 13, "muted", 500)
-    value_size, value_y = (38, 80) if mobile else (32, 72)
-    s.text(pad, value_y, num(market.lines), value_size, "fg", 700)
-    change_text = f"{signed(change)} {percent(change, market.lines - change)} {view.label}".replace("  ", " ")
+    title_y = 34 if mobile else 30
+    s.text(pad, title_y, "Lines index", title_size, "fg", 600)
+    s.text(pad + text_width("Lines index", title_size, 600) + 10, title_y, f"since {market.first:%b %Y}",
+           15 if mobile else 13, "muted", 500)
+    value_size, value_y = (38, 80) if mobile else (32, 76)
+    price = num(market.lines)
+    flash(s, pad, value_y, text_width(price, value_size, 700), value_size, tone(change))
+    s.text(pad, value_y, price, value_size, "fg", 700)
+    change_text = f"{signed(change)} {percent(change, stats['open'])} {view.label}".replace("  ", " ")
+    cells = (("Open", compact(stats["open"])), ("High", compact(stats["high"])), ("Low", compact(stats["low"])),
+             ("Vol", f"{stats['vol']:,}"), ("Added", f"+{compact(stats['added'])}"),
+             ("Deleted", f"{MINUS}{compact(stats['deleted'])}" if stats["deleted"] else "0"))
     if mobile:
-        s.text(pad, 112, change_text, 17, tone(change), 600)
+        s.text(pad, 110, change_text, 17, tone(change), 600)
+        left, cell_w, rows, label_size, value_size2 = pad, (w - 2 * pad) / 3, (146, 172), 14, 15
     else:
-        s.text(pad + text_width(num(market.lines), value_size, 700) + 14, value_y, change_text, 16, tone(change), 500)
-        stats = (("Commits", f"{len(market.commits):,}"), ("Added", f"+{compact(additions)}"),
-                 ("Deleted", f"{MINUS}{compact(deletions)}"))
-        x = w - pad
-        for label, value in reversed(stats):
-            s.text(x, 50, value, 15, "fg", 600, "end")
-            s.text(x, 72, label, 12, "muted", 500, "end")
-            x -= max(text_width(value, 15, 600), text_width(label, 12, 500)) + 26
+        s.text(pad + text_width(price, value_size, 700) + 14, value_y, change_text, 16, tone(change), 500)
+        left, cell_w, rows, label_size, value_size2 = 456, (w - pad - 456) / 3, (50, 76), 12, 14
+    for i, (label, value) in enumerate(cells):
+        x, y = left + (i % 3) * cell_w, rows[i // 3]
+        s.text(x, y, label, label_size, "muted", 500)
+        s.text(x + cell_w - 14, y, value, value_size2, "fg", 600, "end")
+    divider = 190 if mobile else 96
+    s.line(pad, divider, w - pad, divider, "faint")
+    if mobile:
+        legend(s, view, pad, 214, 13, averages=False)
+        legend(s, view, pad, 236, 13, ohlc=False)
+    else:
+        legend(s, view, pad, 118, 12)
     return s
 
 
@@ -739,8 +822,12 @@ def explain(view: View, what: str) -> str:
     noun = PERIOD_NOUNS[view.code]
     window = f"{view.days} day{'s' if view.days != 1 else ''}"
     return {
-        "header": f"Lines index: lines added minus lines deleted across my public repositories. Each candle is one {noun}: "
-                  "green when more lines were added than deleted, red when more were deleted.",
+        "header": f"Lines index: lines added minus lines deleted across my public repositories. "
+                  f"Open, High, Low: the index {window} ago and its extremes since; Vol: commits; Added/Deleted: lines in that time. "
+                  f"O H L C: the latest {noun}'s candle. " +
+                  (f"MA5 / MA10: average close of the last 5 / 10 {noun}s, drawn as the gold and purple lines. "
+                   if view.moving_averages else "") +
+                  "Green candles added more lines than they deleted, red ones deleted more.",
         "range": f"Every change on this page compares with {window} ago.",
         "axis": f"The tag and dashed line show the index now, coloured by the {view.label} change. "
                 f"VOL is the most commits in any one {noun}.",
@@ -953,9 +1040,6 @@ def render_page(view: View, base: str, banner: str) -> str:
                         "Every commit I have authored in my public repositories",
                         "Pull requests merged into other people's projects")))
     g = Geometry(view.candles, False)
-    legend = "".join(r.picture(f"{p}-ma-{i}", f"MA{k}", f"{LEGEND_PCT}%", explain(view, f"ma{k}"))
-                     for i, k in enumerate(MA_PERIODS[:len(view.moving_averages)]))
-    legend += "<br>" if legend else ""
     slices = "".join(r.link(commit_search(username, candle["start"], min(candle["end"], market.today)),
                             r.picture(f"{p}-chart-{i:02d}", candle_title(view.code, candle), f"{g.slice_pct}%",
                                       candle_title(view.code, candle)), candle_title(view.code, candle))
@@ -979,7 +1063,7 @@ def render_page(view: View, base: str, banner: str) -> str:
         f'<p>{r.link(portfolio, banner_img, "Portfolio")}<br>{r.picture(f"{p}-tape", "Live tape", "100%")}</p>',
         f'<p>{tabs}{r.picture(f"{p}-range", f"{view.name} view", f"{RANGE_PCT}%", explain(view, "range"))}</p>',
         f"<p>{tiles}</p>",
-        f'<p>{r.picture(f"{p}-lines-header", "Lines index", "100%", explain(view, "header"))}<br>{legend}{slices}'
+        f'<p>{r.picture(f"{p}-lines-header", "Lines index", "100%", explain(view, "header"))}<br>{slices}'
         f'{r.picture(f"{p}-chart-axis", "Price axis", f"{AXIS_PCT}%", explain(view, "axis"))}'
         f'<br>{r.picture(f"{p}-chart-dates", "Dates", "100%", explain(view, "dates"))}</p>',
         f'<p>{r.link(f"https://github.com/{username}?tab=repositories", r.picture(f"{p}-section-watchlist", "Watchlist", "100%", explain(view, "watchlist")))}'
@@ -1022,8 +1106,6 @@ def build(data: dict, config: dict, base: str) -> tuple[dict[str, str], str, dic
         emit(f"{p}-chart-dates", lambda t, m, v=view: chart_dates(v, t, m))
         for i in range(len(view.candles)):
             emit(f"{p}-chart-{i:02d}", lambda t, m, v=view, i=i: chart_slice(v, i, t, m))
-        for i in range(len(view.moving_averages)):
-            emit(f"{p}-ma-{i}", lambda t, m, v=view, i=i: ma_legend(v, i, t, m))
         label = view.label
         for key, title, columns in (("watchlist", "Watchlist", ("Project", "Net lines", label)),
                                     ("languages", "Languages", ("Language", "Share", label)),

@@ -52,12 +52,11 @@ class PageTests(unittest.TestCase):
         self.assertIn("tab-w-on", readme)
         self.assertIn("w-range", readme)
 
-    def test_moving_average_keys_explain_themselves_on_hover(self):
+    def test_header_explains_its_stats_and_legend_on_hover(self):
         _, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
-        self.assertIn('title="MA5: the average close of the last 5 weeks.', readme)
-        self.assertIn('title="MA10: the average close of the last 10 weeks.', readme)
-        self.assertIn('title="Lines index: lines added minus lines deleted', readme)
-        self.assertNotIn("-ma-0", pages["Y"])   # too few yearly candles for an average
+        self.assertIn("MA5 / MA10: average close of the last 5 / 10 weeks", readme)
+        self.assertIn("Open, High, Low: the index 7 days ago", readme)
+        self.assertNotIn("MA5 / MA10", pages["Y"])   # too few yearly candles for an average
 
     def test_live_candle_says_why_it_is_red_or_green(self):
         def live_title(code, commits):
