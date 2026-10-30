@@ -23,7 +23,8 @@ export function choices() {
         projects.splice(projects.findIndex((p) => sameRepo(p.repository, repo.full_name)), 1);
       }
     },
-    (repo) => ({ title: repo.name, sub: repoLine(repo) }));
+    (repo) => ({ title: repo.name, sub: repoLine(repo) }),
+    (repo) => (repo.fork ? "Forks don't count in the charts" : ""));
 }
 
 function logoFields(p) {
@@ -41,7 +42,7 @@ export function panel() {
   const projects = state.config.projects ||= [];
   return [
     h("div", { class: "panel-head" }, h("h2", {}, "Watchlist"),
-      h("p", {}, "Projects shown as rows with a chart line. Drag to reorder; adding one also adds it to chart coverage.")),
+      h("p", {}, "Projects shown as rows with a chart line. Only the ones you tick appear; drag to reorder.")),
     h("div", { class: "columns" },
       h("div", {}, h("h3", {}, `On the board (${projects.length})`),
         projects.length ? h("ol", { class: "sortable" }, projects.map((p, i) => sortableItem(projects, i, [

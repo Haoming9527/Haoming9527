@@ -1,7 +1,7 @@
 // Draws the page from the store: the tape, the sign-in card, the tabs, the active panel and the
 // save bar. startUi() wires the redraw hooks and draws the first frame.
 
-import { changedSections, commit, discard, isDirty, load, problems } from "../board.js";
+import { changedSections, commit, countedRepos, discard, isDirty, load, problems } from "../board.js";
 import { OWNER, REPO, TABS } from "../config.js";
 import { $, h, toast } from "../lib/dom.js";
 import { state } from "../state.js";
@@ -13,13 +13,13 @@ function renderTape() {
   const changed = new Set(changedSections());
   const c = state.config;
   $("#tape").replaceChildren(...[["WATCHLIST", c.projects, "Watchlist"], ["COLLAB", c.collaborations, "Collaborations"],
-    ["COVERAGE", c.activity_repositories, "Chart coverage"], ["AWARDS", c.achievements, "Track record"]].map(([label, list, section]) =>
+    ["COVERAGE", countedRepos(), "Chart coverage"], ["AWARDS", c.achievements, "Track record"]].map(([label, list, section]) =>
     h("span", { class: changed.has(section) ? "changed" : null }, h("b", {}, label), (list || []).length, changed.has(section) ? " ▲ edited" : "")));
 }
 
 function renderTabs() {
   const counts = { watchlist: state.config.projects, collabs: state.config.collaborations,
-    coverage: state.config.activity_repositories, record: state.config.achievements, logos: state.logos };
+    coverage: countedRepos(), record: state.config.achievements, logos: state.logos };
   $("#tabs").replaceChildren(...TABS.map(([tab, label]) => h("button", { type: "button", role: "tab", "aria-selected": String(state.tab === tab),
     onclick: () => { state.tab = tab; state.filter = ""; renderTabs(); renderPanel(); } },
   label, h("span", { class: "count" }, (counts[tab] || []).length))));

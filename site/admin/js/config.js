@@ -11,4 +11,4 @@ export const LOGO_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]*\.(svg|png|jpe?g)$/i;
 export const WRITABLE = [/^profile\.json$/, /^assets\/logos\/[a-z0-9][a-z0-9-]*\.(png|svg)$/];
 export const DELETABLE = /^[A-Za-z0-9][A-Za-z0-9._-]*$/;
 export const TABS = [["watchlist", "Watchlist"], ["collabs", "Collaborations"], ["coverage", "Chart coverage"], ["record", "Track record"], ["logos", "Logos"]];
-export const SECTIONS = { watchlist: "projects", collabs: "collaborations", coverage: "activity_repositories", record: "achievements", logos: null };
+export const SECTIONS = { watchlist: "projects", collabs: "collaborations", coverage: "activity_exclusions", record: "achievements", logos: null };

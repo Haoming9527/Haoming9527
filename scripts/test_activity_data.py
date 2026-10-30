@@ -13,7 +13,7 @@ import activity_data as activity
 
 
 NOW = datetime(2026, 10, 30, 12, tzinfo=timezone.utc)
-CONFIG = {"github_username": "Haoming9527", "activity_repositories": ["Haoming9527/example"]}
+CONFIG = {"github_username": "Haoming9527"}
 PACKAGE = base64.b64encode(json.dumps({"dependencies": {"react": "19", "ai": "7"}}).encode()).decode()
 
 
@@ -22,19 +22,26 @@ def commit(sha="a" * 40, timestamp="2026-10-26T12:00:00Z", author="Haoming9527",
             "parents": [{}] * parents, "commit": {"committer": {"date": timestamp}}}
 
 
+def owned(name, private=False, fork=False):
+    return {"full_name": f"Haoming9527/{name}", "private": private, "fork": fork}
+
+
 class FakeClient(activity.GitHubClient):
-    def __init__(self, summaries=None, stats=None, private=False, files=None, stars=2):
+    def __init__(self, summaries=None, stats=None, private=False, files=None, stars=2, repos=None):
         super().__init__()
         self.summaries = summaries if summaries is not None else [commit()]
         self.stats = stats if stats is not None else {"additions": 20, "deletions": 7}
         self.private = private
         self.files = files or []
         self.stars = stars
+        self.repos = repos if repos is not None else [owned("example")]
         self.paths = []
 
     def get(self, path, accept=None):
         self.requests += 1
         self.paths.append(path)
+        if path.startswith("/users/Haoming9527/repos?"):
+            return self.repos, {}
         if path.startswith("/search/issues?"):
             return {"total_count": 0, "incomplete_results": False, "items": []}, {}
         if "/commits?" in path:
@@ -110,9 +117,8 @@ class CollectionTests(unittest.TestCase):
         self.assertNotIn("since=", listing)
 
     def test_deduplicates_same_sha_across_repositories(self):
-        config = dict(CONFIG, activity_repositories=["Haoming9527/example", "Haoming9527/other"])
-        client = FakeClient()
-        snapshot = activity.collect(config, client, NOW)
+        client = FakeClient(repos=[owned("example"), owned("other")])
+        snapshot = activity.collect(CONFIG, client, NOW)
         self.assertEqual(len(snapshot["commits"]), 1)
         self.assertEqual(snapshot["coverage"]["excluded"]["duplicate_commits"], 1)
         self.assertEqual(sum("/commits/" in path for path in client.paths), 1)
@@ -122,10 +128,29 @@ class CollectionTests(unittest.TestCase):
             with self.subTest(client=client), self.assertRaises(activity.CollectionError):
                 activity.collect(CONFIG, client, NOW)
 
-    def test_profile_repository_and_foreign_owner_rejected(self):
-        for repository in ("Haoming9527/Haoming9527", "someone/example"):
-            with self.subTest(repository=repository), self.assertRaises(activity.CollectionError):
-                activity.validate_config(dict(CONFIG, activity_repositories=[repository]))
+    def test_every_public_repository_counts_except_forks_profile_and_exclusions(self):
+        repos = [owned("Zeta"), owned("alpha"), owned("forked", fork=True), owned("Haoming9527"),
+                 owned("secret", private=True), owned("skip")]
+        config = dict(CONFIG, activity_exclusions=["Haoming9527/skip"])
+        snapshot = activity.collect(config, FakeClient(repos=repos), NOW)
+        self.assertEqual([row["name"] for row in snapshot["repositories"]], ["Haoming9527/alpha", "Haoming9527/Zeta"])
+        self.assertEqual(snapshot["coverage"]["repository_count"], 2)
+        self.assertEqual(snapshot["coverage"]["excluded_repositories"], ["Haoming9527/skip"])
+
+    def test_a_new_repository_is_counted_on_the_next_refresh(self):
+        first = activity.collect(CONFIG, FakeClient(), NOW)
+        second = activity.collect(CONFIG, FakeClient(repos=[owned("example"), owned("brand-new")]), NOW, previous=first)
+        self.assertEqual([row["name"] for row in second["repositories"]], ["Haoming9527/brand-new", "Haoming9527/example"])
+        self.assertEqual(second["coverage"]["reused_repositories"], 1)
+
+    def test_foreign_or_invalid_names_are_rejected(self):
+        for exclusions in (["someone/example"], ["not a repository"], "Haoming9527/example"):
+            with self.subTest(exclusions=exclusions), self.assertRaises(activity.CollectionError):
+                activity.validate_config(dict(CONFIG, activity_exclusions=exclusions))
+        with self.assertRaises(activity.CollectionError):
+            activity.collect(CONFIG, FakeClient(repos=[{"full_name": "someone/example", "private": False, "fork": False}]), NOW)
+        with self.assertRaises(activity.CollectionError):
+            activity.collect(CONFIG, FakeClient(repos=[owned("forked", fork=True)]), NOW)
 
     def test_language_lines_stack_stars_and_bytes(self):
         files = [{"filename": "src/app.tsx", "additions": 12, "deletions": 3},

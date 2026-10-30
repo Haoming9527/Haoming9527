@@ -20,23 +20,5 @@
     {"rank": "Project Work Winner", "event": "Singapore Cybersecurity Camp 2025", "tag": "Canary-WAF", "logo": "div0.png", "url": "https://github.com/umiyuikaiteitan/Canary-WAF"}
   ],
   "activity_days": 90,
-  "activity_repositories": [
-    "Haoming9527/DGX-Spark-Platform",
-    "Haoming9527/Needle",
-    "Haoming9527/EntryX",
-    "Haoming9527/GeoMeet",
-    "Haoming9527/IslandFurniture",
-    "Haoming9527/Upload-History",
-    "Haoming9527/TrustLens",
-    "Haoming9527/SilverCare",
-    "Haoming9527/NeuroHealth",
-    "Haoming9527/Secure_Coding_Assignment",
-    "Haoming9527/Portfolio",
-    "Haoming9527/DevMegle-",
-    "Haoming9527/Java-Version-Manager",
-    "Haoming9527/WhatNETS",
-    "Haoming9527/creature-skill",
-    "Haoming9527/OCBC-AI-Smart-Inquiry-System",
-    "Haoming9527/Fitness-Challenge"
-  ]
+  "activity_exclusions": []
 }

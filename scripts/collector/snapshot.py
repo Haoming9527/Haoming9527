@@ -24,37 +24,51 @@ METHODOLOGY = (
     "those constructed excursions; close is cumulative additions minus deletions. "
     "The additions-first convention is a visualization rule, not a measured "
     "within-commit timeline. Only commits authored by the configured GitHub user "
-    "and reachable from selected public repositories' default branches are counted. "
+    "and reachable from the default branches of their public, non-fork repositories are counted. "
     "Merge commits are excluded to avoid recounting merged changes. Identical "
     "SHAs across repositories are counted once. Binary-file changes may have zero "
     "line statistics. Line volume is activity, not productivity or financial value."
 )
 
 
+REPOSITORY_NAME = re.compile(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+")
+
+
 def validate_config(config: dict[str, Any]) -> tuple[str, list[str], int]:
+    """Returns the username, the repositories to leave out of the charts, and the window in days."""
     username = config.get("github_username", "")
-    repositories = config.get("activity_repositories")
+    exclusions = config.get("activity_exclusions", [])
     days = config.get("activity_days", 90)
     if not isinstance(username, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]{0,38}", username):
         raise CollectionError("profile.json needs a valid github_username")
-    if not isinstance(repositories, list) or not repositories:
-        raise CollectionError("profile.json needs a nonempty activity_repositories list")
+    if not isinstance(exclusions, list):
+        raise CollectionError("activity_exclusions must be a list of owner/repository names")
     if isinstance(days, bool) or not isinstance(days, int) or not 7 <= days <= 366:
         raise CollectionError("activity_days must be an integer between 7 and 366")
-    normalized: list[str] = []
-    seen: set[str] = set()
-    for repository in repositories:
-        if not isinstance(repository, str) or not re.fullmatch(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+", repository):
-            raise CollectionError(f"Invalid activity repository: {repository!r}")
-        owner, name = repository.split("/")
-        if owner.lower() != username.lower():
-            raise CollectionError(f"Activity repository is not owned by {username}: {repository}")
-        if name.lower() == username.lower():
-            raise CollectionError("Exclude the profile repository to avoid counting automated refreshes")
-        if repository.lower() not in seen:
-            normalized.append(repository)
-            seen.add(repository.lower())
-    return username, normalized, days
+    for repository in exclusions:
+        if not isinstance(repository, str) or not REPOSITORY_NAME.fullmatch(repository):
+            raise CollectionError(f"Invalid activity exclusion: {repository!r}")
+        if repository.split("/")[0].lower() != username.lower():
+            raise CollectionError(f"Activity exclusion is not owned by {username}: {repository}")
+    return username, exclusions, days
+
+
+def owned_repositories(username: str, client: GitHubClient, exclusions: list[str]) -> list[str]:
+    """Every public, non-fork repository the user owns, so new repositories count automatically.
+
+    The profile repository is always left out (its automated refreshes are not activity),
+    as are the configured exclusions."""
+    skip = {name.lower() for name in exclusions} | {f"{username}/{username}".lower()}
+    names: list[str] = []
+    for repo in client.pages(f"/users/{username}/repos?type=owner&per_page=100"):
+        name = repo.get("full_name", "")
+        if not isinstance(name, str) or not REPOSITORY_NAME.fullmatch(name) or name.split("/")[0].lower() != username.lower():
+            raise CollectionError(f"Unexpected repository in the owner listing: {name!r}")
+        if repo.get("private") is False and not repo.get("fork") and name.lower() not in skip:
+            names.append(name)
+    if not names:
+        raise CollectionError(f"No public repositories to count for {username}")
+    return sorted(names, key=str.lower)
 
 
 def contribution_exclusions(config: dict[str, Any]) -> list[str]:
@@ -102,8 +116,9 @@ def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -
 def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             progress: Callable[[str], None] | None = None, previous: dict[str, Any] | None = None,
             fetch: Callable[[str], str | None] | None = None) -> dict[str, Any]:
-    username, repositories, days = validate_config(config)
+    username, activity_exclusions, days = validate_config(config)
     exclusion_names = contribution_exclusions(config)
+    repositories = owned_repositories(username, client, activity_exclusions)
     previous = previous if (previous or {}).get("schema_version") == 3 else {}
     cached_repos = {row["name"].lower(): row for row in previous.get("repositories", [])}
     cached_commits = {row["sha"]: row for row in previous.get("commits", [])}
@@ -207,8 +222,10 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
                    "net_lines": additions - deletions, "active_weeks": sum(week["commits"] > 0 for week in weeks)},
         "weeks": weeks,
         "repositories": rows,
-        "coverage": {"scope": "Selected public owned repositories; default branches; authored non-merge commits; all time",
+        "coverage": {"scope": "Every public, non-fork repository the user owns except the profile repository and "
+                              "activity_exclusions; default branches; authored non-merge commits; all time",
                      "complete": True, "repository_count": len(repositories), "reused_repositories": reused,
+                     "excluded_repositories": activity_exclusions,
                      "api_requests": client.requests, "excluded": exclusions,
                      "commits_with_truncated_file_lists": sum(commit.get("files_truncated", False) for commit in commits)},
         "warnings": [],
@@ -216,7 +233,7 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
         "commits": commits,
         "open_source": open_source,
         "languages": {"bytes": dict(sorted(language_bytes.items(), key=lambda pair: (-pair[1], pair[0]))),
-                      "scope": "GitHub Linguist bytes in the configured public repositories' default branches"},
+                      "scope": "GitHub Linguist bytes in the counted public repositories' default branches"},
         "stack": dict(sorted(stack.items())),
         "logos": logos,
         "stars": stars,

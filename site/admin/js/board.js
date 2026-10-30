@@ -49,10 +49,21 @@ export function discard() {
   state.deletions = new Set();
 }
 
-export function ensureCoverage(repository) {
-  const coverage = state.config.activity_repositories ||= [];
-  if (!coverage.some((name) => name.toLowerCase() === repository.toLowerCase())) coverage.push(repository);
+const sameRepo = (a, b) => a.toLowerCase() === b.toLowerCase();
+export const isExcluded = (repository) => (state.config.activity_exclusions || []).some((name) => sameRepo(name, repository));
+
+/** The charts count every public repository the owner has, new ones included, except forks and exclusions. */
+export const countedRepos = () => state.repos.filter((repo) => !repo.fork && !isExcluded(repo.full_name));
+
+export function setCounted(repository, counted) {
+  const exclusions = state.config.activity_exclusions ||= [];
+  const at = exclusions.findIndex((name) => sameRepo(name, repository));
+  if (counted && at >= 0) exclusions.splice(at, 1);
+  else if (!counted && at < 0) exclusions.push(repository);
 }
+
+/** A watchlist project always counts in the charts, or its row would be empty. */
+export const ensureCoverage = (repository) => setCounted(repository, true);
 
 /** Files chosen for an entry: its two wordmarks, or its logo. */
 const entryFiles = (entry) => (entry.wordmark ? [entry.wordmark.light, entry.wordmark.dark] : [entry.logo]);
@@ -82,7 +93,7 @@ export function problems() {
   const logoOk = (file) => file && ((state.logos.includes(file) && !state.deletions.has(file)) || state.uploads[file]);
   const shown = (entry) => entryFiles(entry).every(logoOk);
   const needs = (entry) => (entry.wordmark ? "light and dark wordmarks" : "a logo");
-  if (!(c.activity_repositories || []).length) list.push("Chart coverage needs at least one repository.");
+  if (!countedRepos().length) list.push("Chart coverage needs at least one repository.");
   (c.projects || []).forEach((p) => {
     const where = p.name || p.repository;
     if (!p.name?.trim()) list.push(`Watchlist: ${p.repository} needs a name.`);

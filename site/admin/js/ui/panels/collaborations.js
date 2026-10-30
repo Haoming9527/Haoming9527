@@ -23,7 +23,7 @@ export function panel() {
   const collabs = state.config.collaborations ||= [];
   return [
     h("div", { class: "panel-head" }, h("h2", {}, "Collaborations"),
-      h("p", {}, "Other people's projects that merged your pull requests. A wordmark replaces the logo and the name.")),
+      h("p", {}, "Other people's projects that merged your pull requests. All of them count in the Merged PRs and Stars indexes; only the ones you tick appear here. A wordmark replaces the logo and the name.")),
     h("div", { class: "columns" },
       h("div", {}, h("h3", {}, `On the board (${collabs.length})`),
         collabs.length ? h("ol", { class: "sortable" }, collabs.map((e, i) => sortableItem(collabs, i, [
