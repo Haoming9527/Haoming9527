@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="846" height="198" viewBox="0 0 846 198" role="img" aria-label="Economist, R&amp;D AI Engineer. Focus: AI engineering, Agentic systems, Full-stack, Local inference. Stack: TypeScript, Go, React, Next.js, Node.js, PostgreSQL, Docker, Ollama, AI SDK, MCP.">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="846.0" height="198.0" rx="0" fill="#ffffff"/>
+<circle cx="54" cy="46" r="30" fill="#13233a"/><circle cx="54" cy="46" r="27" fill="none" stroke="#e3b341" stroke-width="1.5"/>
+<text x="54.0" y="58.0" font-size="33.6" font-weight="400" fill="#e3b341" text-anchor="middle" font-family="Georgia,'Times New Roman',serif">E</text>
+<text x="100.0" y="43.0" font-size="30" font-weight="700" fill="#1f2328" text-anchor="start">Economist</text>
+<circle class="pulse" cx="105" cy="62" r="4" fill="#1a7f37"/><circle cx="105" cy="62" r="4" fill="#1a7f37"/>
+<text x="116.0" y="67.0" font-size="16" font-weight="500" fill="#59636e" text-anchor="start">R&amp;D AI Engineer</text>
+<rect x="622.4" y="28.0" width="199.6" height="36.0" rx="18" fill="#f6f8fa"/>
+<text x="640.4" y="51.0" font-size="14" font-weight="600" fill="#1f2328" text-anchor="start">www.shen-haoming.com</text>
+<path d="M802.0 40.0 L805.7 46.0 L802.0 52.0" fill="none" stroke="#1f2328" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="24.0" y="100.0" width="181.6" height="46.0" rx="23" fill="#f6f8fa"/>
+<rect x="33.0" y="109.0" width="28.0" height="28.0" rx="7" fill="#ffffff" stroke="#e16f24" stroke-width="1.6"/>
+<path d="M13 4 L15 11 L22 13 L15 15 L13 22 L11 15 L4 13 L11 11 Z" transform="translate(34.0 110.0) scale(1.000)" fill="none" stroke="#e16f24" stroke-width="2.20" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="71.0" y="128.8" font-size="16" font-weight="500" fill="#1f2328" text-anchor="start">AI engineering</text>
+<rect x="215.6" y="100.0" width="191.8" height="46.0" rx="23" fill="#f6f8fa"/>
+<rect x="224.6" y="109.0" width="28.0" height="28.0" rx="7" fill="#ffffff" stroke="#8250df" stroke-width="1.6"/>
+<path d="M7 9 A7 7 0 0 1 19.5 10 M19 17 A7 7 0 0 1 6.5 16 M19.5 6 V10 H15.5 M6.5 20 V16 H10.5" transform="translate(225.6 110.0) scale(1.000)" fill="none" stroke="#8250df" stroke-width="2.20" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="262.6" y="128.8" font-size="16" font-weight="500" fill="#1f2328" text-anchor="start">Agentic systems</text>
+<rect x="417.4" y="100.0" width="149.0" height="46.0" rx="23" fill="#f6f8fa"/>
+<rect x="426.4" y="109.0" width="28.0" height="28.0" rx="7" fill="#ffffff" stroke="#0e8a9e" stroke-width="1.6"/>
+<path d="M13 5 L22 9.5 L13 14 L4 9.5 Z M4 13.5 L13 18 L22 13.5 M4 17.5 L13 22 L22 17.5" transform="translate(427.4 110.0) scale(1.000)" fill="none" stroke="#0e8a9e" stroke-width="2.20" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="464.4" y="128.8" font-size="16" font-weight="500" fill="#1f2328" text-anchor="start">Full-stack</text>
+<rect x="576.4" y="100.0" width="188.0" height="46.0" rx="23" fill="#f6f8fa"/>
+<rect x="585.4" y="109.0" width="28.0" height="28.0" rx="7" fill="#ffffff" stroke="#1a7f37" stroke-width="1.6"/>
+<path d="M8 8 H18 V18 H8 Z M11 11 H15 V15 H11 Z M11 4 V8 M15 4 V8 M11 18 V22 M15 18 V22 M4 11 H8 M4 15 H8 M18 11 H22 M18 15 H22" transform="translate(586.4 110.0) scale(1.000)" fill="none" stroke="#1a7f37" stroke-width="2.20" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="623.4" y="128.8" font-size="16" font-weight="500" fill="#1f2328" text-anchor="start">Local inference</text>
+<rect x="24.5" y="162.5" width="91.7" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="70.4" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">TypeScript</text>
+<rect x="125.2" y="162.5" width="36.9" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="143.7" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">Go</text>
+<rect x="171.1" y="162.5" width="57.9" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="200.0" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">React</text>
+<rect x="238.0" y="162.5" width="68.8" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="272.4" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">Next.js</text>
+<rect x="315.8" y="162.5" width="68.8" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="350.3" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">Node.js</text>
+<rect x="393.7" y="162.5" width="98.5" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="442.9" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">PostgreSQL</text>
+<rect x="501.2" y="162.5" width="64.9" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="533.6" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">Docker</text>
+<rect x="575.1" y="162.5" width="58.7" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="604.5" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">Ollama</text>
+<rect x="642.8" y="162.5" width="68.8" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="677.2" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">AI SDK</text>
+<rect x="720.6" y="162.5" width="47.5" height="27.0" rx="8" fill="#ffffff" stroke="#d8dee4"/>
+<text x="744.4" y="180.7" font-size="13" font-weight="500" fill="#59636e" text-anchor="middle">MCP</text>
+</svg>

@@ -44,7 +44,8 @@ jobs:
           name: profile-market
           path: |
             data/activity.json
-            assets/*.svg
+            assets/gen/*.svg
+            README.md
           if-no-files-found: error
           retention-days: 1
 
@@ -58,6 +59,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.sha }}
+      - name: Drop widgets so weeks that left the window disappear
+        run: rm -rf assets/gen
       - uses: actions/download-artifact@v4
         with:
           name: profile-market
@@ -66,7 +69,7 @@ jobs:
         run: |
           git config user.name 'Shen Haoming'
           git config user.email '167516473+Haoming9527@users.noreply.github.com'
-          git add data/activity.json assets/*.svg
+          git add -A data/activity.json assets/gen README.md
           if git diff --cached --quiet; then
             echo 'The market board is already current.'
             exit 0

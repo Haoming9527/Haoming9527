@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="846" height="80" viewBox="0 0 846 80" role="img" aria-label="dsh-ops (T-Auto/dsh-ops): 53 merged PRs; repository has 4,784 stars">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="846.0" height="80.0" rx="0" fill="#ffffff"/>
+<circle cx="46.0" cy="40.0" r="22" fill="#0e7490"/>
+<text x="46.0" y="44.0" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">DSH</text>
+<text x="84.0" y="36.0" font-size="19" font-weight="500" fill="#1f2328" text-anchor="start">dsh-ops</text>
+<text x="84.0" y="59.0" font-size="13" font-weight="400" fill="#59636e" text-anchor="start">T-Auto</text>
+<defs><linearGradient id="gc0light" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a7f37" stop-opacity=".14"/><stop offset="1" stop-color="#1a7f37" stop-opacity="0"/></linearGradient></defs>
+<path d="M352.0 58.0 L355.5 58.0 L359.1 58.0 L362.6 58.0 L366.2 57.1 L369.7 57.1 L373.2 57.1 L376.8 56.3 L380.3 56.3 L383.9 56.3 L387.4 56.3 L391.0 56.3 L394.5 56.3 L398.0 33.3 L401.6 33.3 L405.1 33.3 L408.7 33.3 L412.2 33.3 L415.8 33.3 L419.3 33.3 L422.8 33.3 L426.4 33.3 L429.9 33.3 L433.5 33.3 L437.0 33.3 L440.5 33.3 L444.1 33.3 L447.6 33.3 L451.2 33.3 L454.7 33.3 L458.2 33.3 L461.8 33.3 L465.3 18.0 L468.9 18.0 L472.4 18.0 L476.0 18.0 L479.5 18.0 L483.0 18.0 L486.6 18.0 L490.1 18.0 L493.7 18.0 L497.2 18.0 L500.8 18.0 L504.3 18.0 L507.8 18.0 L511.4 18.0 L514.9 18.0 L518.5 18.0 L522.0 18.0 L522.0 58.0 L352.0 58.0 Z" fill="url(#gc0light)"/>
+<path class="draw" pathLength="1" d="M352.0 58.0 L355.5 58.0 L359.1 58.0 L362.6 58.0 L366.2 57.1 L369.7 57.1 L373.2 57.1 L376.8 56.3 L380.3 56.3 L383.9 56.3 L387.4 56.3 L391.0 56.3 L394.5 56.3 L398.0 33.3 L401.6 33.3 L405.1 33.3 L408.7 33.3 L412.2 33.3 L415.8 33.3 L419.3 33.3 L422.8 33.3 L426.4 33.3 L429.9 33.3 L433.5 33.3 L437.0 33.3 L440.5 33.3 L444.1 33.3 L447.6 33.3 L451.2 33.3 L454.7 33.3 L458.2 33.3 L461.8 33.3 L465.3 18.0 L468.9 18.0 L472.4 18.0 L476.0 18.0 L479.5 18.0 L483.0 18.0 L486.6 18.0 L490.1 18.0 L493.7 18.0 L497.2 18.0 L500.8 18.0 L504.3 18.0 L507.8 18.0 L511.4 18.0 L514.9 18.0 L518.5 18.0 L522.0 18.0" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="684.0" y="38.0" font-size="20" font-weight="600" fill="#1f2328" text-anchor="end">53</text>
+<text x="684.0" y="59.0" font-size="12" font-weight="400" fill="#59636e" text-anchor="end">merged PRs</text>
+<rect x="702.0" y="21.0" width="120.0" height="38.0" rx="6" fill="#d4a72c"/>
+<text x="762.0" y="46.1" font-size="17" font-weight="700" fill="#1f2328" text-anchor="middle">★ 4,784</text>
+<line x1="24.0" y1="79.5" x2="822.0" y2="79.5" stroke="#eaeef2" stroke-width="1"/>
+</svg>

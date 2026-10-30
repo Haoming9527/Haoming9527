@@ -38,6 +38,19 @@ METHODOLOGY = (
     "SHAs across repositories are counted once. Binary-file changes may have zero "
     "line statistics. Line volume is activity, not productivity or financial value."
 )
+STAR_ACCEPT = "application/vnd.github.star+json"
+# Names follow GitHub Linguist so commit lines and byte shares line up.
+LANGUAGE_EXTENSIONS = {
+    ".ts": "TypeScript", ".tsx": "TypeScript", ".mts": "TypeScript", ".cts": "TypeScript",
+    ".js": "JavaScript", ".jsx": "JavaScript", ".mjs": "JavaScript", ".cjs": "JavaScript",
+    ".py": "Python", ".go": "Go", ".rs": "Rust", ".java": "Java", ".kt": "Kotlin", ".cs": "C#",
+    ".c": "C", ".h": "C", ".cpp": "C++", ".cc": "C++", ".hpp": "C++", ".swift": "Swift",
+    ".css": "CSS", ".scss": "SCSS", ".html": "HTML", ".htm": "HTML", ".vue": "Vue", ".svelte": "Svelte",
+    ".sh": "Shell", ".bash": "Shell", ".ps1": "PowerShell", ".bat": "Batchfile", ".cmd": "Batchfile",
+    ".sql": "PLpgSQL", ".ejs": "EJS", ".php": "PHP", ".rb": "Ruby", ".dart": "Dart", ".lua": "Lua",
+}
+LANGUAGE_FILENAMES = {"Dockerfile": "Dockerfile", "Makefile": "Makefile"}
+VENDORED = {"node_modules", "vendor", "dist", "build", ".next", "coverage"}
 
 
 class CollectionError(RuntimeError):
@@ -60,13 +73,13 @@ class GitHubClient:
         self.token = token
         self.requests = 0
 
-    def get(self, path_or_url: str) -> tuple[Any, dict[str, str]]:
+    def get(self, path_or_url: str, accept: str | None = None) -> tuple[Any, dict[str, str]]:
         url = path_or_url if path_or_url.startswith("https://") else API_ROOT + path_or_url
         # Never forward an authorization token to a foreign pagination host.
         if urlsplit(url).scheme != "https" or urlsplit(url).netloc != "api.github.com":
             raise CollectionError("Refusing a pagination URL outside api.github.com")
         headers = {
-            "Accept": "application/vnd.github+json",
+            "Accept": accept or "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
             "User-Agent": "Economist-profile-activity",
         }
@@ -97,14 +110,14 @@ class GitHubClient:
                 raise CollectionError(f"GitHub returned invalid JSON for {url}") from error
         raise AssertionError("Unreachable retry state")
 
-    def pages(self, path: str):
+    def pages(self, path: str, accept: str | None = None):
         seen_urls: set[str] = set()
         next_url: str | None = path
         while next_url:
             if next_url in seen_urls:
                 raise CollectionError("GitHub pagination repeated a URL")
             seen_urls.add(next_url)
-            values, headers = self.get(next_url)
+            values, headers = self.get(next_url, accept) if accept else self.get(next_url)
             if not isinstance(values, list):
                 raise CollectionError("Expected a list in a GitHub paginated response")
             yield from values
@@ -128,7 +141,7 @@ class ReplayClient(GitHubClient):
         super().__init__()
         self.responses = responses
 
-    def get(self, path_or_url: str) -> tuple[Any, dict[str, str]]:
+    def get(self, path_or_url: str, accept: str | None = None) -> tuple[Any, dict[str, str]]:
         path = path_or_url.removeprefix(API_ROOT)
         entry = self.responses.get(path, self.responses.get(API_ROOT + path))
         if not isinstance(entry, dict) or "body" not in entry:
@@ -137,10 +150,13 @@ class ReplayClient(GitHubClient):
         return entry["body"], {key.lower(): value for key, value in entry.get("headers", {}).items()}
 
 
-def collect_open_source(username: str, client: GitHubClient) -> dict[str, Any]:
+def collect_open_source(username: str, client: GitHubClient, exclusions: list[str] = ()) -> dict[str, Any]:
     """Count merged pull requests to repositories owned by other users/orgs."""
-    query = f"is:pr author:{username} is:merged -user:{username} is:public"
+    query = " ".join([f"is:pr author:{username} is:merged -user:{username} is:public",
+                      *(f"-repo:{name}" for name in exclusions)])
+    excluded = {name.lower() for name in exclusions}
     repositories: dict[str, int] = {}
+    merged_dates: dict[str, list[str]] = {}
     recent: list[dict[str, Any]] = []
     seen_urls: set[str] = set()
     expected: int | None = None
@@ -172,10 +188,17 @@ def collect_open_source(username: str, client: GitHubClient) -> dict[str, Any]:
                 raise CollectionError("PR search returned an unexpected pull request URL")
             if repository.split("/")[0].lower() == username.lower():
                 raise CollectionError("Open-source search unexpectedly included a self-owned repository")
+            if repository.lower() in excluded:
+                raise CollectionError(f"Open-source search ignored the exclusion for {repository}")
             if url in seen_urls:
                 raise CollectionError("Open-source search duplicated a pull request; retry the refresh")
+            try:
+                merged_at = parse_datetime((item.get("pull_request") or {}).get("merged_at"))
+            except (TypeError, AttributeError, ValueError) as error:
+                raise CollectionError(f"Merged pull request has no merge time: {url}") from error
             seen_urls.add(url)
             repositories[repository] = repositories.get(repository, 0) + 1
+            merged_dates.setdefault(repository, []).append(iso(merged_at))
             if len(recent) < 5:
                 recent.append({"title": item["title"], "url": url, "repository": repository,
                                "number": item["number"], "updated_at": item.get("updated_at")})
@@ -187,14 +210,60 @@ def collect_open_source(username: str, client: GitHubClient) -> dict[str, Any]:
     return {
         "total_merged_prs": expected,
         "repository_count": len(repositories),
-        "repositories": [{"name": name, "merged_prs": count, "url": f"https://github.com/{name}"}
+        "repositories": [{"name": name, "merged_prs": count, "url": f"https://github.com/{name}",
+                          "merged_at": sorted(merged_dates[name])}
                          for name, count in sorted(repositories.items(), key=lambda pair: (-pair[1], pair[0]))],
         "recent": recent,
         "recent_order": "Most recently updated merged pull requests",
         "query": query,
-        "url": "https://github.com/search?" + urlencode({"q": query, "type": "issues"}),
+        "excluded_repositories": list(exclusions),
+        "url": "https://github.com/search?" + urlencode({"q": query, "type": "pullrequests"}),
         "scope": "Public merged pull requests authored by the user in repositories they do not own; all time",
     }
+
+
+def collect_languages(repositories: list[str], client: GitHubClient) -> dict[str, Any]:
+    """Sum GitHub Linguist byte counts across the configured public repositories."""
+    totals: dict[str, int] = {}
+    per_repository: dict[str, dict[str, int]] = {}
+    for repository in repositories:
+        languages, _ = client.get(f"/repos/{repository}/languages")
+        if not isinstance(languages, dict) or any(
+                isinstance(size, bool) or not isinstance(size, int) or size < 0 for size in languages.values()):
+            raise CollectionError(f"Invalid language breakdown for {repository}")
+        per_repository[repository] = languages
+        for language, size in languages.items():
+            totals[language] = totals.get(language, 0) + size
+    return {"bytes": dict(sorted(totals.items(), key=lambda pair: (-pair[1], pair[0]))),
+            "repositories": per_repository,
+            "scope": "GitHub Linguist bytes in the configured public repositories' default branches"}
+
+
+def collect_stars(repositories: list[str], client: GitHubClient) -> dict[str, Any]:
+    """Read each stargazer's star date. Unstarred repositories disappear from history."""
+    result = []
+    for repository in repositories:
+        starred_on: dict[str, int] = {}
+        for stargazer in client.pages(f"/repos/{repository}/stargazers?per_page=100", STAR_ACCEPT):
+            try:
+                day = parse_datetime(stargazer["starred_at"]).date().isoformat()
+            except (TypeError, KeyError, ValueError) as error:
+                raise CollectionError(f"Stargazer without a star date in {repository}") from error
+            starred_on[day] = starred_on.get(day, 0) + 1
+        result.append({"name": repository, "stars": sum(starred_on.values()),
+                       "starred_on": dict(sorted(starred_on.items()))})
+    return {"total": sum(row["stars"] for row in result), "repositories": result,
+            "scope": "Current stargazers of configured public owned repositories plus external repositories "
+                     "with merged pull requests from the user (after configured exclusions)"}
+
+
+def file_language(filename: str) -> str | None:
+    name = filename.rsplit("/", 1)[-1]
+    if name in LANGUAGE_FILENAMES:
+        return LANGUAGE_FILENAMES[name]
+    if any(part in VENDORED for part in filename.split("/")) or name.endswith((".min.js", ".min.css")):
+        return None
+    return LANGUAGE_EXTENSIONS.get(Path(name).suffix.lower())
 
 
 def validate_config(config: dict[str, Any]) -> tuple[str, list[str], int]:
@@ -221,6 +290,21 @@ def validate_config(config: dict[str, Any]) -> tuple[str, list[str], int]:
             normalized.append(repository)
             seen.add(repository.lower())
     return username, normalized, days
+
+
+def featured_and_excluded(config: dict[str, Any], username: str, repositories: list[str]) -> tuple[set[str], list[str]]:
+    """Owned repositories whose lifetime commit dates are collected, and excluded contribution repos."""
+    named = [entry.get("repository") if isinstance(entry, dict) else entry
+             for entry in config.get("projects", []) + config.get("collaborations", [])]
+    exclusions = config.get("contribution_exclusions", [])
+    for repository in named + list(exclusions):
+        if not isinstance(repository, str) or not re.fullmatch(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+", repository):
+            raise CollectionError(f"Invalid featured or excluded repository: {repository!r}")
+    selected = {name.lower() for name in repositories}
+    featured = {name.lower() for name in named if name.split("/")[0].lower() == username.lower()}
+    if featured - selected:
+        raise CollectionError("Featured owned repositories must also be listed in activity_repositories")
+    return featured, list(exclusions)
 
 
 def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -> list[dict[str, Any]]:
@@ -260,6 +344,9 @@ def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -
 def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             progress: Callable[[str], None] | None = None) -> dict[str, Any]:
     username, repositories, days = validate_config(config)
+    featured, contribution_exclusions = featured_and_excluded(config, username, repositories)
+    lifetime: dict[str, dict[str, int]] = {}
+    files_truncated = 0
     end = now.astimezone(UTC).replace(microsecond=0)
     start = datetime.combine(end.date() - timedelta(days=days - 1), time.min, UTC)
     commits: list[dict[str, Any]] = []
@@ -286,26 +373,35 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             if not branches:
                 repository_totals.append(repo_summary)
                 continue
-        query = urlencode({"sha": default_branch, "author": username,
-                           "since": iso(start), "until": iso(end), "per_page": 100})
-        for summary in client.pages(f"/repos/{repository}/commits?{query}"):
+        # Featured repositories are read from their first commit so the profile can
+        # chart their lifetime; only commits inside the window become candles.
+        is_featured = repository.lower() in featured
+        params = {"sha": default_branch, "author": username, "until": iso(end), "per_page": 100}
+        if not is_featured:
+            params["since"] = iso(start)
+        commit_days: dict[str, int] = {}
+        for summary in client.pages(f"/repos/{repository}/commits?{urlencode(params)}"):
             sha = summary.get("sha", "")
             if not re.fullmatch(r"[0-9a-f]{40,64}", sha):
                 raise CollectionError(f"Invalid commit SHA returned for {repository}")
-            author = summary.get("author") or {}
-            if author.get("login", "").lower() != username.lower():
-                exclusions["other_authors"] += 1
-                continue
-            if len(summary.get("parents", [])) > 1:
-                exclusions["merge_commits"] += 1
-                continue
             timestamp = summary.get("commit", {}).get("committer", {}).get("date")
             try:
                 committed_at = parse_datetime(timestamp)
             except (TypeError, AttributeError, ValueError) as error:
                 raise CollectionError(f"Missing commit timestamp for {repository}/{sha}") from error
-            if not start <= committed_at <= end:
-                exclusions["outside_window"] += 1
+            in_window = start <= committed_at <= end
+            author = summary.get("author") or {}
+            if author.get("login", "").lower() != username.lower():
+                exclusions["other_authors"] += in_window
+                continue
+            if len(summary.get("parents", [])) > 1:
+                exclusions["merge_commits"] += in_window
+                continue
+            if is_featured:
+                day = committed_at.date().isoformat()
+                commit_days[day] = commit_days.get(day, 0) + 1
+            if not in_window:
+                exclusions["outside_window"] += not is_featured
                 continue
             if sha in seen_shas:
                 exclusions["duplicate_commits"] += 1
@@ -316,14 +412,26 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
             if any(isinstance(value, bool) or not isinstance(value, int) or value < 0
                    for value in (additions, deletions)):
                 raise CollectionError(f"Missing line statistics for {repository}/{sha}")
+            files = detail.get("files") or []
+            # GitHub lists at most 300 files per commit response; the rest stays unattributed.
+            files_truncated += len(files) >= 300
+            languages: dict[str, list[int]] = {}
+            for changed in files:
+                language = file_language(str(changed.get("filename", "")))
+                if language:
+                    row = languages.setdefault(language, [0, 0])
+                    row[0] += int(changed.get("additions") or 0)
+                    row[1] += int(changed.get("deletions") or 0)
             seen_shas.add(sha)
             commits.append({"sha": sha, "repository": repository, "timestamp": iso(committed_at),
-                            "additions": additions, "deletions": deletions,
+                            "additions": additions, "deletions": deletions, "languages": languages,
                             "url": f"https://github.com/{repository}/commit/{sha}"})
             repo_summary["commits"] += 1
             repo_summary["additions"] += additions
             repo_summary["deletions"] += deletions
         repository_totals.append(repo_summary)
+        if is_featured:
+            lifetime[repository] = dict(sorted(commit_days.items()))
         if progress:
             progress(f"  {repo_summary['commits']} authored commits; "
                      f"+{repo_summary['additions']} / -{repo_summary['deletions']} lines")
@@ -333,9 +441,13 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
     deletions = sum(row["deletions"] for row in commits)
     if progress:
         progress("Reading public merged pull requests to other repositories...")
-    open_source = collect_open_source(username, client)
+    open_source = collect_open_source(username, client, contribution_exclusions)
+    if progress:
+        progress("Reading language breakdowns and stargazers...")
+    languages = collect_languages(repositories, client)
+    stars = collect_stars(repositories + [row["name"] for row in open_source["repositories"]], client)
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "github_username": username,
         "generated_at": iso(end),
         "window": {"start": iso(start), "end": iso(end), "days": days, "timezone": "UTC"},
@@ -345,11 +457,15 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
         "repositories": repository_totals,
         "coverage": {"scope": "Selected public owned repositories; default branches; authored non-merge commits",
                      "complete": True, "repository_count": len(repositories),
-                     "api_requests": client.requests, "excluded": exclusions},
+                     "api_requests": client.requests, "excluded": exclusions,
+                     "commits_with_truncated_file_lists": files_truncated},
         "warnings": [],
         "methodology": METHODOLOGY,
         "commits": commits,
         "open_source": open_source,
+        "languages": languages,
+        "stars": stars,
+        "lifetime_commit_days": lifetime,
     }
 
 

@@ -1,10 +1,10 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "github_username": "Haoming9527",
-  "generated_at": "2026-10-29T17:23:22Z",
+  "generated_at": "2026-10-30T01:56:13Z",
   "window": {
-    "start": "2026-08-01T00:00:00Z",
-    "end": "2026-10-29T17:23:22Z",
+    "start": "2026-08-02T00:00:00Z",
+    "end": "2026-10-30T01:56:13Z",
     "days": 90,
     "timezone": "UTC"
   },
@@ -310,13 +310,14 @@
     "scope": "Selected public owned repositories; default branches; authored non-merge commits",
     "complete": true,
     "repository_count": 17,
-    "api_requests": 133,
+    "api_requests": 218,
     "excluded": {
       "merge_commits": 6,
       "duplicate_commits": 0,
       "other_authors": 0,
       "outside_window": 0
-    }
+    },
+    "commits_with_truncated_file_lists": 0
   },
   "warnings": [],
   "methodology": "One candle per UTC calendar week, starting Monday. The index starts at zero at the beginning of the displayed window. Commits are ordered by Git committer timestamp, then SHA. For each commit, additions raise the index before deletions lower it. Open is the previous close; high and low capture those constructed excursions; close is cumulative additions minus deletions. The additions-first convention is a visualization rule, not a measured within-commit timeline. Only commits authored by the configured GitHub user and reachable from selected public repositories' default branches are counted. Merge commits are excluded to avoid recounting merged changes. Identical SHAs across repositories are counted once. Binary-file changes may have zero line statistics. Line volume is activity, not productivity or financial value.",
@@ -327,6 +328,12 @@
       "timestamp": "2026-08-12T15:37:41Z",
       "additions": 89,
       "deletions": 560,
+      "languages": {
+        "TypeScript": [
+          0,
+          560
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/891e73b63d9ea39987207781fd42a6703cd66aeb"
     },
     {
@@ -335,6 +342,28 @@
       "timestamp": "2026-08-12T15:38:08Z",
       "additions": 3655,
       "deletions": 700,
+      "languages": {
+        "TypeScript": [
+          1297,
+          628
+        ],
+        "CSS": [
+          34,
+          28
+        ],
+        "Dockerfile": [
+          11,
+          0
+        ],
+        "Go": [
+          499,
+          0
+        ],
+        "PLpgSQL": [
+          2,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bfece538d6d499fb31e8407589e634db1c4ce0cf"
     },
     {
@@ -343,6 +372,24 @@
       "timestamp": "2026-08-13T18:36:48Z",
       "additions": 4463,
       "deletions": 1049,
+      "languages": {
+        "TypeScript": [
+          2859,
+          904
+        ],
+        "CSS": [
+          470,
+          20
+        ],
+        "Go": [
+          977,
+          9
+        ],
+        "PLpgSQL": [
+          1,
+          9
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/d4e8b332a1cbbe8c8ab8d8f2617db15145eff7eb"
     },
     {
@@ -351,6 +398,20 @@
       "timestamp": "2026-08-14T07:09:38Z",
       "additions": 1371,
       "deletions": 105,
+      "languages": {
+        "TypeScript": [
+          955,
+          53
+        ],
+        "Go": [
+          348,
+          46
+        ],
+        "PLpgSQL": [
+          34,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/140c06b285bfc1fc7774450ed8d3384bc1daf085"
     },
     {
@@ -359,6 +420,16 @@
       "timestamp": "2026-08-14T08:50:57Z",
       "additions": 135,
       "deletions": 156,
+      "languages": {
+        "TypeScript": [
+          95,
+          156
+        ],
+        "CSS": [
+          30,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Portfolio/commit/f58eaa1b0b26e9ff7d533067eb5610f292fd8dc2"
     },
     {
@@ -367,6 +438,12 @@
       "timestamp": "2026-08-14T17:36:06Z",
       "additions": 81,
       "deletions": 0,
+      "languages": {
+        "TypeScript": [
+          81,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Portfolio/commit/f9aeccef13f96dce96bd5ce7a920be1387cc63d3"
     },
     {
@@ -375,6 +452,12 @@
       "timestamp": "2026-08-14T17:53:26Z",
       "additions": 218,
       "deletions": 309,
+      "languages": {
+        "TypeScript": [
+          218,
+          309
+        ]
+      },
       "url": "https://github.com/Haoming9527/Portfolio/commit/b2393a0ab54a6b86aa8db4c13c98db97f315304d"
     },
     {
@@ -383,6 +466,12 @@
       "timestamp": "2026-08-14T18:32:14Z",
       "additions": 16,
       "deletions": 18,
+      "languages": {
+        "TypeScript": [
+          16,
+          18
+        ]
+      },
       "url": "https://github.com/Haoming9527/Portfolio/commit/ede1de7290dc1171e31a37cacf86798a0000d93d"
     },
     {
@@ -391,6 +480,16 @@
       "timestamp": "2026-08-16T07:14:11Z",
       "additions": 1360,
       "deletions": 140,
+      "languages": {
+        "TypeScript": [
+          1115,
+          134
+        ],
+        "CSS": [
+          158,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Portfolio/commit/74fb3fbaf8afe78919aec5d8d0e485e17bfbdcc2"
     },
     {
@@ -399,6 +498,32 @@
       "timestamp": "2026-09-27T18:48:02Z",
       "additions": 4494,
       "deletions": 1123,
+      "languages": {
+        "TypeScript": [
+          2198,
+          722
+        ],
+        "CSS": [
+          6,
+          0
+        ],
+        "Dockerfile": [
+          3,
+          2
+        ],
+        "Go": [
+          1515,
+          237
+        ],
+        "Shell": [
+          68,
+          0
+        ],
+        "PLpgSQL": [
+          15,
+          40
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ccc9499bdc1f5ba052f3481c80872a6e154810a6"
     },
     {
@@ -407,6 +532,7 @@
       "timestamp": "2026-09-28T03:28:06Z",
       "additions": 192,
       "deletions": 121,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1d50088450190de313a9442f981e1248d8693ab4"
     },
     {
@@ -415,6 +541,7 @@
       "timestamp": "2026-09-28T11:45:57Z",
       "additions": 2,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2241ad9408e547ffbd0e6ab3210cdec036d289a7"
     },
     {
@@ -423,6 +550,24 @@
       "timestamp": "2026-09-28T12:47:40Z",
       "additions": 1294,
       "deletions": 254,
+      "languages": {
+        "TypeScript": [
+          121,
+          22
+        ],
+        "Dockerfile": [
+          2,
+          0
+        ],
+        "Go": [
+          945,
+          193
+        ],
+        "Shell": [
+          4,
+          3
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/0178f22d72fab42c72d7de1202e6a2d24069348f"
     },
     {
@@ -431,6 +576,12 @@
       "timestamp": "2026-09-28T13:25:26Z",
       "additions": 48,
       "deletions": 26,
+      "languages": {
+        "Go": [
+          48,
+          26
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/e1eae7c26bab3c9b3a65ddbbaee47b4bb47da79a"
     },
     {
@@ -439,6 +590,12 @@
       "timestamp": "2026-09-28T13:48:30Z",
       "additions": 22,
       "deletions": 4,
+      "languages": {
+        "Go": [
+          22,
+          4
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/150cda94b403bf33e96e2d5e2101276bedc6bed7"
     },
     {
@@ -447,6 +604,12 @@
       "timestamp": "2026-09-28T13:53:38Z",
       "additions": 53,
       "deletions": 5,
+      "languages": {
+        "Go": [
+          53,
+          5
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/66cce12b799db28a4090eded1adf2f8829065c6b"
     },
     {
@@ -455,6 +618,12 @@
       "timestamp": "2026-09-28T14:07:33Z",
       "additions": 9,
       "deletions": 7,
+      "languages": {
+        "TypeScript": [
+          9,
+          7
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/653992f3a10f23a252f10c633c99df0cc60102f8"
     },
     {
@@ -463,6 +632,12 @@
       "timestamp": "2026-09-28T14:23:50Z",
       "additions": 57,
       "deletions": 2,
+      "languages": {
+        "Go": [
+          57,
+          2
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/552031620247f24358a09525dce0ab581b7d82e9"
     },
     {
@@ -471,6 +646,16 @@
       "timestamp": "2026-09-28T15:23:29Z",
       "additions": 35,
       "deletions": 11,
+      "languages": {
+        "Go": [
+          1,
+          1
+        ],
+        "Shell": [
+          2,
+          2
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2f418d757cfe4340dc02ab1091a60533e3eeec22"
     },
     {
@@ -479,6 +664,16 @@
       "timestamp": "2026-09-28T15:58:50Z",
       "additions": 45,
       "deletions": 65,
+      "languages": {
+        "Go": [
+          36,
+          48
+        ],
+        "Shell": [
+          3,
+          5
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/f00e9f06ed246a86a4477b838217cfee0137da3e"
     },
     {
@@ -487,6 +682,12 @@
       "timestamp": "2026-09-28T16:37:46Z",
       "additions": 171,
       "deletions": 78,
+      "languages": {
+        "TypeScript": [
+          171,
+          78
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/2543160ace4828e73b0648b269564d897ba2e6d3"
     },
     {
@@ -495,6 +696,20 @@
       "timestamp": "2026-09-29T04:11:21Z",
       "additions": 1551,
       "deletions": 809,
+      "languages": {
+        "TypeScript": [
+          555,
+          301
+        ],
+        "Go": [
+          495,
+          160
+        ],
+        "PLpgSQL": [
+          15,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/49e262320ac2451789de2b78c9e377ad5e0cd100"
     },
     {
@@ -503,6 +718,7 @@
       "timestamp": "2026-09-29T08:45:21Z",
       "additions": 140,
       "deletions": 12,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/7154c1a847e667a40cca36852834561fe31a977c"
     },
     {
@@ -511,6 +727,12 @@
       "timestamp": "2026-09-29T09:42:05Z",
       "additions": 50,
       "deletions": 1,
+      "languages": {
+        "TypeScript": [
+          50,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/46df042ed00e41fa3fcdd2247d848e3a434372eb"
     },
     {
@@ -519,6 +741,16 @@
       "timestamp": "2026-09-29T12:21:47Z",
       "additions": 286,
       "deletions": 41,
+      "languages": {
+        "TypeScript": [
+          118,
+          33
+        ],
+        "Go": [
+          168,
+          8
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ddb4c2143d542afc1c4b6460955eef8b7008b51f"
     },
     {
@@ -527,6 +759,12 @@
       "timestamp": "2026-09-29T12:46:17Z",
       "additions": 17,
       "deletions": 2,
+      "languages": {
+        "TypeScript": [
+          17,
+          2
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/727f6abc66aea8fc771fabc64782907f160e9ee8"
     },
     {
@@ -535,6 +773,7 @@
       "timestamp": "2026-09-29T15:28:48Z",
       "additions": 22,
       "deletions": 41,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/0062937a9995262141a9ae0c6fc7a9e1dae8ed92"
     },
     {
@@ -543,6 +782,24 @@
       "timestamp": "2026-09-30T19:55:09Z",
       "additions": 5366,
       "deletions": 523,
+      "languages": {
+        "TypeScript": [
+          3315,
+          263
+        ],
+        "CSS": [
+          287,
+          105
+        ],
+        "JavaScript": [
+          93,
+          2
+        ],
+        "PLpgSQL": [
+          43,
+          17
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/d1856290bc9e60ad1508d6bc8def9d4226799a56"
     },
     {
@@ -551,6 +808,20 @@
       "timestamp": "2026-10-01T02:43:36Z",
       "additions": 359,
       "deletions": 886,
+      "languages": {
+        "TypeScript": [
+          323,
+          373
+        ],
+        "CSS": [
+          30,
+          0
+        ],
+        "JavaScript": [
+          0,
+          93
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/57ae67df1f0ec93ac5896d92e49a271b5626cc36"
     },
     {
@@ -559,6 +830,12 @@
       "timestamp": "2026-10-01T03:50:30Z",
       "additions": 81,
       "deletions": 6,
+      "languages": {
+        "TypeScript": [
+          81,
+          6
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/757e9a93561cf22e5adb8e3dca85f6bbc89edc34"
     },
     {
@@ -567,6 +844,12 @@
       "timestamp": "2026-10-01T06:55:50Z",
       "additions": 88,
       "deletions": 85,
+      "languages": {
+        "TypeScript": [
+          88,
+          85
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b0f889ec12246451f57f78598b7b771f7ab26087"
     },
     {
@@ -575,6 +858,12 @@
       "timestamp": "2026-10-02T10:08:11Z",
       "additions": 1,
       "deletions": 1,
+      "languages": {
+        "Go": [
+          1,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b8ec16b10123acf282c756f48639890adaf95950"
     },
     {
@@ -583,6 +872,12 @@
       "timestamp": "2026-10-02T10:12:33Z",
       "additions": 3,
       "deletions": 3,
+      "languages": {
+        "TypeScript": [
+          3,
+          3
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bb5163a3295db9d544a2dd314b29e03deb5c0e42"
     },
     {
@@ -591,6 +886,12 @@
       "timestamp": "2026-10-02T10:17:44Z",
       "additions": 4,
       "deletions": 6,
+      "languages": {
+        "Go": [
+          4,
+          6
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/694882ac5a4194e603abcdd6c67f5a5f766ecdb7"
     },
     {
@@ -599,6 +900,12 @@
       "timestamp": "2026-10-02T10:24:05Z",
       "additions": 20,
       "deletions": 11,
+      "languages": {
+        "Go": [
+          19,
+          10
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1624c6dee960ac51334238012fdb31e43bbf2ec3"
     },
     {
@@ -607,6 +914,12 @@
       "timestamp": "2026-10-02T10:33:38Z",
       "additions": 1,
       "deletions": 1,
+      "languages": {
+        "Go": [
+          1,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/4ff8a6bb45d057c0ad32e8077c462dfb1196dc4c"
     },
     {
@@ -615,6 +928,12 @@
       "timestamp": "2026-10-02T10:57:15Z",
       "additions": 4,
       "deletions": 1,
+      "languages": {
+        "TypeScript": [
+          4,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/6786b074d20ef6dec01b9175a3af15804e852766"
     },
     {
@@ -623,6 +942,12 @@
       "timestamp": "2026-10-03T15:15:09Z",
       "additions": 47,
       "deletions": 0,
+      "languages": {
+        "TypeScript": [
+          2,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c5a97464ed923b80b838ed24a2c8eaf0fd6bb0c9"
     },
     {
@@ -631,6 +956,12 @@
       "timestamp": "2026-10-06T04:12:01Z",
       "additions": 61,
       "deletions": 39,
+      "languages": {
+        "Go": [
+          44,
+          23
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/84db09be388c1b999af9091fd6c209c9fe2593fb"
     },
     {
@@ -639,6 +970,20 @@
       "timestamp": "2026-10-08T07:05:28Z",
       "additions": 1225,
       "deletions": 61,
+      "languages": {
+        "TypeScript": [
+          150,
+          26
+        ],
+        "Go": [
+          615,
+          33
+        ],
+        "JavaScript": [
+          24,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/8785e72f0c9051018e44e7f4c17add261ab39d0e"
     },
     {
@@ -647,6 +992,12 @@
       "timestamp": "2026-10-09T02:04:43Z",
       "additions": 3,
       "deletions": 2,
+      "languages": {
+        "Batchfile": [
+          3,
+          2
+        ]
+      },
       "url": "https://github.com/Haoming9527/Java-Version-Manager/commit/b6d4d8f0aae924ab2ebb2d4c781e36889a52eda9"
     },
     {
@@ -655,6 +1006,7 @@
       "timestamp": "2026-10-11T15:10:05Z",
       "additions": 1,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Upload-History/commit/3947dee018a61c9c7161cea98323b4b925981e5c"
     },
     {
@@ -663,6 +1015,24 @@
       "timestamp": "2026-10-12T07:03:14Z",
       "additions": 11172,
       "deletions": 1,
+      "languages": {
+        "TypeScript": [
+          4757,
+          0
+        ],
+        "HTML": [
+          205,
+          0
+        ],
+        "JavaScript": [
+          610,
+          0
+        ],
+        "CSS": [
+          2005,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/e88f03c85c2c0c52f9b17db8916d2560b366ab81"
     },
     {
@@ -671,6 +1041,16 @@
       "timestamp": "2026-10-12T07:12:14Z",
       "additions": 23,
       "deletions": 1,
+      "languages": {
+        "JavaScript": [
+          3,
+          1
+        ],
+        "TypeScript": [
+          20,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/795a07125d94ec2d25f98bcfb7e6383a08190a30"
     },
     {
@@ -679,6 +1059,20 @@
       "timestamp": "2026-10-12T07:33:14Z",
       "additions": 4570,
       "deletions": 4378,
+      "languages": {
+        "TypeScript": [
+          2277,
+          2210
+        ],
+        "JavaScript": [
+          259,
+          160
+        ],
+        "CSS": [
+          2013,
+          2005
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/f89249fd21c26121ea597b43a817c1e08f27da1c"
     },
     {
@@ -687,6 +1081,7 @@
       "timestamp": "2026-10-12T07:45:08Z",
       "additions": 51,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Upload-History/commit/2fe2bb4a0fd2d56eb773bab30ce75ae203380c7a"
     },
     {
@@ -695,6 +1090,24 @@
       "timestamp": "2026-10-12T09:08:52Z",
       "additions": 2214,
       "deletions": 12,
+      "languages": {
+        "JavaScript": [
+          400,
+          1
+        ],
+        "CSS": [
+          1215,
+          0
+        ],
+        "HTML": [
+          432,
+          0
+        ],
+        "TypeScript": [
+          11,
+          2
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/8dfa395dce95a9a27a55e098ed37ce31f9daeff4"
     },
     {
@@ -703,6 +1116,12 @@
       "timestamp": "2026-10-12T09:37:18Z",
       "additions": 1,
       "deletions": 0,
+      "languages": {
+        "HTML": [
+          1,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/1f40aecb044592830f966267d6b5320a6171212e"
     },
     {
@@ -711,6 +1130,12 @@
       "timestamp": "2026-10-12T09:43:59Z",
       "additions": 13,
       "deletions": 0,
+      "languages": {
+        "JavaScript": [
+          2,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/d93dbe0a21a1c5ed5103b14662f43c1fd6bcabf7"
     },
     {
@@ -719,6 +1144,16 @@
       "timestamp": "2026-10-13T13:57:12Z",
       "additions": 299,
       "deletions": 109,
+      "languages": {
+        "JavaScript": [
+          3,
+          7
+        ],
+        "TypeScript": [
+          111,
+          25
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/2102d8b5d6e5cf8d8cdd6ae4c0875d5d37abdb08"
     },
     {
@@ -727,6 +1162,7 @@
       "timestamp": "2026-10-15T07:04:36Z",
       "additions": 2,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/creature-skill/commit/18899a623d0b3632f0bcf0e658ff1940ed180343"
     },
     {
@@ -735,6 +1171,20 @@
       "timestamp": "2026-10-18T15:51:09Z",
       "additions": 7101,
       "deletions": 2,
+      "languages": {
+        "JavaScript": [
+          4226,
+          0
+        ],
+        "CSS": [
+          7,
+          0
+        ],
+        "HTML": [
+          43,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/creature-skill/commit/bbcd18b6e497c0a100582094eab7e23da860c3f4"
     },
     {
@@ -743,6 +1193,12 @@
       "timestamp": "2026-10-19T08:19:56Z",
       "additions": 0,
       "deletions": 0,
+      "languages": {
+        "TypeScript": [
+          0,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1378645fa7130bf2f53372ec47f3cc1eabe9cdb8"
     },
     {
@@ -751,6 +1207,24 @@
       "timestamp": "2026-10-19T08:20:35Z",
       "additions": 603,
       "deletions": 133,
+      "languages": {
+        "TypeScript": [
+          279,
+          120
+        ],
+        "Go": [
+          237,
+          5
+        ],
+        "PLpgSQL": [
+          9,
+          0
+        ],
+        "JavaScript": [
+          1,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/1d6ada0515d1d1b1d8f137637afde4ae9cb5ed32"
     },
     {
@@ -759,6 +1233,12 @@
       "timestamp": "2026-10-19T08:47:45Z",
       "additions": 5,
       "deletions": 5,
+      "languages": {
+        "TypeScript": [
+          5,
+          5
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/bd444d6664fdc4550285427ad4172de1d4942c3e"
     },
     {
@@ -767,6 +1247,12 @@
       "timestamp": "2026-10-19T08:48:27Z",
       "additions": 0,
       "deletions": 1,
+      "languages": {
+        "TypeScript": [
+          0,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/07a162e3777d16d1ff77b2861dbad6b0fb5e0a71"
     },
     {
@@ -775,6 +1261,12 @@
       "timestamp": "2026-10-19T09:00:09Z",
       "additions": 144,
       "deletions": 8,
+      "languages": {
+        "Go": [
+          121,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/5bc377b67bc12e3cbe29568024e7577124c6b1cc"
     },
     {
@@ -783,6 +1275,12 @@
       "timestamp": "2026-10-19T09:26:41Z",
       "additions": 19,
       "deletions": 10,
+      "languages": {
+        "TypeScript": [
+          19,
+          10
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/4b037a212902404a70086c5fb2ce013485909c22"
     },
     {
@@ -791,6 +1289,12 @@
       "timestamp": "2026-10-19T09:34:55Z",
       "additions": 2,
       "deletions": 62,
+      "languages": {
+        "TypeScript": [
+          2,
+          42
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c70061054384fb2ad9156318551a5860aec80f6f"
     },
     {
@@ -799,6 +1303,16 @@
       "timestamp": "2026-10-19T09:54:08Z",
       "additions": 147,
       "deletions": 37,
+      "languages": {
+        "Go": [
+          102,
+          12
+        ],
+        "TypeScript": [
+          25,
+          21
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/f4d3209078fda55a63cc2402230b0dfdb2152e5f"
     },
     {
@@ -807,6 +1321,12 @@
       "timestamp": "2026-10-19T10:41:28Z",
       "additions": 15,
       "deletions": 5,
+      "languages": {
+        "TypeScript": [
+          15,
+          5
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/ce46e8fb673e6befc7850b136953626aa1cd3cac"
     },
     {
@@ -815,6 +1335,12 @@
       "timestamp": "2026-10-19T13:47:01Z",
       "additions": 0,
       "deletions": 656,
+      "languages": {
+        "TypeScript": [
+          0,
+          656
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/102fe65abcd9558804af8aa054207af9fca4dd64"
     },
     {
@@ -823,6 +1349,20 @@
       "timestamp": "2026-10-19T13:47:48Z",
       "additions": 1087,
       "deletions": 892,
+      "languages": {
+        "TypeScript": [
+          903,
+          860
+        ],
+        "Go": [
+          16,
+          0
+        ],
+        "JavaScript": [
+          0,
+          24
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/5ac2d4ebd377ebfa97f9d53baa4cdb5ebe6a4da0"
     },
     {
@@ -831,6 +1371,12 @@
       "timestamp": "2026-10-19T14:44:39Z",
       "additions": 93,
       "deletions": 19,
+      "languages": {
+        "TypeScript": [
+          93,
+          19
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/b90f2efdab3166e93b821b6b86703f35d6cf6023"
     },
     {
@@ -839,6 +1385,12 @@
       "timestamp": "2026-10-20T01:56:15Z",
       "additions": 0,
       "deletions": 459,
+      "languages": {
+        "Go": [
+          0,
+          459
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/78f5d1545bb8c7bc0bc17f2b7585fe342ebc4831"
     },
     {
@@ -847,6 +1399,7 @@
       "timestamp": "2026-10-20T01:56:26Z",
       "additions": 1,
       "deletions": 1,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/c4b60a24ce59f10a979228b70dccf2ae667cec73"
     },
     {
@@ -855,6 +1408,7 @@
       "timestamp": "2026-10-20T02:10:46Z",
       "additions": 0,
       "deletions": 5,
+      "languages": {},
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/a00c281594fa2f30641491cb33e7b08365f52c9b"
     },
     {
@@ -863,6 +1417,12 @@
       "timestamp": "2026-10-20T02:11:02Z",
       "additions": 41,
       "deletions": 9,
+      "languages": {
+        "TypeScript": [
+          41,
+          9
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/9e4736f3051106ef9aac360a7c20133277b3690f"
     },
     {
@@ -871,6 +1431,12 @@
       "timestamp": "2026-10-20T02:26:29Z",
       "additions": 3,
       "deletions": 0,
+      "languages": {
+        "TypeScript": [
+          3,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/a2d833a1e95ef1957087dac757cf92332749f74a"
     },
     {
@@ -879,6 +1445,16 @@
       "timestamp": "2026-10-20T02:43:46Z",
       "additions": 110,
       "deletions": 33,
+      "languages": {
+        "TypeScript": [
+          105,
+          22
+        ],
+        "Go": [
+          2,
+          8
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/697a0a23cfbdde95b4109a8aceec35ff9ae3dc9a"
     },
     {
@@ -887,6 +1463,12 @@
       "timestamp": "2026-10-20T03:19:37Z",
       "additions": 0,
       "deletions": 1298,
+      "languages": {
+        "TypeScript": [
+          0,
+          1298
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/fefa987750a4125353b9847009fa2b4ae9984128"
     },
     {
@@ -895,6 +1477,12 @@
       "timestamp": "2026-10-20T03:19:50Z",
       "additions": 1534,
       "deletions": 1,
+      "languages": {
+        "TypeScript": [
+          1534,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/DGX-Spark-Platform/commit/73ecd04b5b62a69087ce3f5855b85b3cab5ceb71"
     },
     {
@@ -903,6 +1491,7 @@
       "timestamp": "2026-10-24T12:44:00Z",
       "additions": 2,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/ecf56ccf1794bc702c9cbc5b8fcb31f20cd67ff2"
     },
     {
@@ -911,6 +1500,28 @@
       "timestamp": "2026-10-24T19:33:59Z",
       "additions": 7843,
       "deletions": 1,
+      "languages": {
+        "HTML": [
+          38,
+          0
+        ],
+        "TypeScript": [
+          3475,
+          0
+        ],
+        "JavaScript": [
+          25,
+          0
+        ],
+        "PowerShell": [
+          19,
+          0
+        ],
+        "CSS": [
+          9,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/9b9415dfeb96a658abcde02901face3ca996b96c"
     },
     {
@@ -919,6 +1530,7 @@
       "timestamp": "2026-10-24T19:35:21Z",
       "additions": 16,
       "deletions": 6,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/1938acbf5c79b1c126eae80e8ea85d661b0e735e"
     },
     {
@@ -927,6 +1539,20 @@
       "timestamp": "2026-10-24T19:50:24Z",
       "additions": 304,
       "deletions": 171,
+      "languages": {
+        "HTML": [
+          6,
+          1
+        ],
+        "TypeScript": [
+          239,
+          134
+        ],
+        "CSS": [
+          1,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/6f27063564f77bfd03f16c1818c663003230384e"
     },
     {
@@ -935,6 +1561,20 @@
       "timestamp": "2026-10-24T20:07:09Z",
       "additions": 890,
       "deletions": 139,
+      "languages": {
+        "HTML": [
+          8,
+          1
+        ],
+        "TypeScript": [
+          697,
+          118
+        ],
+        "CSS": [
+          37,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/e6666c1a5b05e20c3602c5724ef04cbcd13bef95"
     },
     {
@@ -943,6 +1583,16 @@
       "timestamp": "2026-10-24T20:55:35Z",
       "additions": 1089,
       "deletions": 50,
+      "languages": {
+        "TypeScript": [
+          1008,
+          31
+        ],
+        "CSS": [
+          2,
+          1
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/be51cdb69180f295dc32dafc717fe180601f1d58"
     },
     {
@@ -951,6 +1601,24 @@
       "timestamp": "2026-10-24T21:17:14Z",
       "additions": 649,
       "deletions": 518,
+      "languages": {
+        "HTML": [
+          6,
+          9
+        ],
+        "JavaScript": [
+          2,
+          2
+        ],
+        "TypeScript": [
+          587,
+          117
+        ],
+        "CSS": [
+          3,
+          12
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/9856ab3abee239b74a2803aed881935576603d18"
     },
     {
@@ -959,6 +1627,16 @@
       "timestamp": "2026-10-24T23:52:22Z",
       "additions": 969,
       "deletions": 110,
+      "languages": {
+        "TypeScript": [
+          933,
+          101
+        ],
+        "HTML": [
+          10,
+          0
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/8ad61abdd81b0ef35a0ecaf46b5b4dd429fbcbe4"
     },
     {
@@ -967,6 +1645,12 @@
       "timestamp": "2026-10-24T23:52:49Z",
       "additions": 27,
       "deletions": 7,
+      "languages": {
+        "TypeScript": [
+          27,
+          7
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/803ce872bce45e27bf64461defc3daf0f9319a8e"
     },
     {
@@ -975,6 +1659,12 @@
       "timestamp": "2026-10-25T00:07:15Z",
       "additions": 117,
       "deletions": 23,
+      "languages": {
+        "TypeScript": [
+          112,
+          22
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/741d7ca3ccd0aecbe89787429eb8176c39aabfa8"
     },
     {
@@ -983,6 +1673,12 @@
       "timestamp": "2026-10-25T00:41:33Z",
       "additions": 24,
       "deletions": 45,
+      "languages": {
+        "TypeScript": [
+          21,
+          42
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/de4c9084ffc486a730d81254ef07a62f081c7134"
     },
     {
@@ -991,6 +1687,28 @@
       "timestamp": "2026-10-25T14:26:22Z",
       "additions": 12775,
       "deletions": 16831,
+      "languages": {
+        "JavaScript": [
+          5242,
+          242
+        ],
+        "Python": [
+          0,
+          1262
+        ],
+        "HTML": [
+          17,
+          1
+        ],
+        "CSS": [
+          6717,
+          2
+        ],
+        "TypeScript": [
+          482,
+          254
+        ]
+      },
       "url": "https://github.com/Haoming9527/Needle/commit/7c62fd8cfeb10b7441d52f9a764638fc2fe13a52"
     },
     {
@@ -999,6 +1717,7 @@
       "timestamp": "2026-10-25T14:40:50Z",
       "additions": 307,
       "deletions": 116,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/ca4f0e38831eb3ab778445693ca0a75b1148158f"
     },
     {
@@ -1007,6 +1726,7 @@
       "timestamp": "2026-10-25T14:54:42Z",
       "additions": 2,
       "deletions": 4,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/c0a3113e2eb2a2bbd3eb941a5dfd715889ca8efc"
     },
     {
@@ -1015,6 +1735,7 @@
       "timestamp": "2026-10-25T15:12:31Z",
       "additions": 4,
       "deletions": 2,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/a068fa3ef228656a6c571a5f4a802b94baed17e2"
     },
     {
@@ -1023,6 +1744,7 @@
       "timestamp": "2026-10-25T15:14:12Z",
       "additions": 1,
       "deletions": 1,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/dcea6d8d5fba493f41ceb45f5c56405267ebf78d"
     },
     {
@@ -1031,6 +1753,7 @@
       "timestamp": "2026-10-25T15:17:05Z",
       "additions": 1,
       "deletions": 3,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/f4057733bfa3f24954e54bc6fa0e975fa0177944"
     },
     {
@@ -1039,6 +1762,7 @@
       "timestamp": "2026-10-25T15:17:39Z",
       "additions": 1,
       "deletions": 3,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/a3e4f63d20b1f0c7f2f69161932620ee4e70bd3d"
     },
     {
@@ -1047,6 +1771,7 @@
       "timestamp": "2026-10-25T15:20:58Z",
       "additions": 0,
       "deletions": 0,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/0f82efbd71641147b0aac0dc354917788a0eec36"
     },
     {
@@ -1055,6 +1780,7 @@
       "timestamp": "2026-10-25T15:24:36Z",
       "additions": 5,
       "deletions": 9,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/acd2c4a2e9bee20e1d45dad0f517ec7c443f1d70"
     },
     {
@@ -1063,6 +1789,7 @@
       "timestamp": "2026-10-25T15:25:30Z",
       "additions": 5,
       "deletions": 9,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/ffb21d92aefc4692887daee810dc0fe66e924a02"
     },
     {
@@ -1071,6 +1798,7 @@
       "timestamp": "2026-10-25T15:27:55Z",
       "additions": 3,
       "deletions": 4,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/0eead7dad0cd39c0885bccd290f495f3e20001d6"
     },
     {
@@ -1079,6 +1807,7 @@
       "timestamp": "2026-10-25T15:33:14Z",
       "additions": 426,
       "deletions": 387,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/bf8a0db4c2d57fb7b77ba9e6d23b0bd1639c9147"
     },
     {
@@ -1087,6 +1816,7 @@
       "timestamp": "2026-10-25T15:34:32Z",
       "additions": 60,
       "deletions": 22,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/d77dd2948beaf663211d249cc19756bcaf03be2d"
     },
     {
@@ -1095,6 +1825,7 @@
       "timestamp": "2026-10-25T15:38:08Z",
       "additions": 1,
       "deletions": 1,
+      "languages": {},
       "url": "https://github.com/Haoming9527/Needle/commit/691134bdda5d03d09930f559ac74f682e5a66c6e"
     },
     {
@@ -1103,37 +1834,108 @@
       "timestamp": "2026-10-27T09:21:08Z",
       "additions": 36,
       "deletions": 50,
+      "languages": {
+        "JavaScript": [
+          0,
+          18
+        ],
+        "HTML": [
+          34,
+          30
+        ]
+      },
       "url": "https://github.com/Haoming9527/Upload-History/commit/4d077062f888d9e27b1692154990efdd7dc45015"
     }
   ],
   "open_source": {
-    "total_merged_prs": 59,
-    "repository_count": 5,
+    "total_merged_prs": 58,
+    "repository_count": 4,
     "repositories": [
       {
         "name": "T-Auto/dsh-ops",
         "merged_prs": 53,
-        "url": "https://github.com/T-Auto/dsh-ops"
+        "url": "https://github.com/T-Auto/dsh-ops",
+        "merged_at": [
+          "2026-10-15T09:54:43Z",
+          "2026-10-15T09:56:48Z",
+          "2026-10-15T09:58:09Z",
+          "2026-10-15T10:01:32Z",
+          "2026-10-15T10:02:28Z",
+          "2026-10-15T13:16:32Z",
+          "2026-10-16T08:52:23Z",
+          "2026-10-17T14:33:48Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:25Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-19T03:14:26Z",
+          "2026-10-25T03:15:00Z",
+          "2026-10-25T03:18:28Z",
+          "2026-10-25T03:36:27Z",
+          "2026-10-25T03:37:23Z",
+          "2026-10-25T03:39:53Z",
+          "2026-10-25T03:47:28Z",
+          "2026-10-25T03:48:57Z",
+          "2026-10-25T03:57:30Z",
+          "2026-10-25T04:06:08Z",
+          "2026-10-25T04:14:57Z",
+          "2026-10-25T04:23:05Z",
+          "2026-10-25T04:24:37Z",
+          "2026-10-25T04:25:53Z",
+          "2026-10-25T04:34:11Z",
+          "2026-10-25T04:46:23Z",
+          "2026-10-25T04:54:58Z",
+          "2026-10-25T05:03:58Z",
+          "2026-10-25T05:05:41Z"
+        ]
       },
       {
         "name": "Yanguangchen/InteLiDar",
         "merged_prs": 3,
-        "url": "https://github.com/Yanguangchen/InteLiDar"
-      },
-      {
-        "name": "Ebony-Vinyl/EAC-Desktop",
-        "merged_prs": 1,
-        "url": "https://github.com/Ebony-Vinyl/EAC-Desktop"
+        "url": "https://github.com/Yanguangchen/InteLiDar",
+        "merged_at": [
+          "2026-09-12T19:50:43Z",
+          "2026-09-13T04:37:57Z",
+          "2026-09-13T06:30:54Z"
+        ]
       },
       {
         "name": "TeckTinkerere/ROUTR",
         "merged_prs": 1,
-        "url": "https://github.com/TeckTinkerere/ROUTR"
+        "url": "https://github.com/TeckTinkerere/ROUTR",
+        "merged_at": [
+          "2026-10-16T04:18:09Z"
+        ]
       },
       {
         "name": "jerememetan/StayWatch-Hackathon",
         "merged_prs": 1,
-        "url": "https://github.com/jerememetan/StayWatch-Hackathon"
+        "url": "https://github.com/jerememetan/StayWatch-Hackathon",
+        "merged_at": [
+          "2026-09-12T07:16:54Z"
+        ]
       }
     ],
     "recent": [
@@ -1174,8 +1976,311 @@
       }
     ],
     "recent_order": "Most recently updated merged pull requests",
-    "query": "is:pr author:Haoming9527 is:merged -user:Haoming9527 is:public",
-    "url": "https://github.com/search?q=is%3Apr+author%3AHaoming9527+is%3Amerged+-user%3AHaoming9527+is%3Apublic&type=issues",
+    "query": "is:pr author:Haoming9527 is:merged -user:Haoming9527 is:public -repo:Ebony-Vinyl/EAC-Desktop",
+    "excluded_repositories": [
+      "Ebony-Vinyl/EAC-Desktop"
+    ],
+    "url": "https://github.com/search?q=is%3Apr+author%3AHaoming9527+is%3Amerged+-user%3AHaoming9527+is%3Apublic+-repo%3AEbony-Vinyl%2FEAC-Desktop&type=pullrequests",
     "scope": "Public merged pull requests authored by the user in repositories they do not own; all time"
+  },
+  "languages": {
+    "bytes": {
+      "JavaScript": 2199363,
+      "TypeScript": 1901833,
+      "HTML": 788707,
+      "CSS": 623911,
+      "Java": 350369,
+      "Go": 143683,
+      "PLpgSQL": 15275,
+      "Shell": 7723,
+      "Batchfile": 4327,
+      "Rust": 3982,
+      "Dockerfile": 1492,
+      "PowerShell": 1082
+    },
+    "repositories": {
+      "Haoming9527/DGX-Spark-Platform": {
+        "TypeScript": 551053,
+        "Go": 143683,
+        "CSS": 21742,
+        "Shell": 7723,
+        "PLpgSQL": 4012,
+        "Dockerfile": 501,
+        "JavaScript": 460
+      },
+      "Haoming9527/Needle": {
+        "TypeScript": 451057,
+        "JavaScript": 222823,
+        "CSS": 137531,
+        "HTML": 1091,
+        "PowerShell": 1082
+      },
+      "Haoming9527/EntryX": {
+        "JavaScript": 58418,
+        "Rust": 3982,
+        "CSS": 1063
+      },
+      "Haoming9527/GeoMeet": {
+        "TypeScript": 77693,
+        "CSS": 3846,
+        "JavaScript": 462
+      },
+      "Haoming9527/IslandFurniture": {
+        "JavaScript": 578685,
+        "HTML": 509968,
+        "CSS": 258677
+      },
+      "Haoming9527/Upload-History": {
+        "TypeScript": 180028,
+        "CSS": 55137,
+        "JavaScript": 43122,
+        "HTML": 23973
+      },
+      "Haoming9527/TrustLens": {
+        "JavaScript": 96906,
+        "HTML": 25097,
+        "CSS": 23603
+      },
+      "Haoming9527/SilverCare": {
+        "Java": 350369,
+        "CSS": 44086,
+        "HTML": 3220,
+        "Dockerfile": 991
+      },
+      "Haoming9527/NeuroHealth": {
+        "JavaScript": 62899,
+        "HTML": 19523,
+        "CSS": 17236
+      },
+      "Haoming9527/Secure_Coding_Assignment": {
+        "JavaScript": 693816,
+        "HTML": 124285,
+        "CSS": 38209
+      },
+      "Haoming9527/Portfolio": {
+        "TypeScript": 314899,
+        "CSS": 9040,
+        "PLpgSQL": 2750,
+        "JavaScript": 807
+      },
+      "Haoming9527/DevMegle-": {
+        "TypeScript": 111536,
+        "PLpgSQL": 8513,
+        "JavaScript": 5013,
+        "CSS": 506
+      },
+      "Haoming9527/Java-Version-Manager": {
+        "Batchfile": 4327
+      },
+      "Haoming9527/WhatNETS": {
+        "JavaScript": 27824,
+        "CSS": 8470,
+        "HTML": 1781
+      },
+      "Haoming9527/creature-skill": {
+        "JavaScript": 318002,
+        "HTML": 4466
+      },
+      "Haoming9527/OCBC-AI-Smart-Inquiry-System": {
+        "TypeScript": 215567,
+        "CSS": 2390,
+        "JavaScript": 559
+      },
+      "Haoming9527/Fitness-Challenge": {
+        "JavaScript": 89567,
+        "HTML": 75303,
+        "CSS": 2375
+      }
+    },
+    "scope": "GitHub Linguist bytes in the configured public repositories' default branches"
+  },
+  "stars": {
+    "total": 4826,
+    "repositories": [
+      {
+        "name": "Haoming9527/DGX-Spark-Platform",
+        "stars": 3,
+        "starred_on": {
+          "2026-08-09": 1,
+          "2026-09-29": 2
+        }
+      },
+      {
+        "name": "Haoming9527/Needle",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/EntryX",
+        "stars": 1,
+        "starred_on": {
+          "2026-02-02": 1
+        }
+      },
+      {
+        "name": "Haoming9527/GeoMeet",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/IslandFurniture",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/Upload-History",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/TrustLens",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/SilverCare",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/NeuroHealth",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/Secure_Coding_Assignment",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/Portfolio",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/DevMegle-",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/Java-Version-Manager",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/WhatNETS",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/creature-skill",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/OCBC-AI-Smart-Inquiry-System",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "Haoming9527/Fitness-Challenge",
+        "stars": 0,
+        "starred_on": {}
+      },
+      {
+        "name": "T-Auto/dsh-ops",
+        "stars": 4784,
+        "starred_on": {
+          "2026-10-08": 10,
+          "2026-10-09": 49,
+          "2026-10-10": 111,
+          "2026-10-11": 196,
+          "2026-10-12": 309,
+          "2026-10-13": 171,
+          "2026-10-14": 679,
+          "2026-10-15": 702,
+          "2026-10-16": 305,
+          "2026-10-17": 246,
+          "2026-10-18": 251,
+          "2026-10-19": 218,
+          "2026-10-20": 196,
+          "2026-10-21": 193,
+          "2026-10-22": 192,
+          "2026-10-23": 151,
+          "2026-10-24": 132,
+          "2026-10-25": 145,
+          "2026-10-26": 168,
+          "2026-10-27": 142,
+          "2026-10-28": 115,
+          "2026-10-29": 96,
+          "2026-10-30": 7
+        }
+      },
+      {
+        "name": "Yanguangchen/InteLiDar",
+        "stars": 33,
+        "starred_on": {
+          "2026-09-19": 2,
+          "2026-09-21": 11,
+          "2026-09-22": 14,
+          "2026-09-23": 1,
+          "2026-09-25": 2,
+          "2026-09-26": 1,
+          "2026-09-28": 1,
+          "2026-10-07": 1
+        }
+      },
+      {
+        "name": "TeckTinkerere/ROUTR",
+        "stars": 5,
+        "starred_on": {
+          "2026-07-01": 1,
+          "2026-07-08": 1,
+          "2026-07-18": 2,
+          "2026-08-04": 1
+        }
+      },
+      {
+        "name": "jerememetan/StayWatch-Hackathon",
+        "stars": 0,
+        "starred_on": {}
+      }
+    ],
+    "scope": "Current stargazers of configured public owned repositories plus external repositories with merged pull requests from the user (after configured exclusions)"
+  },
+  "lifetime_commit_days": {
+    "Haoming9527/DGX-Spark-Platform": {
+      "2026-04-11": 8,
+      "2026-04-12": 1,
+      "2026-06-13": 7,
+      "2026-06-14": 3,
+      "2026-08-12": 2,
+      "2026-08-13": 1,
+      "2026-08-14": 1,
+      "2026-09-27": 1,
+      "2026-09-28": 11,
+      "2026-09-29": 6,
+      "2026-09-30": 1,
+      "2026-10-01": 3,
+      "2026-10-02": 6,
+      "2026-10-03": 1,
+      "2026-10-06": 1,
+      "2026-10-08": 1,
+      "2026-10-19": 12,
+      "2026-10-20": 8
+    },
+    "Haoming9527/Needle": {
+      "2026-10-24": 9,
+      "2026-10-25": 16
+    },
+    "Haoming9527/EntryX": {
+      "2026-01-07": 2,
+      "2026-01-08": 6
+    },
+    "Haoming9527/WhatNETS": {
+      "2025-08-07": 1,
+      "2025-08-25": 4,
+      "2025-09-12": 1
+    }
   }
 }

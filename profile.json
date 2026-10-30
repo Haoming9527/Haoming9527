@@ -1,9 +1,29 @@
 {
   "github_username": "Haoming9527",
   "display_name": "Economist",
-  "name": "Shen Haoming",
+  "role": "R&D AI Engineer",
   "portfolio": "https://www.shen-haoming.com/",
-  "linkedin": "https://www.linkedin.com/in/shen-haoming/",
+  "focus": ["AI engineering", "Agentic systems", "Full-stack", "Local inference"],
+  "stack": ["TypeScript", "Go", "React", "Next.js", "Node.js", "PostgreSQL", "Docker", "Ollama", "AI SDK", "MCP"],
+  "projects": [
+    {"repository": "Haoming9527/Needle", "name": "Needle", "ticker": "NDL"},
+    {"repository": "Haoming9527/EntryX", "name": "EntryX", "ticker": "ENTX"},
+    {"repository": "Haoming9527/WhatNETS", "name": "WhatNETS", "ticker": "WNTS"}
+  ],
+  "collaborations": [
+    {"repository": "T-Auto/dsh-ops", "name": "dsh-ops", "logo": "DSH"},
+    {"repository": "Yanguangchen/InteLiDar", "name": "InteLiDar", "logo": "IL"},
+    {"repository": "Haoming9527/DGX-Spark-Platform", "name": "DGX Spark Platform", "logo": "DGX"}
+  ],
+  "contribution_exclusions": [
+    "Ebony-Vinyl/EAC-Desktop"
+  ],
+  "achievements": [
+    {"rank": "Top 10", "event": "AI Grand Prix Singapore", "tag": "Needle", "url": "https://github.com/Haoming9527/Needle#readme"},
+    {"rank": "1st runner-up", "event": "SG × Sarawak AI Hackathon", "tag": "2026", "url": "https://www.shen-haoming.com/"},
+    {"rank": "2nd runner-up", "event": "SEED Code League", "tag": "2024", "url": "https://www.shen-haoming.com/"},
+    {"rank": "Semifinalist", "event": "Undergraduate Policy Competition", "tag": "2024", "url": "https://www.shen-haoming.com/"}
+  ],
   "activity_days": 90,
   "activity_repositories": [
     "Haoming9527/DGX-Spark-Platform",

@@ -21,20 +21,28 @@ def commit(sha="a" * 40, timestamp="2026-10-26T12:00:00Z", author="Haoming9527",
 
 
 class FakeClient(activity.GitHubClient):
-    def __init__(self, summaries=None, stats=None, private=False):
+    def __init__(self, summaries=None, stats=None, private=False, files=None):
         super().__init__()
         self.summaries = summaries if summaries is not None else [commit()]
         self.stats = stats if stats is not None else {"additions": 20, "deletions": 7}
         self.private = private
+        self.files = files or []
+        self.paths = []
 
-    def get(self, path):
+    def get(self, path, accept=None):
         self.requests += 1
+        self.paths.append(path)
         if path.startswith("/search/issues?"):
             return {"total_count": 0, "incomplete_results": False, "items": []}, {}
         if "/commits?" in path:
             return self.summaries, {}
         if "/commits/" in path:
-            return {"stats": self.stats}, {}
+            return {"stats": self.stats, "files": self.files}, {}
+        if path.endswith("/languages"):
+            return {"TypeScript": 300, "CSS": 100}, {}
+        if "/stargazers?" in path:
+            self.star_accept = accept
+            return [{"starred_at": "2026-10-01T03:00:00Z"}, {"starred_at": "2026-10-01T09:00:00Z"}], {}
         return {"private": self.private, "owner": {"login": "Haoming9527"},
                 "default_branch": "main", "size": 1}, {}
 
@@ -120,6 +128,37 @@ class CollectionTests(unittest.TestCase):
         with self.assertRaises(activity.CollectionError):
             activity.GitHubClient("never-send-me").get("https://example.com/page2")
 
+    def test_language_lines_stars_and_bytes(self):
+        files = [{"filename": "src/app.tsx", "additions": 12, "deletions": 3},
+                 {"filename": "styles/site.css", "additions": 4, "deletions": 4},
+                 {"filename": "package-lock.json", "additions": 900, "deletions": 0},
+                 {"filename": "node_modules/x/index.js", "additions": 50, "deletions": 0},
+                 {"filename": "docker/Dockerfile", "additions": 2, "deletions": 0}]
+        client = FakeClient(files=files)
+        snapshot = activity.collect(CONFIG, client, NOW)
+        self.assertEqual(snapshot["commits"][0]["languages"],
+                         {"TypeScript": [12, 3], "CSS": [4, 4], "Dockerfile": [2, 0]})
+        self.assertEqual(snapshot["languages"]["bytes"], {"TypeScript": 300, "CSS": 100})
+        self.assertEqual(snapshot["stars"]["total"], 2)
+        self.assertEqual(snapshot["stars"]["repositories"][0]["starred_on"], {"2026-10-01": 2})
+        self.assertEqual(client.star_accept, activity.STAR_ACCEPT)
+
+    def test_featured_repository_reads_lifetime_without_counting_old_commits_as_excluded(self):
+        config = dict(CONFIG, projects=[{"repository": "Haoming9527/example"}])
+        client = FakeClient([commit(), commit("d" * 40, timestamp="2025-01-02T12:00:00Z")])
+        snapshot = activity.collect(config, client, NOW)
+        listing = next(path for path in client.paths if "/commits?" in path)
+        self.assertNotIn("since=", listing)
+        self.assertEqual(snapshot["lifetime_commit_days"]["Haoming9527/example"],
+                         {"2025-01-02": 1, "2026-10-26": 1})
+        self.assertEqual(snapshot["totals"]["commits"], 1)
+        self.assertEqual(snapshot["coverage"]["excluded"]["outside_window"], 0)
+
+    def test_featured_owned_repository_must_be_selected(self):
+        config = dict(CONFIG, collaborations=["Haoming9527/elsewhere", "other/project"])
+        with self.assertRaises(activity.CollectionError):
+            activity.collect(config, FakeClient(), NOW)
+
     def test_failed_refresh_preserves_existing_snapshot(self):
         with tempfile.TemporaryDirectory() as directory:
             config_path, output_path = Path(directory) / "profile.json", Path(directory) / "activity.json"
@@ -133,10 +172,31 @@ class CollectionTests(unittest.TestCase):
 
 class OpenSourceTests(unittest.TestCase):
     @staticmethod
-    def item(number):
-        return {"repository_url": "https://api.github.com/repos/other/project",
-                "html_url": f"https://github.com/other/project/pull/{number}",
-                "title": f"Change {number}", "number": number, "updated_at": "2026-10-30T00:00:00Z"}
+    def item(number, repository="other/project"):
+        return {"repository_url": f"https://api.github.com/repos/{repository}",
+                "html_url": f"https://github.com/{repository}/pull/{number}",
+                "title": f"Change {number}", "number": number, "updated_at": "2026-10-30T00:00:00Z",
+                "pull_request": {"merged_at": f"2026-10-{1 + number % 28:02d}T00:00:00Z"}}
+
+    def test_exclusions_join_query_and_merge_dates_are_kept(self):
+        client = activity.GitHubClient()
+        queries = []
+        def get(path):
+            queries.append(parse_qs(urlsplit(path).query)["q"][0].split())
+            return {"total_count": 2, "incomplete_results": False, "items": [self.item(2), self.item(1)]}, {}
+        client.get = get
+        result = activity.collect_open_source("Haoming9527", client, ["gone/project"])
+        self.assertIn("-repo:gone/project", queries[0])
+        self.assertIn("is:public", queries[0])
+        self.assertEqual(result["repositories"][0]["merged_at"], ["2026-10-02T00:00:00Z", "2026-10-03T00:00:00Z"])
+
+    def test_excluded_repository_or_missing_merge_time_fails(self):
+        missing = dict(self.item(1), pull_request={})
+        for items, exclusions in (([self.item(1, "gone/project")], ["gone/project"]), ([missing], [])):
+            client = activity.GitHubClient()
+            client.get = lambda path, items=items: ({"total_count": 1, "incomplete_results": False, "items": items}, {})
+            with self.subTest(exclusions=exclusions), self.assertRaises(activity.CollectionError):
+                activity.collect_open_source("Haoming9527", client, exclusions)
 
     def test_pr_search_pagination_and_repository_counts(self):
         client = activity.GitHubClient()

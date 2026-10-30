@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="104" viewBox="0 0 400 104" role="img" aria-label="DGX Spark Platform (Haoming9527/DGX-Spark-Platform): 74 commits; repository has 3 stars">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="400.0" height="104.0" rx="0" fill="#ffffff"/>
+<circle cx="34.0" cy="52.0" r="20" fill="#6d28d9"/>
+<text x="34.0" y="55.6" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">DGX</text>
+<text x="64.0" y="48.0" font-size="21" font-weight="500" fill="#1f2328" text-anchor="start">DGX Spark…</text>
+<text x="64.0" y="74.0" font-size="16" font-weight="400" fill="#59636e" text-anchor="start">Haoming9527</text>
+<defs><linearGradient id="gc2lightm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a7f37" stop-opacity=".14"/><stop offset="1" stop-color="#1a7f37" stop-opacity="0"/></linearGradient></defs>
+<path d="M206.0 70.0 L207.0 69.4 L208.1 69.4 L209.1 69.4 L210.2 69.4 L211.2 69.4 L212.2 69.4 L213.3 69.4 L214.3 69.4 L215.4 69.4 L216.4 69.4 L217.5 69.4 L218.5 69.4 L219.5 69.4 L220.6 69.4 L221.6 65.2 L222.7 63.3 L223.7 63.3 L224.8 63.3 L225.8 63.3 L226.8 63.3 L227.9 63.3 L228.9 63.3 L230.0 63.3 L231.0 63.3 L232.0 63.3 L233.1 63.3 L234.1 63.3 L235.2 63.3 L236.2 63.3 L237.2 60.9 L238.3 60.9 L239.3 60.9 L240.4 60.9 L241.4 60.9 L242.5 60.9 L243.5 60.9 L244.5 60.9 L245.6 60.9 L246.6 60.9 L247.7 60.9 L248.7 49.4 L249.8 43.3 L250.8 42.1 L251.8 42.1 L252.9 42.1 L253.9 30.0 L255.0 30.0 L256.0 30.0 L256.0 70.0 L206.0 70.0 Z" fill="url(#gc2lightm)"/>
+<path class="draw" pathLength="1" d="M206.0 70.0 L207.0 69.4 L208.1 69.4 L209.1 69.4 L210.2 69.4 L211.2 69.4 L212.2 69.4 L213.3 69.4 L214.3 69.4 L215.4 69.4 L216.4 69.4 L217.5 69.4 L218.5 69.4 L219.5 69.4 L220.6 69.4 L221.6 65.2 L222.7 63.3 L223.7 63.3 L224.8 63.3 L225.8 63.3 L226.8 63.3 L227.9 63.3 L228.9 63.3 L230.0 63.3 L231.0 63.3 L232.0 63.3 L233.1 63.3 L234.1 63.3 L235.2 63.3 L236.2 63.3 L237.2 60.9 L238.3 60.9 L239.3 60.9 L240.4 60.9 L241.4 60.9 L242.5 60.9 L243.5 60.9 L244.5 60.9 L245.6 60.9 L246.6 60.9 L247.7 60.9 L248.7 49.4 L249.8 43.3 L250.8 42.1 L251.8 42.1 L252.9 42.1 L253.9 30.0 L255.0 30.0 L256.0 30.0" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="316.0" y="50.0" font-size="20" font-weight="600" fill="#1f2328" text-anchor="end">74</text>
+<text x="316.0" y="74.0" font-size="15" font-weight="400" fill="#59636e" text-anchor="end">commits</text>
+<rect x="326.0" y="32.0" width="66.0" height="40.0" rx="6" fill="#d4a72c"/>
+<text x="359.0" y="57.8" font-size="16" font-weight="700" fill="#1f2328" text-anchor="middle">★ 3</text>
+<line x1="16.0" y1="103.5" x2="384.0" y2="103.5" stroke="#eaeef2" stroke-width="1"/>
+</svg>

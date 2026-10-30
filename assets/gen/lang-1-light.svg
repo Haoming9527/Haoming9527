@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="846" height="80" viewBox="0 0 846 80" role="img" aria-label="TypeScript: 31.5% of language bytes across selected public repositories; +20,805 net lines in 90 days">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="846.0" height="80.0" rx="0" fill="#ffffff"/>
+<circle cx="46.0" cy="40.0" r="22" fill="#3178c6"/>
+<text x="46.0" y="45.4" font-size="14.96" font-weight="700" fill="#ffffff" text-anchor="middle">TS</text>
+<text x="84.0" y="36.0" font-size="19" font-weight="500" fill="#1f2328" text-anchor="start">TypeScript</text>
+<text x="84.0" y="59.0" font-size="13" font-weight="400" fill="#59636e" text-anchor="start">TS · 1,857 KB</text>
+<rect x="352.0" y="37.0" width="170.0" height="6.0" rx="3" fill="#eaeef2"/>
+<rect x="352.0" y="37.0" width="53.5" height="6.0" rx="3" fill="#3178c6"/>
+<text x="684.0" y="38.0" font-size="20" font-weight="600" fill="#1f2328" text-anchor="end">31.5%</text>
+<text x="684.0" y="59.0" font-size="12" font-weight="400" fill="#59636e" text-anchor="end">of bytes</text>
+<rect x="702.0" y="21.0" width="120.0" height="38.0" rx="6" fill="#2da44e"/>
+<text x="762.0" y="46.1" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">+20.8k</text>
+<line x1="24.0" y1="79.5" x2="822.0" y2="79.5" stroke="#eaeef2" stroke-width="1"/>
+</svg>
