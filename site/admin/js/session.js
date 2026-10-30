@@ -1,4 +1,4 @@
-// The sign-in token: memory first, encrypted with a passphrase if remembered, locked after idling.
+// The sign-in token: memory first, encrypted with a passphrase if remembered, signed out after idling.
 
 import { IDLE_LOCK_MS, OWNER, VAULT_KEY } from "./config.js";
 import { api } from "./github.js";
@@ -52,7 +52,7 @@ export async function connect(token) {
   armIdleLock();
 }
 
-export function lock(message = "Locked. The token is no longer in memory.") {
+export function signOut(message = "Signed out.") {
   state.token = "";
   state.user = "";
   clearTimeout(state.idleTimer);
@@ -62,5 +62,5 @@ export function lock(message = "Locked. The token is no longer in memory.") {
 
 export function armIdleLock() {
   clearTimeout(state.idleTimer);
-  if (state.token) state.idleTimer = setTimeout(() => lock("Locked after 30 minutes without activity."), IDLE_LOCK_MS);
+  if (state.token) state.idleTimer = setTimeout(() => signOut("Signed out after 30 minutes without activity."), IDLE_LOCK_MS);
 }

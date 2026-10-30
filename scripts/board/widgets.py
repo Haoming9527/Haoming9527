@@ -120,10 +120,23 @@ def index_tile(view: View, key: str, theme: str, mobile: bool) -> SVG:
 #   row 3: O H L C MA5 MA10 legend items
 # Widths are shares of the full header, identical on desktop and phone.
 HEADER_W = {False: 846, True: 400}
-HEADER_LEFT_PCT, HEADER_STAT_PCT = 46.0, 17.9
+HEADER_LEFT_PCT, HEADER_STAT_PCT = 55.0, 14.9
 HEADER_STATS = (("open", "Open"), ("high", "High"), ("low", "Low"), ("vol", "Vol"), ("added", "Added"), ("deleted", "Deleted"))
-LEGEND_PCTS = {"O": 14.0, "H": 12.0, "L": 12.0, "C": 12.0, "MA5": 17.0, "MA10": 17.0}
 ROW_H = {False: (70, 40, 32), True: (66, 48, 40)}
+
+
+def _legend_value(view: View, key: str) -> str:
+    if key.startswith("MA"):
+        return compact(view.moving_averages[MA_PERIODS.index(int(key[2:]))][-1])
+    return compact(view.candles[-1][{"O": "open", "H": "high", "L": "low", "C": "close"}[key]])
+
+
+def legend_pct(view: View, key: str) -> float:
+    """Just wide enough for the item (desktop: label and value side by side; phone: stacked)."""
+    value, first = _legend_value(view, key), key == "O"
+    desktop = (24 if first else 4) + text_width(key, 14, 500) + 6 + text_width(value, 14, 600) + 16
+    phone = (14 if first else 4) + max(text_width(key, 11, 500), text_width(value, 11, 600)) + 7
+    return round(max(desktop / HEADER_W[False], phone / HEADER_W[True]) * 100, 2)
 
 
 def _piece(view: View, pct: float, row: int, theme: str, mobile: bool, label: str) -> SVG:
@@ -179,20 +192,17 @@ def legend_items(view: View) -> list[str]:
 
 
 def legend_item(view: View, key: str, theme: str, mobile: bool) -> SVG:
-    s = _piece(view, LEGEND_PCTS[key], 2, theme, mobile, key)
-    candle = view.candles[-1]
+    s = _piece(view, legend_pct(view, key), 2, theme, mobile, key)
+    value = _legend_value(view, key)
     if key.startswith("MA"):
-        index = MA_PERIODS.index(int(key[2:]))
-        value, color = compact(view.moving_averages[index][-1]), s.p["ma"][index]
-        label_color = color
+        color = label_color = s.p["ma"][MA_PERIODS.index(int(key[2:]))]
     else:
-        value = compact(candle[{"O": "open", "H": "high", "L": "low", "C": "close"}[key]])
         color, label_color = "fg", "muted"
     x = (14 if mobile else 24) if key == "O" else 4
     if mobile:
         s.text(x, 16, key, 11, label_color, 500)
-        s.text(x, 32, value, 12, color, 600)
+        s.text(x, 32, value, 11, color, 600)
     else:
-        s.text(x, 22, key, 12, label_color, 500)
-        s.text(x + text_width(key, 12, 500) + 5, 22, value, 12, color, 600)
+        s.text(x, 22, key, 14, label_color, 500)
+        s.text(x + text_width(key, 14, 500) + 6, 22, value, 14, color, 600)
     return s

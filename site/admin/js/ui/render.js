@@ -66,7 +66,7 @@ async function save() {
   }
 }
 
-/** Loads the board once signed in; keeps unsaved edits across a lock and sign-in. */
+/** Loads the board once signed in; keeps unsaved edits across signing out and back in. */
 async function openEditor() {
   try {
     if (!state.config) await load();

@@ -1,8 +1,8 @@
-// The sign-in card: token or passphrase entry, or the signed-in status with Lock and Forget.
+// The sign-in card: token or passphrase entry, or the signed-in status with Sign out and Forget.
 // Nothing else on the page is shown until a valid token is connected.
 
 import { $, h, toast } from "../lib/dom.js";
-import { connect, forgetSavedToken, hasSavedToken, lock, rememberToken, unlockToken } from "../session.js";
+import { connect, forgetSavedToken, hasSavedToken, rememberToken, signOut, unlockToken } from "../session.js";
 import { state } from "../state.js";
 
 const guide = () => h("details", {}, h("summary", {}, "How to create the token"),
@@ -17,10 +17,9 @@ const status = (on, text) => h("span", { class: "status" }, h("span", { class: o
 
 function signedIn() {
   return [h("div", { class: "row" }, status(true, `Signed in as ${state.user}`),
-    h("button", { class: "btn small", type: "button", onclick: () => lock() }, "Lock"),
-    h("button", { class: "btn small danger", type: "button", onclick: () => { forgetSavedToken(); lock("Token forgotten on this device."); } },
-      "Forget token")),
-  h("p", { class: "hint" }, "Locks itself after 30 minutes without activity.")];
+    h("button", { class: "btn small", type: "button", onclick: () => signOut() }, "Sign out"),
+    h("button", { class: "btn small danger", type: "button", onclick: () => { forgetSavedToken(); signOut("Signed out and forgot the token on this device."); } },
+      "Forget token"))];
 }
 
 function passphraseForm(onSignedIn, fail, message) {
@@ -39,7 +38,7 @@ function passphraseForm(onSignedIn, fail, message) {
 function tokenForm(onSignedIn, fail, message) {
   const token = h("input", { type: "password", placeholder: "github_pat_…", autocomplete: "off", spellcheck: "false", "aria-label": "Fine-grained token" });
   const remember = h("input", { type: "checkbox", id: "remember" });
-  const pass = h("input", { type: "password", placeholder: "Passphrase to lock it (8+ characters)", autocomplete: "new-password",
+  const pass = h("input", { type: "password", placeholder: "Passphrase to protect it (8+ characters)", autocomplete: "new-password",
     "aria-label": "Passphrase", hidden: true });
   remember.addEventListener("change", () => { pass.hidden = !remember.checked; });
   const go = async () => {
@@ -54,7 +53,7 @@ function tokenForm(onSignedIn, fail, message) {
   token.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
   return [h("div", { class: "row" }, status(false, "Sign in with your access token to manage the board."),
     token, h("button", { class: "btn primary", type: "button", onclick: go }, "Sign in")),
-  h("div", { class: "row" }, h("label", { class: "hint" }, remember, " Remember on this device, locked with a passphrase"), pass),
+  h("div", { class: "row" }, h("label", { class: "hint" }, remember, " Remember on this device, protected by a passphrase"), pass),
   message, guide()];
 }
 
