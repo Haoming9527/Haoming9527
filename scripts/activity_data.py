@@ -65,7 +65,11 @@ class CollectionError(RuntimeError):
     """A complete, trustworthy activity snapshot could not be collected."""
 
 
-class NotFound(CollectionError):
+class Unavailable(CollectionError):
+    """GitHub refused an endpoint for this token (401/403/404); callers may degrade gracefully."""
+
+
+class NotFound(Unavailable):
     """GitHub answered 404 for an endpoint that some repositories do not expose."""
 
 
@@ -112,7 +116,7 @@ class GitHubClient:
                     "use GITHUB_TOKEN with access to public repository contents."
                     if error.code in (401, 403, 429) else ""
                 )
-                kind = NotFound if error.code == 404 else CollectionError
+                kind = NotFound if error.code == 404 else Unavailable if error.code in (401, 403) else CollectionError
                 raise kind(f"GitHub API returned HTTP {error.code} for {url}.{detail}") from error
             except (URLError, TimeoutError) as error:
                 if attempt < 2:
@@ -247,35 +251,45 @@ def star_days(stargazers) -> dict[str, int]:
 
 
 def collect_stars(targets: list[tuple[str, int]], client: GitHubClient,
-                  previous: dict[str, Any] | None = None) -> dict[str, Any]:
+                  previous: dict[str, Any] | None = None, today: str | None = None) -> dict[str, Any]:
     """Star dates per repository. Stargazers are listed oldest first, so a growing
-    count only needs the newest pages; anything else triggers a full re-read."""
+    count only needs the newest pages; anything else triggers a full re-read.
+
+    GitHub only lets user tokens list stargazers, and some repositories hide the list.
+    When it is unavailable the count still comes from the repository itself, and new
+    stars are dated on the day a refresh first sees them (within one refresh interval)."""
     known = {row["name"].lower(): row for row in (previous or {}).get("repositories", [])}
-    result = []
+    result, observed = [], []
     for repository, count in targets:
         cached = known.get(repository.lower())
-        starred_on = None
         if cached and cached["stars"] == count:
             result.append(cached)
             continue
-        if cached and count > cached["stars"] and not cached.get("undated"):
-            first_page = cached["stars"] // 100 + 1
-            fresh = list(client.pages(f"/repos/{repository}/stargazers?per_page=100&page={first_page}", STAR_ACCEPT))
-            starred_on = dict(cached["starred_on"])
-            for day, number in star_days(fresh[cached["stars"] - (first_page - 1) * 100:]).items():
-                starred_on[day] = starred_on.get(day, 0) + number
-            if sum(starred_on.values()) != count:
-                starred_on = None
-        if starred_on is None:
-            try:
+        try:
+            starred_on = None
+            if cached and count > cached["stars"] and not cached.get("undated"):
+                first_page = cached["stars"] // 100 + 1
+                fresh = list(client.pages(f"/repos/{repository}/stargazers?per_page=100&page={first_page}", STAR_ACCEPT))
+                starred_on = dict(cached["starred_on"])
+                for day, number in star_days(fresh[cached["stars"] - (first_page - 1) * 100:]).items():
+                    starred_on[day] = starred_on.get(day, 0) + number
+                if sum(starred_on.values()) != count:
+                    starred_on = None
+            if starred_on is None:
                 starred_on = star_days(client.pages(f"/repos/{repository}/stargazers?per_page=100", STAR_ACCEPT))
-            except NotFound:
-                # Some repositories hide their stargazer list; keep the count without dates.
-                result.append({"name": repository, "stars": count, "starred_on": {}, "undated": count})
-                continue
-        result.append({"name": repository, "stars": sum(starred_on.values()),
-                       "starred_on": dict(sorted(starred_on.items()))})
+            result.append({"name": repository, "stars": sum(starred_on.values()),
+                           "starred_on": dict(sorted(starred_on.items()))})
+        except Unavailable:
+            starred_on = dict(cached["starred_on"]) if cached else {}
+            if cached and today and count > cached["stars"]:
+                starred_on[today] = starred_on.get(today, 0) + count - cached["stars"]
+                observed.append(repository)
+            row = {"name": repository, "stars": count, "starred_on": dict(sorted(starred_on.items()))}
+            if count != sum(starred_on.values()):
+                row["undated"] = count - sum(starred_on.values())
+            result.append(row)
     return {"total": sum(row["stars"] for row in result), "repositories": result,
+            "dated_on_observation": observed,
             "scope": "Current stargazers of configured public owned repositories plus external repositories "
                      "with merged pull requests from the user (after configured exclusions)"}
 
@@ -561,7 +575,7 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
         external["stars"] = metadata.get("stargazers_count", 0)
         external["language"] = metadata.get("language")
         targets.append((external["name"], external["stars"]))
-    stars = collect_stars(targets, client, previous.get("stars"))
+    stars = collect_stars(targets, client, previous.get("stars"), end.date().isoformat())
     language_bytes: dict[str, int] = {}
     stack: dict[str, list[str]] = {}
     for row in rows:

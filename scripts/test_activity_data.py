@@ -207,6 +207,20 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(stars["total"], 7)
         self.assertEqual(stars["repositories"][0], {"name": "other/project", "stars": 7, "starred_on": {}, "undated": 7})
 
+    def test_refused_stargazer_list_dates_new_stars_when_first_seen(self):
+        client = activity.GitHubClient()
+        def get(path, accept=None):
+            raise activity.Unavailable("HTTP 403")
+        client.get = get
+        previous = {"repositories": [{"name": "other/project", "stars": 5, "starred_on": {"2026-10-01": 5}}]}
+        stars = activity.collect_stars([("other/project", 8)], client, previous, "2026-10-30")
+        self.assertEqual(stars["repositories"][0],
+                         {"name": "other/project", "stars": 8, "starred_on": {"2026-10-01": 5, "2026-10-30": 3}})
+        self.assertEqual(stars["dated_on_observation"], ["other/project"])
+        fewer = activity.collect_stars([("other/project", 4)], client, previous, "2026-10-30")
+        self.assertEqual(fewer["repositories"][0]["undated"], -1)
+        self.assertEqual(fewer["total"], 4)
+
     def test_pagination_follows_link_and_detects_loop(self):
         client = activity.ReplayClient({
             "/page1": {"body": [1], "headers": {"Link": '<https://api.github.com/page2>; rel="next"'}},
