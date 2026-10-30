@@ -1,5 +1,6 @@
 """Checks for the market-board renderer: every page is complete, and the chart maths is right."""
 
+import base64
 import json
 import re
 import unittest
@@ -71,6 +72,18 @@ class PageTests(unittest.TestCase):
     def test_tabs_and_range_share_one_row(self):
         self.assertLessEqual(len(render.VIEWS) * render.TAB_PCT + render.RANGE_PCT, 100)
 
+    def test_a_watchlist_project_can_be_shown_as_a_wordmark(self):
+        config = json.loads(json.dumps(CONFIG))
+        project = config["projects"][0]
+        del project["logo"]
+        project["wordmark"] = {"light": "intelidar-light.png", "dark": "intelidar-dark.png"}
+        render.check_config(config)
+        files, _, _, _ = render.build(snapshot(HISTORY), config, "BASE/")
+        for theme in ("light", "dark"):
+            mark = base64.b64encode((render.ROOT / "assets/logos" / f"intelidar-{theme}.png").read_bytes()).decode()
+            with self.subTest(theme=theme):
+                self.assertIn(mark, files[f"w-project-0-{theme}.svg"])
+
     def test_an_empty_history_still_renders(self):
         files, readme, pages, _ = render.build(snapshot([]), CONFIG, "BASE/")
         self.assertIn("w-lines-header", readme)
@@ -85,6 +98,12 @@ class ConfigTests(unittest.TestCase):
             config["achievements"][0].update(change)
             with self.subTest(change=change), self.assertRaises(ValueError):
                 render.check_config(config)
+
+    def test_a_missing_wordmark_is_refused(self):
+        config = json.loads(json.dumps(CONFIG))
+        config["projects"][0]["wordmark"] = {"light": "missing.png", "dark": "intelidar-dark.png"}
+        with self.assertRaises(ValueError):
+            render.check_config(config)
 
 
 class MovingAverageTests(unittest.TestCase):

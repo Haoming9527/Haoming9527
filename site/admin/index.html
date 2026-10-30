@@ -6,17 +6,17 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="color-scheme" content="light dark">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://raw.githubusercontent.com; connect-src https://api.github.com https://raw.githubusercontent.com; base-uri 'none'; form-action 'none'">
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com; connect-src https://api.github.com https://raw.githubusercontent.com; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
-  <title>Board manager · Economist</title>
+  <title>Board manager</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="admin.css">
-  <script type="module" src="admin.js"></script>
+  <script type="module" src="js/main.js"></script>
 </head>
 <body>
   <header class="top">
     <div class="brand">
-      <span class="mark" aria-hidden="true">E</span>
+      <img class="avatar" src="https://avatars.githubusercontent.com/u/167516473?s=96" alt="" width="46" height="46">
       <div>
         <h1>Board manager</h1>
         <p class="lede">Choose what your GitHub profile shows. Saving commits <code>profile.json</code>, and the board redraws in about two minutes.</p>
@@ -24,11 +24,11 @@
     </div>
     <a class="profile-link" href="https://github.com/Haoming9527" rel="noopener">Open profile</a>
   </header>
-  <div id="tape" class="tape" aria-live="polite"></div>
+  <div id="tape" class="tape" aria-live="polite" hidden></div>
   <section id="token" class="card token" aria-label="Access token"></section>
-  <nav id="tabs" class="segmented" aria-label="Sections"></nav>
-  <main id="panel" class="panel"><p class="loading">Loading your repositories…</p></main>
-  <footer id="footer" class="savebar" aria-live="polite"></footer>
+  <nav id="tabs" class="segmented" aria-label="Sections" hidden></nav>
+  <main id="panel" class="panel" hidden></main>
+  <footer id="footer" class="savebar" aria-live="polite" hidden></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>

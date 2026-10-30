@@ -112,3 +112,7 @@ input[type=text], input[type=password], input[type=url], input[type=search], sel
 .toast a { color: inherit; font-weight: 700; }
 .loading { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+.avatar { flex: none; width: 46px; height: 46px; border-radius: 50%; box-shadow: 0 0 0 2px var(--ring); }
+.logos .logo-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 10px; }
+.logos .logo-row:hover { background: var(--card); }
+[hidden] { display: none !important; }
