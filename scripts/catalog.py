@@ -23,6 +23,7 @@ VENDORED = {
     "React": ("react.svg", .64), "Next.js": ("nextjs.svg", .6), "Node.js": ("nodejs.svg", .6),
     "PostgreSQL": ("postgresql.svg", .6), "Docker": ("docker.svg", .64), "Ollama": ("ollama.svg", .56),
     "AI SDK": ("aisdk.svg", .5), "MCP": ("mcp.svg", .56), "OpenAI": ("openai.svg", .58), "Vercel": ("aisdk.svg", .5),
+    "Gemini": ("gemini.svg", .6),
 }
 
 # Remote logos for names without a vendored file. ("devicon", path) or ("si", slug, hex colour).
@@ -52,7 +53,7 @@ REMOTE = {
     "Redis": ("devicon", "redis/redis-original"), "SQLite": ("devicon", "sqlite/sqlite-original"),
     "Prisma": ("devicon", "prisma/prisma-original"), "Drizzle": ("si", "drizzle", "C5F74F"),
     "Supabase": ("devicon", "supabase/supabase-original"), "Firebase": ("devicon", "firebase/firebase-original"),
-    "Anthropic": ("si", "anthropic", "191919"), "Gemini": ("si", "googlegemini", "8E75B2"),
+    "Anthropic": ("si", "anthropic", "191919"),
     "LangChain": ("si", "langchain", "1C3C3C"), "Hugging Face": ("si", "huggingface", "FFD21E"),
     "PyTorch": ("devicon", "pytorch/pytorch-original"), "TensorFlow": ("devicon", "tensorflow/tensorflow-original"),
     "pandas": ("devicon", "pandas/pandas-original"), "NumPy": ("devicon", "numpy/numpy-original"),
