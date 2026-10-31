@@ -108,7 +108,7 @@ class Market:
                 for when, count in repo["starred_on"].items():
                     add(result, date.fromisoformat(when), count)
         elif kind == "prs":
-            for repo in self.open_source["repositories"]:
+            for repo in self.open_source["repositories"] + self.open_source.get("owned_repositories", []):
                 if not key or repo["name"].lower() == key.lower():
                     for stamp in repo["merged_at"]:
                         add(result, self.local(stamp))

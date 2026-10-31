@@ -305,6 +305,22 @@ class OpenSourceTests(unittest.TestCase):
         self.assertIn("-repo:gone/project", queries[0])
         self.assertEqual(result["repositories"][0]["merged_at"], ["2026-10-02T00:00:00Z", "2026-10-03T00:00:00Z"])
 
+    def test_own_repository_prs_count_in_the_total_but_not_as_collaborations(self):
+        client = activity.GitHubClient()
+        queries = []
+        def get(path):
+            queries.append(parse_qs(urlsplit(path).query)["q"][0].split())
+            items = [self.item(1), self.item(2, "Haoming9527/app"), self.item(3, "haoming9527/tool")]
+            return {"total_count": 3, "incomplete_results": False, "items": items}, {}
+        client.get = get
+        result = activity.collect_open_source("Haoming9527", client)
+        self.assertNotIn("-user:Haoming9527", queries[0])
+        self.assertEqual(result["total_merged_prs"], 3)
+        self.assertEqual(result["external_merged_prs"], 1)
+        self.assertEqual([row["name"] for row in result["repositories"]], ["other/project"])
+        self.assertEqual([row["name"] for row in result["owned_repositories"]], ["Haoming9527/app", "haoming9527/tool"])
+        self.assertIn("-user%3AHaoming9527", result["external_url"])
+
     def test_incomplete_truncated_or_undated_search_fails(self):
         missing = dict(self.item(1), pull_request={})
         for response in ({"incomplete_results": True},

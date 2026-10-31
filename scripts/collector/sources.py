@@ -35,9 +35,11 @@ VENDORED = {"node_modules", "vendor", "dist", "build", ".next", "coverage"}
 
 
 def collect_open_source(username: str, client: GitHubClient, exclusions: list[str] = ()) -> dict[str, Any]:
-    """Count merged pull requests to repositories owned by other users/orgs."""
-    query = " ".join([f"is:pr author:{username} is:merged -user:{username} is:public",
-                      *(f"-repo:{name}" for name in exclusions)])
+    """Count every public merged pull request by the user. Repositories owned by others are listed
+    separately because they also drive the Collaborations rows and the collaborators' stars."""
+    query = " ".join([f"is:pr author:{username} is:merged is:public", *(f"-repo:{name}" for name in exclusions)])
+    external_query = " ".join([f"is:pr author:{username} is:merged -user:{username} is:public",
+                               *(f"-repo:{name}" for name in exclusions)])
     excluded = {name.lower() for name in exclusions}
     repositories: dict[str, int] = {}
     merged_dates: dict[str, list[str]] = {}
@@ -70,8 +72,6 @@ def collect_open_source(username: str, client: GitHubClient, exclusions: list[st
             url = item.get("html_url", "")
             if not url.startswith(f"https://github.com/{repository}/pull/"):
                 raise CollectionError("PR search returned an unexpected pull request URL")
-            if repository.split("/")[0].lower() == username.lower():
-                raise CollectionError("Open-source search unexpectedly included a self-owned repository")
             if repository.lower() in excluded:
                 raise CollectionError(f"Open-source search ignored the exclusion for {repository}")
             if url in seen_urls:
@@ -91,18 +91,24 @@ def collect_open_source(username: str, client: GitHubClient, exclusions: list[st
         if not items or len(seen_urls) > expected:
             raise CollectionError("Open-source PR search pagination did not match its reported total")
         page += 1
+    rows = [{"name": name, "merged_prs": count, "url": f"https://github.com/{name}", "merged_at": sorted(merged_dates[name])}
+            for name, count in sorted(repositories.items(), key=lambda pair: (-pair[1], pair[0]))]
+    mine = lambda row: row["name"].split("/")[0].lower() == username.lower()
+    external = [row for row in rows if not mine(row)]
     return {
         "total_merged_prs": expected,
-        "repository_count": len(repositories),
-        "repositories": [{"name": name, "merged_prs": count, "url": f"https://github.com/{name}",
-                          "merged_at": sorted(merged_dates[name])}
-                         for name, count in sorted(repositories.items(), key=lambda pair: (-pair[1], pair[0]))],
+        "external_merged_prs": sum(row["merged_prs"] for row in external),
+        "repository_count": len(external),
+        "repositories": external,
+        "owned_repositories": [row for row in rows if mine(row)],
         "recent": recent,
         "recent_order": "Most recently updated merged pull requests",
         "query": query,
         "excluded_repositories": list(exclusions),
         "url": "https://github.com/search?" + urlencode({"q": query, "type": "pullrequests"}),
-        "scope": "Public merged pull requests authored by the user in repositories they do not own; all time",
+        "external_url": "https://github.com/search?" + urlencode({"q": external_query, "type": "pullrequests"}),
+        "scope": "Public merged pull requests authored by the user in any repository; all time. "
+                 "repositories lists the ones owned by others, owned_repositories the user's own",
     }
 
 

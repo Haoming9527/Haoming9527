@@ -77,7 +77,7 @@ def range_label(view: View, theme: str, mobile: bool) -> SVG:
     return s
 
 
-INDEX_TILES = (("stars", "Stars", "mine + collab"), ("commits", "Commits", "all time"), ("prs", "Merged PRs", "external"))
+INDEX_TILES = (("stars", "Stars", "mine + collab"), ("commits", "Commits", "all time"), ("prs", "Merged PRs", "all time"))
 
 
 TICK_CSS = ".tick{animation:tick 1.8s ease-out .3s both}@keyframes tick{0%{opacity:0}12%{opacity:1}100%{opacity:0}}"

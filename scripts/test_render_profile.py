@@ -131,5 +131,18 @@ class MovingAverageTests(unittest.TestCase):
         self.assertEqual(render.View(market, "Y").moving_averages, [])
 
 
+class MergedPrTests(unittest.TestCase):
+    def test_own_repository_prs_count_but_stay_out_of_collaborations(self):
+        data = snapshot([dict(row) for row in HISTORY])
+        data["open_source"]["owned_repositories"] = [
+            {"name": "Haoming9527/app", "merged_prs": 1, "url": "https://github.com/Haoming9527/app",
+             "merged_at": ["2026-10-28T00:00:00Z"]}]
+        market = render.Market(data, CONFIG)
+        weekly = render.View(market, "W")
+        self.assertEqual(weekly.index("prs")["value"], 3)
+        self.assertEqual(weekly.index("prs")["delta"], 2)
+        self.assertEqual(sum(market.events("prs", "other/project").values()), 2)
+
+
 if __name__ == "__main__":
     unittest.main()

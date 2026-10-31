@@ -86,7 +86,7 @@ def render_page(view: View, base: str, banner: str) -> str:
                         market.open_source["url"]), (
                         "Stars on my repositories plus the projects that merged my pull requests",
                         "Every commit I have authored in my public repositories",
-                        "Pull requests merged into other people's projects")))
+                        "Every pull request of mine that was merged")))
     g = Geometry(view.candles, False)
     slices = "".join(r.link(commit_search(username, candle["start"], min(candle["end"], market.today)),
                             r.picture(f"{p}-chart-{i:02d}", candle_title(view.code, candle), f"{g.slice_pct}%",
@@ -128,7 +128,7 @@ def render_page(view: View, base: str, banner: str) -> str:
         more(len(languages), "languages", rows(languages[VISIBLE_LANGUAGES:])) if len(languages) > VISIBLE_LANGUAGES else "",
         f'<p>{r.picture(f"{p}-section-stack", "Tech stack", "100%", explain(view, "stack"))}<br>{pairs(stack[:VISIBLE_TOOLS])}</p>',
         more(len(stack), "tools", pairs(stack[VISIBLE_TOOLS:])) if len(stack) > VISIBLE_TOOLS else "",
-        f'<p>{r.link(market.open_source["url"], r.picture(f"{p}-section-collabs", "Collaborations", "100%", explain(view, "collabs")))}'
+        f'<p>{r.link(market.open_source.get("external_url", market.open_source["url"]), r.picture(f"{p}-section-collabs", "Collaborations", "100%", explain(view, "collabs")))}'
         f"<br>{rows(collabs)}</p>",
         f'<p>{r.link(portfolio, r.picture("section-record", "Track record", "100%"), "Portfolio")}<br>{pairs(record)}</p>',
         '<p align="right"><sub>Live public data, refreshed every 15 minutes</sub></p>',
