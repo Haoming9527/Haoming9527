@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="214" viewBox="0 0 200 214" role="img" aria-label="Stars index">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}.tick{animation:tick 1.8s ease-out .3s both}@keyframes tick{0%{opacity:0}12%{opacity:1}100%{opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="200.0" height="214.0" rx="0" fill="#ffffff"/>
+<rect x="4.0" y="4.0" width="192.0" height="206.0" rx="16" fill="#f6f8fa"/>
+<text x="20.0" y="44.0" font-size="22" font-weight="500" fill="#1f2328" text-anchor="start">Stars</text>
+<rect x="13.5" y="57.6" width="116.0" height="41.8" rx="7.2" fill="#1a7f37" opacity="0" fill-opacity=".18" class="tick"/>
+<text x="20.0" y="90.0" font-size="36" font-weight="700" fill="#1a7f37" text-anchor="start">7,384</text>
+<text x="20.0" y="122.0" font-size="19" font-weight="500" fill="#1a7f37" text-anchor="start">+606 +8.94%</text>
+<defs><linearGradient id="u1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a7f37" stop-opacity=".16"/><stop offset="1" stop-color="#1a7f37" stop-opacity="0"/></linearGradient></defs>
+<path d="M20.0 186.0 L26.2 186.0 L32.3 186.0 L38.5 186.0 L44.6 186.0 L50.8 186.0 L56.9 186.0 L63.1 186.0 L69.2 186.0 L75.4 186.0 L81.5 186.0 L87.7 186.0 L93.8 186.0 L100.0 185.9 L106.2 185.9 L112.3 185.9 L118.5 185.9 L124.6 185.9 L130.8 185.9 L136.9 185.9 L143.1 185.7 L149.2 185.6 L155.4 182.3 L161.5 158.2 L167.7 147.0 L173.8 140.0 L180.0 140.0 L180.0 186.0 L20.0 186.0 Z" fill="url(#u1)"/>
+<path class="draw" pathLength="1" d="M20.0 186.0 L26.2 186.0 L32.3 186.0 L38.5 186.0 L44.6 186.0 L50.8 186.0 L56.9 186.0 L63.1 186.0 L69.2 186.0 L75.4 186.0 L81.5 186.0 L87.7 186.0 L93.8 186.0 L100.0 185.9 L106.2 185.9 L112.3 185.9 L118.5 185.9 L124.6 185.9 L130.8 185.9 L136.9 185.9 L143.1 185.7 L149.2 185.6 L155.4 182.3 L161.5 158.2 L167.7 147.0 L173.8 140.0 L180.0 140.0" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle class="pulse" cx="180.0" cy="140.0" r="3" fill="#1a7f37"/><circle cx="180.0" cy="140.0" r="3" fill="#1a7f37"/>
+</svg>

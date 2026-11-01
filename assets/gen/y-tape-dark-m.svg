@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="46" viewBox="0 0 400 46" role="img" aria-label="Live tape of the profile indexes">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}.run{animation:run 101s linear infinite}@keyframes run{to{transform:translateX(-3038.3px)}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="400.0" height="46.0" rx="0" fill="#0d1117"/>
+<line x1="0.0" y1="0.5" x2="400.0" y2="0.5" stroke="#2a313c" stroke-width="1"/>
+<line x1="0.0" y1="45.5" x2="400.0" y2="45.5" stroke="#2a313c" stroke-width="1"/>
+<g class="run">
+<text x="17.0" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">ECON</text>
+<text x="76.2" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">R&amp;D AI ENGINEER</text>
+<text x="283.0" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">STARS</text>
+<text x="354.5" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">7,384</text>
+<text x="413.3" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +5,072</text>
+<text x="528.6" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">COMMITS</text>
+<text x="624.5" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">296</text>
+<text x="667.2" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +247</text>
+<text x="766.2" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">MERGED PRS</text>
+<text x="891.7" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">67</text>
+<text x="923.6" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +67</text>
+<text x="1011.8" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">LINES</text>
+<text x="1083.2" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">403,417</text>
+<text x="1163.7" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +93,277</text>
+<text x="1289.8" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">JAVASCRIPT</text>
+<text x="1422.5" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">36.4%</text>
+<text x="1482.8" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +13.1k</text>
+<text x="1597.0" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">TYPESCRIPT</text>
+<text x="1729.7" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">31.5%</text>
+<text x="1790.0" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +29.7k</text>
+<text x="1904.2" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">HTML</text>
+<text x="1963.4" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">13.1%</text>
+<text x="2023.7" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +1,684</text>
+<text x="2138.9" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">CSS</text>
+<text x="2185.9" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">10.4%</text>
+<text x="2246.2" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +14.0k</text>
+<text x="2360.4" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">DGX</text>
+<text x="2407.3" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">36,140</text>
+<text x="2477.0" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +36.1k</text>
+<text x="2591.1" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">NDL</text>
+<text x="2638.1" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">7,059</text>
+<text x="2697.0" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +7,059</text>
+<text x="2812.2" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">UPLD</text>
+<text x="2871.4" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">13,985</text>
+<text x="2941.1" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +14.0k</text>
+<text x="3055.3" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">ECON</text>
+<text x="3114.5" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">R&amp;D AI ENGINEER</text>
+<text x="3321.3" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">STARS</text>
+<text x="3392.7" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">7,384</text>
+<text x="3451.6" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +5,072</text>
+<text x="3566.8" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">COMMITS</text>
+<text x="3662.8" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">296</text>
+<text x="3705.4" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +247</text>
+<text x="3804.5" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">MERGED PRS</text>
+<text x="3930.0" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">67</text>
+<text x="3961.8" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +67</text>
+<text x="4050.0" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">LINES</text>
+<text x="4121.5" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">403,417</text>
+<text x="4202.0" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +93,277</text>
+<text x="4328.0" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">JAVASCRIPT</text>
+<text x="4460.8" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">36.4%</text>
+<text x="4521.1" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +13.1k</text>
+<text x="4635.2" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">TYPESCRIPT</text>
+<text x="4768.0" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">31.5%</text>
+<text x="4828.3" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +29.7k</text>
+<text x="4942.4" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">HTML</text>
+<text x="5001.6" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">13.1%</text>
+<text x="5061.9" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +1,684</text>
+<text x="5177.2" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">CSS</text>
+<text x="5224.1" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">10.4%</text>
+<text x="5284.4" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +14.0k</text>
+<text x="5398.6" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">DGX</text>
+<text x="5445.6" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">36,140</text>
+<text x="5515.2" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +36.1k</text>
+<text x="5629.4" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">NDL</text>
+<text x="5676.4" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">7,059</text>
+<text x="5735.2" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +7,059</text>
+<text x="5850.5" y="29.1" font-size="17" font-weight="600" fill="#9198a1" text-anchor="start">UPLD</text>
+<text x="5909.7" y="29.1" font-size="17" font-weight="600" fill="#f0f6fc" text-anchor="start">13,985</text>
+<text x="5979.3" y="29.1" font-size="17" font-weight="600" fill="#3fb950" text-anchor="start">▲ +14.0k</text>
+</g>
+</svg>

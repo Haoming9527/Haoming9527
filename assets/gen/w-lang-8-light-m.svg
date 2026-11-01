@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="104" viewBox="0 0 400 104" role="img" aria-label="Batchfile">
+<style>text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans',Helvetica,Arial,sans-serif;font-variant-numeric:tabular-nums}.draw{stroke-dasharray:1;animation:draw 1.4s cubic-bezier(.3,.7,.2,1) both}@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.6s ease-out infinite}@keyframes pulse{0%{transform:scale(1);opacity:.55}80%,100%{transform:scale(3.2);opacity:0}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
+<rect x="0.0" y="0.0" width="400.0" height="104.0" rx="0" fill="#ffffff"/>
+<circle cx="34.0" cy="52.0" r="20" fill="#ffffff" stroke="#d0d7de" stroke-width="1"/><clipPath id="u1"><circle cx="34.0" cy="52.0" r="20"/></clipPath>
+<svg x="24.0" y="42.0" width="20.0" height="20.0" viewBox="0 0 128 128"><path fill="#0078d4" d="M67.328 67.331h60.669V128H67.328zm-67.325 0h60.669V128H.003zM67.328 0h60.669v60.669H67.328zM.003 0h60.669v60.669H.003z"/></svg>
+<text x="64.0" y="48.0" font-size="19" font-weight="500" fill="#1f2328" text-anchor="start">Batchfile</text>
+<text x="64.0" y="73.0" font-size="15" font-weight="400" fill="#59636e" text-anchor="start">4 KB</text>
+<defs><linearGradient id="u3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a7f37" stop-opacity=".16"/><stop offset="1" stop-color="#1a7f37" stop-opacity="0"/></linearGradient></defs>
+<path d="M190.0 70.0 L191.7 70.0 L193.4 70.0 L195.1 70.0 L196.8 70.0 L198.5 70.0 L200.2 70.0 L201.8 70.0 L203.5 70.0 L205.2 70.0 L206.9 70.0 L208.6 70.0 L210.3 70.0 L212.0 70.0 L213.7 70.0 L215.4 70.0 L217.1 70.0 L218.8 70.0 L220.5 70.0 L222.2 70.0 L223.8 70.0 L225.5 70.0 L227.2 30.0 L228.9 30.0 L230.6 30.0 L232.3 30.0 L234.0 30.0 L234.0 70.0 L190.0 70.0 Z" fill="url(#u3)"/>
+<path class="draw" pathLength="1" d="M190.0 70.0 L191.7 70.0 L193.4 70.0 L195.1 70.0 L196.8 70.0 L198.5 70.0 L200.2 70.0 L201.8 70.0 L203.5 70.0 L205.2 70.0 L206.9 70.0 L208.6 70.0 L210.3 70.0 L212.0 70.0 L213.7 70.0 L215.4 70.0 L217.1 70.0 L218.8 70.0 L220.5 70.0 L222.2 70.0 L223.8 70.0 L225.5 70.0 L227.2 30.0 L228.9 30.0 L230.6 30.0 L232.3 30.0 L234.0 30.0" fill="none" stroke="#1a7f37" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<text x="316.0" y="50.0" font-size="20" font-weight="600" fill="#1f2328" text-anchor="end">&lt;0.1%</text>
+<text x="316.0" y="73.0" font-size="14" font-weight="400" fill="#59636e" text-anchor="end">+533</text>
+<rect x="326.0" y="32.0" width="66.0" height="40.0" rx="6" fill="#8c959f"/>
+<text x="359.0" y="57.8" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle">0</text>
+<line x1="16.0" y1="103.5" x2="384.0" y2="103.5" stroke="#eaeef2" stroke-width="1"/>
+</svg>
