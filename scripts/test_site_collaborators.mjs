@@ -3,7 +3,7 @@ import { afterEach, test } from "node:test";
 
 import { API, OWNER, RAW, REPO } from "../site/admin/js/config.js";
 import { collaboratorRepos } from "../site/admin/js/github.js";
-import { changedSections, commit, discard, isDirty, load, problems } from "../site/admin/js/board.js";
+import { changedSections, commit, discard, isDirty, load, problems, restrictCollaborations } from "../site/admin/js/board.js";
 import { state } from "../site/admin/js/state.js";
 
 const originalFetch = globalThis.fetch;
@@ -105,10 +105,12 @@ test("load never promotes snapshot PRs or stale configured projects into verifie
   await load();
   assert.deepEqual(state.external.map((row) => row.name), ["direct/no-pr"]);
   assert.equal(state.external[0].merged_prs, 0);
-  assert.deepEqual(state.config, initial);
+  assert.deepEqual(state.config.collaborations, []);
   assert.deepEqual(state.original, initial);
-  assert.equal(isDirty(), false);
-  assert(problems().some((problem) => problem.includes("old/pr-only") && problem.includes("access")));
+  assert.equal(isDirty(), true);
+  assert.deepEqual(problems(), []);
+  discard();
+  assert.deepEqual(state.config.collaborations, []);
 });
 
 test("missing snapshot retains verified access and never falls back to configured rows", async () => {
@@ -141,11 +143,24 @@ test("discard can dismiss pending access sync without changing the original conf
   assert.deepEqual(state.config.star_collaborator_repositories, ["team/old"]);
 });
 
-test("save rechecks permissions and refuses stale selected projects before any write", async () => {
+test("save rechecks permissions and drops revoked selections from the saved profile", async () => {
   const server = backend({ accessible: [repo("team/project")], initial: config(["team/project"], ["team/project"]) });
   await load();
   server.setAccess([]);
-  await assert.rejects(commit(), /remove team\/project.*access/);
-  assert.equal(server.written.length, 0);
-  assert.equal(server.calls.filter((call) => call.method !== "GET").length, 0);
+  await commit();
+  const saved = JSON.parse(server.written[0]);
+  assert.deepEqual(saved.collaborations, []);
+  assert.deepEqual(saved.star_collaborator_repositories, []);
+  assert.deepEqual(state.config.collaborations, []);
+});
+
+test("removing hidden selections keeps the editable list and sortable indices aligned", () => {
+  state.config = config([], ["old/no-access", "team/first", "old/also-revoked", "team/second"]);
+  state.external = [{ name: "TEAM/FIRST" }, { name: "team/second" }];
+  const originalList = state.config.collaborations;
+  const visible = restrictCollaborations();
+  assert.equal(visible, originalList);
+  assert.deepEqual(visible.map((entry) => entry.repository), ["team/first", "team/second"]);
+  visible.splice(0, 1);
+  assert.deepEqual(state.config.collaborations.map((entry) => entry.repository), ["team/second"]);
 });

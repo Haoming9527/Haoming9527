@@ -120,8 +120,9 @@ def stack_tile(view: View, tool: str, theme: str, mobile: bool) -> SVG:
         s.text(80, h / 2 - 4, fit(tool, 18, 132, 600), 18, "fg", 600)
         s.text(80, h / 2 + 18, repo_text, 13, "muted", 500)
         s.sparkline(view.series(events), 222, h / 2 - 20, 92, 40, color, dot=False)
-        s.text(w - 22, h / 2 - 2, f"{commits:,}", 20, "fg", 700, "end")
-        s.text(w - 22, h / 2 + 18, f"{signed(recent)} {view.label}", 13, color if recent else "muted", 600, "end")
+        s.text(w - 22, h / 2 - 14, f"{commits:,}", 20, "fg", 700, "end")
+        s.text(w - 22, h / 2 + 4, "commits", 12, "muted", 500, "end")
+        s.text(w - 22, h / 2 + 26, f"{signed(recent)} {view.label}", 13, color if recent else "muted", 600, "end")
     return s
 
 

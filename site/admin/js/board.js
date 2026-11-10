@@ -20,6 +20,15 @@ export function collaborationRows(repos, previous = []) {
     .sort((a, b) => (b.merged_prs - a.merged_prs) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
 }
 
+/** Drop saved selections that are not in the current verified access list. */
+export function restrictCollaborations() {
+  const selected = state.config.collaborations ||= [];
+  const allowed = new Set(state.external.map((repo) => repo.name.toLowerCase()));
+  const visible = selected.filter((entry) => allowed.has(entry.repository.toLowerCase()));
+  selected.splice(0, selected.length, ...visible);
+  return selected;
+}
+
 export async function load() {
   const [repos, file, logos, banners, snapshot, catalog, collaborators] = await Promise.all([
     ownedRepos(),
@@ -48,6 +57,7 @@ export async function load() {
   state.snapshotMissing = !snapshot;
   state.commits = Object.fromEntries((snapshot?.repositories || []).map((row) => [row.name.toLowerCase(), row.shas?.length || 0]));
   state.external = collaborationRows(collaborators, snapshot?.open_source?.repositories);
+  restrictCollaborations();
   accessSyncDismissed = false;
 }
 
@@ -63,6 +73,7 @@ export const isDirty = () => Boolean(state.config) && (changedSections().length 
 
 export function discard() {
   state.config = clone(state.original);
+  restrictCollaborations();
   state.uploads = {};
   state.bannerUploads = {};
   state.deletions = new Set();
@@ -145,6 +156,7 @@ export function problems() {
 export async function commit() {
   const collaborators = await collaboratorRepos();
   state.external = collaborationRows(collaborators, state.external);
+  restrictCollaborations();
   const issues = problems();
   if (issues.length) throw new Error(issues.join(" "));
   const savedConfig = { ...state.config,
