@@ -1,4 +1,4 @@
-// Collaborations: other people's projects that merged the owner's pull requests.
+// Collaborations: public projects where the owner has verified collaborator access.
 
 import { h } from "../../lib/dom.js";
 import { state } from "../../state.js";
@@ -9,6 +9,8 @@ const sameRepo = (a, b) => a.toLowerCase() === b.toLowerCase();
 
 export function choices() {
   const collabs = state.config.collaborations ||= [];
+  if (!state.external.length) return h("ul", { class: "picker" },
+    h("li", { class: "hint" }, "No public projects with collaborator access were found for this account."));
   return checklist(state.external,
     (repo) => collabs.some((e) => sameRepo(e.repository, repo.name)),
     (repo, on) => {
@@ -23,7 +25,7 @@ export function panel() {
   const collabs = state.config.collaborations ||= [];
   return [
     h("div", { class: "panel-head" }, h("h2", {}, "Collaborations"),
-      h("p", {}, "Other people's projects that merged your pull requests. All of them count in the Merged PRs and Stars indexes; only the ones you tick appear here. A wordmark replaces the logo and the name.")),
+      h("p", {}, "Public projects where you have collaborator access. All count in Stars; your selections control the rows shown here. Merged PRs still counts all your public merged pull requests. A wordmark replaces the logo and the name.")),
     h("div", { class: "columns" },
       h("div", {}, h("h3", {}, `On the board (${collabs.length})`),
         collabs.length ? h("ol", { class: "sortable" }, collabs.map((e, i) => sortableItem(collabs, i, [
@@ -32,11 +34,13 @@ export function panel() {
             textField("Name", e.name, (v) => { e.name = v; }),
             shownAs(e),
             e.wordmark ? wordmarkSelects(e, e.name) : logoSelect(e.logo, e.repository.split("/").pop(), (f) => { e.logo = f; }),
-            h("p", { class: "meta" }, e.repository)),
-        ]))) : h("p", { class: "empty-state" }, "Pick projects you have contributed to.")),
-      h("div", {}, h("h3", {}, "Repositories with your merged pull requests"),
+            h("p", { class: "meta" }, e.repository),
+            state.external.some((repo) => sameRepo(repo.name, e.repository)) ? null
+              : h("p", { class: "error" }, "Collaborator access is no longer verified. Remove this project before saving.")),
+        ]))) : h("p", { class: "empty-state" }, "Pick projects where you have collaborator access.")),
+      h("div", {}, h("h3", {}, "Projects with collaborator access"),
         state.snapshotMissing ? h("p", { class: "hint error" },
-          "Couldn't read the activity data on the market branch, so only repositories already on the board are listed.") : null,
+          "PR counts are unavailable. The projects below still have verified collaborator access.") : null,
         filterBox(), choices())),
   ];
 }

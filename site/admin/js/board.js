@@ -2,12 +2,26 @@
 // saves everything as one fast-forward commit. No DOM here.
 
 import { BANNER_FILE, BRANCH, DELETABLE, LOGO_FILE, OWNER, RAW, REPO, SECTIONS, TABS, WRITABLE } from "./config.js";
-import { api, ownedRepos } from "./github.js";
+import { api, collaboratorRepos, ownedRepos } from "./github.js";
 import { clone, formatConfig, fromBase64, toBase64, utf8 } from "./lib/format.js";
 import { state } from "./state.js";
 
+let accessSyncDismissed = false;
+const repositoryNames = (names) => [...new Set(names.map((name) => name.toLowerCase()))].sort();
+const accessChanged = () => JSON.stringify(repositoryNames(state.external.map((row) => row.name)))
+  !== JSON.stringify(repositoryNames(state.original.star_collaborator_repositories || []));
+
+/** Permission results define membership; the public snapshot only supplies PR counts. */
+export function collaborationRows(repos, previous = []) {
+  const counts = new Map(previous.map((row) => [row.name.toLowerCase(), row]));
+  return repos.map((repo) => ({ ...counts.get(repo.full_name.toLowerCase()), name: repo.full_name,
+    merged_prs: counts.get(repo.full_name.toLowerCase())?.merged_prs || 0,
+    stars: repo.stargazers_count || 0, language: repo.language }))
+    .sort((a, b) => (b.merged_prs - a.merged_prs) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+}
+
 export async function load() {
-  const [repos, file, logos, banners, snapshot, catalog] = await Promise.all([
+  const [repos, file, logos, banners, snapshot, catalog, collaborators] = await Promise.all([
     ownedRepos(),
     api(`/repos/${OWNER}/${REPO}/contents/profile.json?ref=${BRANCH}`),
     api(`/repos/${OWNER}/${REPO}/contents/assets/logos?ref=${BRANCH}`),
@@ -16,6 +30,7 @@ export async function load() {
       .then((r) => (r.ok ? r.json() : null)).catch(() => null),
     fetch(`${RAW}/${BRANCH}/scripts/catalog.py`, { cache: "no-store", credentials: "omit" })
       .then((r) => (r.ok ? r.text() : "")).catch(() => ""),
+    collaboratorRepos(),
   ]);
   state.repos = repos;
   state.sha = file.sha;
@@ -32,16 +47,15 @@ export async function load() {
   state.protectedKnown = state.protected.size > 0;
   state.snapshotMissing = !snapshot;
   state.commits = Object.fromEntries((snapshot?.repositories || []).map((row) => [row.name.toLowerCase(), row.shas?.length || 0]));
-  const external = new Map((snapshot?.open_source?.repositories || []).map((row) => [row.name.toLowerCase(), row]));
-  for (const entry of state.config.collaborations || []) {
-    if (!external.has(entry.repository.toLowerCase())) external.set(entry.repository.toLowerCase(), { name: entry.repository });
-  }
-  state.external = [...external.values()].sort((a, b) => (b.merged_prs || 0) - (a.merged_prs || 0));
+  state.external = collaborationRows(collaborators, snapshot?.open_source?.repositories);
+  accessSyncDismissed = false;
 }
 
 export function changedSections() {
-  return TABS.filter(([tab]) => SECTIONS[tab] && JSON.stringify(state.config[SECTIONS[tab]] || []) !== JSON.stringify(state.original[SECTIONS[tab]] || []))
+  const changes = TABS.filter(([tab]) => SECTIONS[tab] && JSON.stringify(state.config[SECTIONS[tab]] || []) !== JSON.stringify(state.original[SECTIONS[tab]] || []))
     .map(([, label]) => label);
+  if (!accessSyncDismissed && accessChanged()) changes.push("Collaborator access");
+  return changes;
 }
 
 export const isDirty = () => Boolean(state.config) && (changedSections().length > 0 || Object.keys(state.uploads).length > 0
@@ -52,6 +66,7 @@ export function discard() {
   state.uploads = {};
   state.bannerUploads = {};
   state.deletions = new Set();
+  accessSyncDismissed = true;
 }
 
 const sameRepo = (a, b) => a.toLowerCase() === b.toLowerCase();
@@ -108,6 +123,9 @@ export function problems() {
     if (!shown(p)) list.push(`Watchlist: ${where} needs ${needs(p)}.`);
   });
   (c.collaborations || []).forEach((e) => {
+    if (!state.external.some((repo) => sameRepo(repo.name, e.repository))) {
+      list.push(`Collaborations: remove ${e.repository}; public collaborator access is no longer verified.`);
+    }
     if (!e.name?.trim()) list.push(`Collaborations: ${e.repository} needs a name.`);
     if (!shown(e)) list.push(`Collaborations: ${e.name || e.repository} needs ${needs(e)}.`);
   });
@@ -125,7 +143,14 @@ export function problems() {
  * Refuses if profile.json changed on GitHub since it was loaded. Reloads the board afterwards.
  */
 export async function commit() {
-  const files = [{ path: "profile.json", content: toBase64(utf8(formatConfig(state.config))) },
+  const collaborators = await collaboratorRepos();
+  state.external = collaborationRows(collaborators, state.external);
+  const issues = problems();
+  if (issues.length) throw new Error(issues.join(" "));
+  const savedConfig = { ...state.config,
+    star_collaborator_repositories: collaborators.map((repo) => repo.full_name),
+    star_access_verified_at: new Date().toISOString().replace(/\.\d{3}Z$/, "Z") };
+  const files = [{ path: "profile.json", content: toBase64(utf8(formatConfig(savedConfig))) },
     ...Object.values(state.uploads).map((u) => ({ path: `assets/logos/${u.name}`, content: u.base64 })),
     ...Object.values(state.bannerUploads).filter((u) => u.name === state.config.banner?.file)
       .map((u) => ({ path: `assets/banners/${u.name}`, content: u.base64 }))];

@@ -13,7 +13,8 @@ import activity_data as activity
 
 
 NOW = datetime(2026, 10, 30, 12, tzinfo=timezone.utc)
-CONFIG = {"github_username": "Haoming9527"}
+CONFIG = {"github_username": "Haoming9527", "star_collaborator_repositories": [],
+          "star_access_verified_at": "2026-10-30T12:00:00Z"}
 PACKAGE = base64.b64encode(json.dumps({"dependencies": {"react": "19", "ai": "7"}}).encode()).decode()
 
 
@@ -23,7 +24,7 @@ def commit(sha="a" * 40, timestamp="2026-10-26T12:00:00Z", author="Haoming9527",
 
 
 def owned(name, private=False, fork=False):
-    return {"full_name": f"Haoming9527/{name}", "private": private, "fork": fork}
+    return {"full_name": f"Haoming9527/{name}", "private": private, "fork": fork, "stargazers_count": 2}
 
 
 class FakeClient(activity.GitHubClient):
@@ -41,7 +42,7 @@ class FakeClient(activity.GitHubClient):
         self.requests += 1
         self.paths.append(path)
         if path.startswith("/users/Haoming9527/repos?"):
-            return self.repos, {}
+            return [dict(repo, stargazers_count=self.stars) for repo in self.repos], {}
         if path.startswith("/search/issues?"):
             return {"total_count": 0, "incomplete_results": False, "items": []}, {}
         if "/commits?" in path:
@@ -187,6 +188,40 @@ class CollectionTests(unittest.TestCase):
         self.assertIn("page=1", star_requests[0])
         self.assertEqual(second["stars"]["repositories"][0]["starred_on"],
                          {"2026-10-01": 1, "2026-10-02": 1, "2026-10-03": 1})
+
+    def test_stars_follow_verified_access_not_merged_prs_or_featured_projects(self):
+        config = dict(CONFIG, star_collaborator_repositories=["team/no-pr", "TEAM/NO-PR", "Haoming9527/example"],
+                      collaborations=[{"repository": "other/pr-only"}])
+        external = {"repositories": [{"name": "other/pr-only", "merged_prs": 1}]}
+        previous = {"schema_version": 3, "stars": {"repositories": [
+            {"name": "other/pr-only", "stars": 10000, "starred_on": {"2026-01-01": 10000}}]}}
+        client = FakeClient()
+        with patch("collector.snapshot.collect_open_source", return_value=external):
+            result = activity.collect(config, client, NOW, previous=previous)
+        self.assertEqual([r["name"] for r in result["stars"]["repositories"]], ["Haoming9527/example", "team/no-pr"])
+        self.assertEqual(result["stars"]["total"], 4)
+        self.assertEqual(result["open_source"]["repositories"][0]["merged_prs"], 1)
+        self.assertFalse(any("other/pr-only/stargazers" in path for path in client.paths))
+
+    def test_star_ownership_is_independent_of_commit_exclusions_and_forks(self):
+        client = FakeClient(repos=[owned("example"), owned("Haoming9527"), owned("forked", fork=True),
+                                   owned("skip"), owned("secret", private=True)])
+        result = activity.collect(dict(CONFIG, activity_exclusions=["Haoming9527/skip"]), client, NOW)
+        self.assertEqual(len(result["repositories"]), 1)
+        self.assertEqual({r["name"] for r in result["stars"]["repositories"]},
+                         {"Haoming9527/example", "Haoming9527/Haoming9527", "Haoming9527/forked", "Haoming9527/skip"})
+
+    def test_private_or_deleted_collaborator_projects_leave_no_cached_stars(self):
+        from collector.snapshot import star_repositories
+        class AccessClient(FakeClient):
+            def get(self, path, accept=None):
+                if path == "/repos/team/private":
+                    return {"private": True, "stargazers_count": 50}, {}
+                if path == "/repos/team/deleted":
+                    raise activity.NotFound("HTTP 404")
+                return super().get(path, accept)
+        self.assertEqual(star_repositories(dict(CONFIG, star_collaborator_repositories=["team/private", "team/deleted"]),
+                                          AccessClient()), [("Haoming9527/example", 2)])
 
     def test_stack_detection_reads_every_ecosystem(self):
         files = {

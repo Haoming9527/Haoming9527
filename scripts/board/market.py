@@ -127,7 +127,9 @@ class Market:
 
     def stars_of(self, repository: str) -> int:
         return next((row["stars"] for row in self.data["stars"]["repositories"]
-                     if row["name"].lower() == repository.lower()), 0)
+                     if row["name"].lower() == repository.lower()),
+                    next((row.get("stars", 0) for row in self.open_source["repositories"]
+                          if row["name"].lower() == repository.lower()), 0))
 
     def logo(self, name: str) -> dict:
         if name in catalog.VENDORED:

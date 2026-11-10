@@ -36,7 +36,7 @@ VENDORED = {"node_modules", "vendor", "dist", "build", ".next", "coverage"}
 
 def collect_open_source(username: str, client: GitHubClient, exclusions: list[str] = ()) -> dict[str, Any]:
     """Count every public merged pull request by the user. Repositories owned by others are listed
-    separately because they also drive the Collaborations rows and the collaborators' stars."""
+    separately because they also drive the Collaborations rows."""
     query = " ".join([f"is:pr author:{username} is:merged is:public", *(f"-repo:{name}" for name in exclusions)])
     external_query = " ".join([f"is:pr author:{username} is:merged -user:{username} is:public",
                                *(f"-repo:{name}" for name in exclusions)])
@@ -163,8 +163,8 @@ def collect_stars(targets: list[tuple[str, int]], client: GitHubClient,
             result.append(row)
     return {"total": sum(row["stars"] for row in result), "repositories": result,
             "dated_on_observation": observed,
-            "scope": "Current stargazers of configured public owned repositories plus external repositories "
-                     "with merged pull requests from the user (after configured exclusions)"}
+            "scope": "Current stargazers of public owned repositories and public projects with verified "
+                     "collaborator write, maintain or admin access; independent of merged PRs and featured projects"}
 
 
 def file_language(filename: str) -> str | None:

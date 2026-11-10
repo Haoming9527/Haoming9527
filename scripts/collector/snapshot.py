@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 
 import catalog
 
-from .github import CollectionError, GitHubClient, UTC, iso, parse_datetime
+from .github import CollectionError, GitHubClient, NotFound, UTC, iso, parse_datetime
 from .sources import collect_open_source, collect_stars, commit_detail, detect_stack, resolve_logos
 
 
@@ -77,6 +77,45 @@ def contribution_exclusions(config: dict[str, Any]) -> list[str]:
             isinstance(name, str) and re.fullmatch(r"[A-Za-z0-9-]+/[A-Za-z0-9_.-]+", name) for name in exclusions):
         raise CollectionError("contribution_exclusions must be a list of owner/repository names")
     return exclusions
+
+
+def star_repositories(config: dict[str, Any], client: GitHubClient) -> list[tuple[str, int]]:
+    """Owned public repositories plus the user's verified write-access projects.
+
+    Actions' repository token cannot inspect the user's permissions elsewhere.
+    sync_star_access.py refreshes the external list with the user's own token;
+    this collector refreshes public star counts without publishing private names.
+    Star coverage is independent of commit exclusions and featured collaborations.
+    """
+    username = config["github_username"]
+    access = config.get("star_collaborator_repositories")
+    if not isinstance(access, list) or not all(
+            isinstance(name, str) and REPOSITORY_NAME.fullmatch(name) for name in access):
+        raise CollectionError("Run scripts/sync_star_access.py to verify collaborator access for the stars index")
+    try:
+        parse_datetime(config.get("star_access_verified_at"))
+    except (TypeError, AttributeError, ValueError) as error:
+        raise CollectionError("The stars index needs a dated collaborator-access verification") from error
+    targets = {}
+    for repo in client.pages(f"/users/{username}/repos?type=owner&per_page=100"):
+        name = repo.get("full_name", "")
+        if not isinstance(name, str) or not REPOSITORY_NAME.fullmatch(name) or name.split("/")[0].lower() != username.lower():
+            raise CollectionError("Unexpected repository in the owner listing for stars")
+        if repo.get("private") is False:
+            targets[name.lower()] = (name, repo.get("stargazers_count", 0))
+    for name in access:
+        if name.lower() in targets:
+            continue
+        try:
+            repo, _ = client.get(f"/repos/{name}")
+        except NotFound:
+            continue
+        if repo.get("private") is not False or repo.get("visibility", "public") != "public":
+            continue
+        targets[name.lower()] = (name, repo.get("stargazers_count", 0))
+    if any(isinstance(count, bool) or not isinstance(count, int) or count < 0 for _, count in targets.values()):
+        raise CollectionError("Invalid repository star count")
+    return sorted(targets.values(), key=lambda target: target[0].lower())
 
 
 def build_weeks(commits: list[dict[str, Any]], start: datetime, end: datetime) -> list[dict[str, Any]]:
@@ -198,13 +237,12 @@ def collect(config: dict[str, Any], client: GitHubClient, now: datetime,
     if progress:
         progress("Reading public merged pull requests and stargazers...")
     open_source = collect_open_source(username, client, exclusion_names)
-    targets = [(row["name"], row["stars"]) for row in rows]
     for external in open_source["repositories"]:
         metadata, _ = client.get(f"/repos/{external['name']}")
         external["stars"] = metadata.get("stargazers_count", 0)
         external["language"] = metadata.get("language")
-        targets.append((external["name"], external["stars"]))
-    stars = collect_stars(targets, client, previous.get("stars"), end.date().isoformat())
+    stars = collect_stars(star_repositories(config, client), client, previous.get("stars"), end.date().isoformat())
+    stars["access_verified_at"] = config["star_access_verified_at"]
     language_bytes: dict[str, int] = {}
     stack: dict[str, list[str]] = {}
     for row in rows:

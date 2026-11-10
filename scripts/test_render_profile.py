@@ -41,6 +41,12 @@ HISTORY = [commit("2026-10-20", 100, 10, "a"), commit("2026-10-25", 50, 80, "b")
 
 
 class PageTests(unittest.TestCase):
+    def test_stars_hover_describes_access_and_not_merged_pull_requests(self):
+        _, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
+        for page in [readme, *pages.values()]:
+            self.assertIn('title="My repos and projects with collaborator access"', page)
+            self.assertNotIn("Stars on my repositories plus the projects that merged my pull requests", page)
+
     def test_every_page_only_references_generated_widgets(self):
         files, readme, pages, missing = render.build(snapshot(HISTORY), CONFIG, "BASE/")
         self.assertEqual(sorted(pages), ["D", "M", "Q", "Y"])

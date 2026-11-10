@@ -21,5 +21,28 @@
     {"rank": "Project Work Winner", "event": "Singapore Cybersecurity Camp 2025", "tag": "Canary-WAF", "logo": "div0.png", "url": "https://github.com/umiyuikaiteitan/Canary-WAF"}
   ],
   "activity_days": 90,
-  "activity_exclusions": []
+  "activity_exclusions": [],
+  "star_collaborator_repositories": [
+    "Aboyang/agentic-factory",
+    "jerememetan/StayWatch-Hackathon",
+    "sayyidkhan/longtaaborneo",
+    "sayyidkhan/zo-order-tracker",
+    "selinazeng2024-sudo/Technology-Company-Research-Valuation-Platform",
+    "soc-DBS/dbs-practical-v2-Haoming9527",
+    "T-Auto/dsh-ops",
+    "TeckTinkerere/Gate2Tray",
+    "TeckTinkerere/ROUTR",
+    "Tranquillitatis-Lab/.github",
+    "Tranquillitatis-Lab/codex-math-translations",
+    "Tranquillitatis-Lab/dsh-benchmark",
+    "Tranquillitatis-Lab/dsh-live-compact",
+    "Tranquillitatis-Lab/dsh-office-kit",
+    "Tranquillitatis-Lab/dsh-tool-activator",
+    "Tranquillitatis-Lab/Evopt",
+    "Tranquillitatis-Lab/ops-ga",
+    "umiyuikaiteitan/Canary-WAF",
+    "Xateh/remora",
+    "Yanguangchen/InteLiDar"
+  ],
+  "star_access_verified_at": "2026-11-10T09:20:40Z"
 }

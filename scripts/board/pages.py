@@ -84,7 +84,7 @@ def render_page(view: View, base: str, banner: str) -> str:
                         f"https://github.com/{username}?tab=repositories&sort=stargazers",
                         commit_search(username, market.first, market.today),
                         market.open_source["url"]), (
-                        "Stars on my repositories plus the projects that merged my pull requests",
+                        "My repos and projects with collaborator access",
                         "Every commit I have authored in my public repositories",
                         "Every pull request of mine that was merged")))
     g = Geometry(view.candles, False)

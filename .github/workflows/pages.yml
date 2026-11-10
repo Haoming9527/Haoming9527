@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - site/**
+      - scripts/test_site_collaborators.mjs
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -27,6 +28,11 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check collaborator access filtering
+        run: node --test scripts/test_site_collaborators.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
