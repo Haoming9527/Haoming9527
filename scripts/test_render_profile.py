@@ -51,6 +51,7 @@ class AssetFixtureTests(unittest.TestCase):
         directory = self.enterContext(tempfile.TemporaryDirectory())
         self.logos = Path(directory) / "logos"
         banners = Path(directory) / "banners"
+        self.banners = banners
         self.logos.mkdir()
         banners.mkdir()
         # Valid, distinct one-pixel PNGs keep theme-selection assertions meaningful.
@@ -66,6 +67,104 @@ class AssetFixtureTests(unittest.TestCase):
         self.enterContext(patch.object(svg, "LOGOS", self.logos))
         self.enterContext(patch.object(pages, "LOGOS", self.logos))
         self.enterContext(patch.object(pages, "BANNERS", banners))
+
+
+class DashboardEditTests(AssetFixtureTests):
+    def render_config(self, config):
+        render.check_config(config)
+        return render.build(snapshot(HISTORY), config, "BASE/")
+
+    def test_replacing_logos_then_deleting_the_old_file_renders_all_sections(self):
+        png = (self.logos / "wordmark-dark.png").read_bytes()
+        # A valid one-pixel JPEG, independent of installed imaging libraries.
+        jpeg = base64.b64decode(
+            "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/"
+            "2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCAABAAEDASIAAhEBAxEB/"
+            "8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2Jyggk"
+            "KFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG"
+            "x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEE"
+            "BSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOU"
+            "lZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9U6KKKAP/2Q==")
+        vector = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 2h13v17H1z"/></svg>'
+        (self.logos / "replacement.PNG").write_bytes(png)
+        (self.logos / "replacement.jpg").write_bytes(jpeg)
+        (self.logos / "replacement.SVG").write_text(vector, encoding="utf-8")
+        (self.logos / "fixture.png").unlink()
+        replacements = {
+            "replacement.PNG": "data:image/png;base64," + base64.b64encode(png).decode(),
+            "replacement.jpg": "data:image/jpeg;base64," + base64.b64encode(jpeg).decode(),
+            "replacement.SVG": 'd="M1 2h13v17H1z"',
+        }
+        for filename, expected in replacements.items():
+            config = json.loads(json.dumps(CONFIG))
+            for section in ("projects", "collaborations", "achievements"):
+                config[section][0]["logo"] = filename
+            files, _, _, _ = self.render_config(config)
+            for name, content in files.items():
+                if re.match(r"(?:[dwmqy]-(?:project|collab)-0|record-0)-", name):
+                    with self.subTest(file=filename, widget=name):
+                        self.assertIn(expected, content)
+
+    def test_switching_to_wordmarks_then_back_to_a_logo_renders_both_themes(self):
+        config = json.loads(json.dumps(CONFIG))
+        for section in ("projects", "collaborations"):
+            entry = config[section][0]
+            del entry["logo"]
+            entry["wordmark"] = {"light": "wordmark-light.png", "dark": "wordmark-dark.png"}
+        files, _, _, _ = self.render_config(config)
+        for code in render.VIEWS:
+            for kind in ("project", "collab"):
+                for theme in ("light", "dark"):
+                    expected = base64.b64encode((self.logos / f"wordmark-{theme}.png").read_bytes()).decode()
+                    other = "dark" if theme == "light" else "light"
+                    unwanted = base64.b64encode((self.logos / f"wordmark-{other}.png").read_bytes()).decode()
+                    for suffix in ("", "-m"):
+                        widget = files[f"{code.lower()}-{kind}-0-{theme}{suffix}.svg"]
+                        self.assertIn(expected, widget)
+                        self.assertNotIn(unwanted, widget)
+        for section in ("projects", "collaborations"):
+            config[section][0].pop("wordmark")
+            config[section][0]["logo"] = "fixture.png"
+        (self.logos / "wordmark-light.png").unlink()
+        (self.logos / "wordmark-dark.png").unlink()
+        self.render_config(config)
+
+    def test_svg_wordmarks_use_the_correct_image_mime_type(self):
+        config = json.loads(json.dumps(CONFIG))
+        vector = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 20"><path d="M1 2h70v12H1z"/></svg>'
+        (self.logos / "wordmark.SVG").write_text(vector, encoding="utf-8")
+        for section in ("projects", "collaborations"):
+            config[section][0].pop("logo")
+            config[section][0]["wordmark"] = {"light": "wordmark.SVG", "dark": "wordmark.SVG"}
+        files, _, _, _ = self.render_config(config)
+        expected = "data:image/svg+xml;base64," + base64.b64encode(vector.encode()).decode()
+        for name, content in files.items():
+            if re.match(r"[dwmqy]-(?:project|collab)-0-", name):
+                with self.subTest(widget=name):
+                    self.assertIn(expected, content)
+
+    def test_removing_entries_and_their_unused_logo_leaves_empty_sections_valid(self):
+        config = json.loads(json.dumps(CONFIG))
+        for section in ("projects", "collaborations", "achievements"):
+            config[section] = []
+        (self.logos / "fixture.png").unlink()
+        files, readme, range_pages, _ = self.render_config(config)
+        self.assertFalse(any(re.match(r"(?:[dwmqy]-(?:project|collab)-\d|record-\d)", name) for name in files))
+        self.assertIn("w-lh-title", readme)
+        self.assertEqual(set(range_pages), {"D", "M", "Q", "Y"})
+
+    def test_replacing_the_banner_and_editing_labels_updates_every_page(self):
+        config = json.loads(json.dumps(CONFIG))
+        config["banner"] = {"file": "new-banner.PNG", "alt": 'New skyline & "night"'}
+        config["projects"][0]["name"] = 'Research & "Tools"'
+        self.banners.joinpath("new-banner.PNG").write_bytes(self.logos.joinpath("fixture.png").read_bytes())
+        self.banners.joinpath(pages.DEFAULT_BANNER["file"]).unlink()
+        files, readme, range_pages, _ = self.render_config(config)
+        for page in (readme, *range_pages.values()):
+            self.assertIn('assets/banners/new-banner.PNG"', page)
+            self.assertIn('alt="New skyline &amp; &quot;night&quot;"', page)
+            self.assertNotIn(pages.DEFAULT_BANNER["file"], page)
+        self.assertIn('Research &amp; &quot;Tools&quot;', files["w-project-0-light.svg"])
 
 
 class PageTests(AssetFixtureTests):
@@ -150,6 +249,19 @@ class ConfigTests(AssetFixtureTests):
         config["projects"][0]["wordmark"] = {"light": "missing.png", "dark": "wordmark-dark.png"}
         with self.assertRaises(ValueError):
             render.check_config(config)
+
+    def test_incomplete_or_malformed_wordmarks_are_refused_before_rendering(self):
+        for wordmark in ({}, {"light": "wordmark-light.png"}, {"dark": "wordmark-dark.png"}, None,
+                         "wordmark-light.png", {"light": "wordmark-light.png", "dark": None}):
+            config = json.loads(json.dumps(CONFIG))
+            config["projects"][0]["wordmark"] = wordmark
+            with self.subTest(wordmark=wordmark), self.assertRaises(ValueError):
+                render.check_config(config)
+
+    def test_deleting_a_still_referenced_logo_is_refused(self):
+        (self.logos / "fixture.png").unlink()
+        with self.assertRaisesRegex(ValueError, "missing or unsafe logo"):
+            render.check_config(CONFIG)
 
 
 class LiveConfigTests(unittest.TestCase):

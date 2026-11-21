@@ -193,7 +193,13 @@ def check_config(config: dict) -> None:
     """profile.json can be edited from the dashboard, so refuse logos outside assets/logos and non-https links."""
     files = [entry.get("logo") for entry in config.get("achievements", [])]
     for entry in config.get("projects", []) + config.get("collaborations", []):
-        files += list(entry["wordmark"].values()) if "wordmark" in entry else [entry.get("logo")]
+        if "wordmark" in entry:
+            wordmark = entry["wordmark"]
+            if not isinstance(wordmark, dict) or set(wordmark) != {"light", "dark"}:
+                raise ValueError("profile.json wordmarks must name both light and dark theme images")
+            files += [wordmark["light"], wordmark["dark"]]
+        else:
+            files.append(entry.get("logo"))
     for name in files:
         if not isinstance(name, str) or not LOGO_NAME.fullmatch(name) or not (LOGOS / name).is_file():
             raise ValueError(f"profile.json names a missing or unsafe logo: {name!r}")

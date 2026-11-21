@@ -98,7 +98,7 @@ class SVG:
 
     def image(self, filename: str, x, y, w, h, aspect="xMidYMid meet", clip: str | None = None):
         source = LOGOS / filename
-        mime = "image/png" if source.suffix == ".png" else "image/jpeg"
+        mime = {".png": "image/png", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}[source.suffix.lower()]
         data = base64.b64encode(source.read_bytes()).decode()
         clip_attr = f' clip-path="url(#{clip})"' if clip else ""
         self.add(f'<image href="data:{mime};base64,{data}" x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" '
@@ -124,7 +124,7 @@ class SVG:
         self.add(f'{shape} fill="#ffffff" stroke="{self.color("ring")}" stroke-width="1"/>'
                  f'<clipPath id="{clip}">{shape}/></clipPath>')
         scale = spec.get("scale", .6)
-        if "file" in spec and not spec["file"].endswith(".svg"):
+        if "file" in spec and not spec["file"].lower().endswith(".svg"):
             cover = spec.get("fit") == "cover"
             side = 2 * r if cover else 2 * r * scale
             self.image(spec["file"], cx - side / 2, cy - side / 2, side, side,
