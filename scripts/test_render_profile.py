@@ -2,19 +2,23 @@
 
 import base64
 import json
+from pathlib import Path
 import re
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import render_profile as render
+from board import pages, svg
 
 
 NOW = "2026-10-30T04:00:00Z"   # 12:00 on 30 Oct in Singapore, the configured timezone
 CONFIG = {
     "github_username": "Haoming9527", "display_name": "Economist", "role": "R&D AI Engineer",
     "portfolio": "https://example.com/", "utc_offset_hours": 8,
-    "projects": [{"repository": "Haoming9527/app", "name": "App", "ticker": "APP", "logo": "needle.png"}],
-    "collaborations": [{"repository": "other/project", "name": "Project", "logo": "dsh-ops.png"}],
-    "achievements": [{"rank": "Winner", "event": "Event", "tag": "App", "logo": "div0.png", "url": "https://example.com/"}],
+    "projects": [{"repository": "Haoming9527/app", "name": "App", "ticker": "APP", "logo": "fixture.png"}],
+    "collaborations": [{"repository": "other/project", "name": "Project", "logo": "fixture.png"}],
+    "achievements": [{"rank": "Winner", "event": "Event", "tag": "App", "logo": "fixture.png", "url": "https://example.com/"}],
 }
 
 
@@ -40,7 +44,31 @@ def snapshot(commits: list[dict]) -> dict:
 HISTORY = [commit("2026-10-20", 100, 10, "a"), commit("2026-10-25", 50, 80, "b"), commit("2026-10-29", 20, 5, "c")]
 
 
-class PageTests(unittest.TestCase):
+class AssetFixtureTests(unittest.TestCase):
+    """Dashboard users can delete unused assets; unit tests own their image files."""
+
+    def setUp(self):
+        directory = self.enterContext(tempfile.TemporaryDirectory())
+        self.logos = Path(directory) / "logos"
+        banners = Path(directory) / "banners"
+        self.logos.mkdir()
+        banners.mkdir()
+        # Valid, distinct one-pixel PNGs keep theme-selection assertions meaningful.
+        light = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGNgYGAAAAAEAAH2FzhVAAAAAElFTkSuQmCC")
+        dark = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/AAX+Av4N70a4AAAAAElFTkSuQmCC")
+        for name, data in (("fixture.png", light), ("wordmark-light.png", light), ("wordmark-dark.png", dark)):
+            (self.logos / name).write_bytes(data)
+        for name in ("typescript.svg", "css.svg", "react.svg"):
+            (self.logos / name).write_text(
+                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z"/></svg>',
+                encoding="utf-8")
+        (banners / pages.DEFAULT_BANNER["file"]).write_bytes(light)
+        self.enterContext(patch.object(svg, "LOGOS", self.logos))
+        self.enterContext(patch.object(pages, "LOGOS", self.logos))
+        self.enterContext(patch.object(pages, "BANNERS", banners))
+
+
+class PageTests(AssetFixtureTests):
     def test_stars_hover_describes_access_and_not_merged_pull_requests(self):
         _, readme, pages, _ = render.build(snapshot(HISTORY), CONFIG, "BASE/")
         for page in [readme, *pages.values()]:
@@ -94,11 +122,11 @@ class PageTests(unittest.TestCase):
         config = json.loads(json.dumps(CONFIG))
         project = config["projects"][0]
         del project["logo"]
-        project["wordmark"] = {"light": "intelidar-light.png", "dark": "intelidar-dark.png"}
+        project["wordmark"] = {"light": "wordmark-light.png", "dark": "wordmark-dark.png"}
         render.check_config(config)
         files, _, _, _ = render.build(snapshot(HISTORY), config, "BASE/")
         for theme in ("light", "dark"):
-            mark = base64.b64encode((render.ROOT / "assets/logos" / f"intelidar-{theme}.png").read_bytes()).decode()
+            mark = base64.b64encode((self.logos / f"wordmark-{theme}.png").read_bytes()).decode()
             with self.subTest(theme=theme):
                 self.assertIn(mark, files[f"w-project-0-{theme}.svg"])
 
@@ -108,7 +136,7 @@ class PageTests(unittest.TestCase):
         self.assertTrue(all(name.endswith(".svg") for name in files))
 
 
-class ConfigTests(unittest.TestCase):
+class ConfigTests(AssetFixtureTests):
     def test_unsafe_logo_or_link_is_refused(self):
         render.check_config(CONFIG)
         for change in ({"logo": "../README.md"}, {"logo": "missing.png"}, {"url": "javascript:alert(1)"}):
@@ -119,9 +147,14 @@ class ConfigTests(unittest.TestCase):
 
     def test_a_missing_wordmark_is_refused(self):
         config = json.loads(json.dumps(CONFIG))
-        config["projects"][0]["wordmark"] = {"light": "missing.png", "dark": "intelidar-dark.png"}
+        config["projects"][0]["wordmark"] = {"light": "missing.png", "dark": "wordmark-dark.png"}
         with self.assertRaises(ValueError):
             render.check_config(config)
+
+
+class LiveConfigTests(unittest.TestCase):
+    def test_current_profile_references_existing_assets(self):
+        render.check_config(json.loads((render.ROOT / "profile.json").read_text(encoding="utf-8")))
 
 
 class MovingAverageTests(unittest.TestCase):
